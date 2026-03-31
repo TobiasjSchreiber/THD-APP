@@ -1,6 +1,6 @@
 const CACHE_NAME = 'thd-app-v4';
 const ASSETS = [
-  './THD_APP.html',
+  './index.html',
   './manifest.json',
   './icon.svg',
   './icon-192.png',
