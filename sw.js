@@ -1,4 +1,4 @@
-const CACHE_NAME = 'thd-app-v4';
+const CACHE_NAME = 'thd-app-v5';
 const ASSETS = [
   './index.html',
   './manifest.json',
