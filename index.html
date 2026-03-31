@@ -1233,9 +1233,10 @@
   </div>
 
   <script>
-    // VOLLBILD-FUNKTION (Aktiviert beim ersten Tippen)
+    // VOLLBILD-FUNKTION (Aktiviert beim ersten Tippen, aber NICHT als installierte App)
     document.body.addEventListener('click', function() {
-      if (!document.fullscreenElement && !window.navigator.standalone) {
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+      if (!isStandalone && !document.fullscreenElement) {
         if (document.documentElement.requestFullscreen) {
           document.documentElement.requestFullscreen().catch(e => {});
         } else if (document.documentElement.webkitRequestFullscreen) {
@@ -1243,7 +1244,6 @@
         }
       }
     }, { once: true });
-
 
     // Tab Logik
     const pagesList = ['page-mails', 'page-home', 'page-profil'];
