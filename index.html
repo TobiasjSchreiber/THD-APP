@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
+
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#000000">
+
+  <title>Uni App Dashboard</title>
+  <style>
+    /* Verhindert das blaue Aufleuchten beim Tippen auf mobilen Geräten */
+    * {
+      -webkit-tap-highlight-color: transparent;
+      outline: none;
+    }
+
+    :root {
+      --bg-color: #000000;
+      --card-bg: #1A1A1C;
+      --modal-bg: #2C2C2E;
+      --text-main: #FFFFFF;
+      --text-sub: #999999;
+      --accent-orange: #FF5A00;
+      --accent-blue: #3A82F7;
+    }
+
+    html {
+      height: 100%;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      height: 100%;
+      overflow: hidden;
+      overscroll-behavior-y: none;
+    }
+
+    .app-container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      color: var(--text-main);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .content-area {
+      flex: 1;
+      overflow-y: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .page {
+      display: none; 
+      flex-direction: column;
+      flex: 1;
+      height: 100%;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .page.active {
+      display: flex; 
+    }
+
+    .header {
+      padding: 20px;
+      font-size: 28px;
+      font-weight: 400;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 1;
+      flex-shrink: 0;
+    }
+
+    .header-icon-svg {
+      width: 24px;
+      height: 24px;
+      stroke: var(--text-sub);
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      cursor: pointer;
+    }
+
+    /* Home Styles */
+    .grid-top {
+      display: flex;
+      padding: 0 15px;
+      gap: 15px;
+      z-index: 1;
+      align-items: center;
+    }
+
+    .ects-free {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end; 
+      justify-content: center;
+      padding-right: 5px;
+    }
+
+    .ects-number { font-size: 72px; font-weight: 300; line-height: 1; }
+    .ects-label { font-size: 16px; color: var(--text-sub); margin-top: 5px; }
+
+    .schedule-box {
+      flex: 1.2;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .schedule-item {
+      background-color: var(--card-bg);
+      border-radius: 20px;
+      padding: 15px;
+      cursor: pointer;
+    }
+
+    .progress-70 {
+      background: linear-gradient(to right, #2C2C30 70%, var(--card-bg) 70%);
+    }
+
+    .schedule-title { font-weight: 600; font-size: 15px; }
+    .schedule-time { font-size: 12px; color: var(--text-sub); margin-top: 4px; }
+
+    .mensa-card {
+      margin: 30px 15px 15px;
+      background-color: var(--card-bg);
+      border-radius: 24px;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .balance-left {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .balance-amount { font-size: 32px; font-weight: 600; margin-bottom: 4px; }
+    .balance-label { font-size: 12px; color: var(--text-sub); }
+
+    .scroll-list {
+      flex: 1.2;
+      height: 90px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding-right: 4px;
+    }
+
+    .scroll-list::-webkit-scrollbar { width: 3px; }
+    .scroll-list::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+
+    .list-item {
+      background-color: rgba(255, 255, 255, 0.05);
+      padding: 12px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 500;
+      flex-shrink: 0;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .item-value { color: var(--text-sub); }
+    .grade-value { color: var(--text-main); font-weight: 600; }
+
+    /* Navbar Styles */
+    .navbar {
+      display: flex;
+      justify-content: space-around;
+      padding: 0;
+      background-color: var(--bg-color);
+      border-top: 1px solid #333;
+      z-index: 10;
+      flex-shrink: 0;
+    }
+
+    .nav-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 15px 0 25px;
+      gap: 6px;
+      color: var(--text-sub);
+      font-size: 10px;
+      cursor: pointer;
+    }
+
+    .nav-item.active { color: var(--accent-orange); }
+    
+    .nav-icon { 
+      width: 24px; 
+      height: 24px; 
+      stroke: currentColor; 
+      fill: none; 
+      stroke-width: 2; 
+      stroke-linecap: round; 
+      stroke-linejoin: round; 
+    }
+
+    /* Profil Styles */
+    .profile-scroll-area { padding: 0 20px 20px; overflow-y: auto; flex: 1; }
+    .profile-header-info { text-align: center; margin-bottom: 25px; }
+    .profile-name { font-size: 24px; font-weight: 600; margin-bottom: 4px; }
+    .profile-sub { color: var(--text-sub); font-size: 14px; margin-bottom: 2px; }
+    .stats-grid { display: flex; gap: 15px; margin-bottom: 25px; }
+    .stat-card { background: var(--card-bg); border-radius: 20px; padding: 15px; flex: 1; text-align: center; }
+    .stat-value { font-size: 28px; font-weight: 600; margin-bottom: 5px; color: var(--accent-orange); }
+    .stat-label { font-size: 12px; color: var(--text-sub); }
+    .progress-section { background: var(--card-bg); border-radius: 20px; padding: 20px; margin-bottom: 25px; }
+    .section-title { font-size: 16px; font-weight: 600; margin-bottom: 12px; }
+    .progress-bar-container { height: 10px; background: #2C2C30; border-radius: 5px; overflow: hidden; margin-bottom: 10px; display: flex; }
+    .progress-bar-fill { height: 100%; background: var(--accent-blue); width: 42%; }
+    .progress-bar-extra { height: 100%; background: var(--accent-orange); width: 15%; margin-left: auto; }
+    .progress-labels { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-sub); }
+    .grades-list { display: flex; flex-direction: column; gap: 8px; max-height: 180px; overflow-y: auto; padding-right: 4px; }
+    .grades-list::-webkit-scrollbar { width: 3px; }
+    .grades-list::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+    .placeholder-content { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-sub); }
+
+    /* POPUP (MODAL) STYLES */
+    .overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 90;
+      display: none;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .modal {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.9);
+      width: calc(100% - 40px);
+      max-width: 340px;
+      background-color: var(--modal-bg);
+      border-radius: 28px;
+      padding: 24px;
+      z-index: 100;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s cubic-bezier(0.1, 0.8, 0.2, 1);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      box-sizing: border-box;
+    }
+
+    .modal.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    .overlay.show {
+      display: block;
+      opacity: 1;
+    }
+
+    .modal-header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .modal-title {
+      font-size: 20px;
+      font-weight: 600;
+      margin: 0 0 4px 0;
+    }
+
+    .modal-subtitle {
+      font-size: 14px;
+      color: var(--text-sub);
+      margin: 0;
+    }
+
+    .modal-info {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 16px;
+    }
+    
+    .info-label { color: var(--text-sub); }
+
+    .minimap {
+      background-color: #1A1A1C;
+      height: 140px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #333;
+      padding: 10px;
+    }
+
+    .building {
+      fill: #2C2C2E;
+      stroke: #111;
+      stroke-width: 1.5;
+      transition: fill 0.3s;
+    }
+    .building-label {
+      fill: #888;
+      font-size: 12px;
+      font-weight: bold;
+      font-family: sans-serif;
+      text-anchor: middle;
+      dominant-baseline: middle;
+      pointer-events: none;
+    }
+    .map-road {
+      stroke: #333;
+      stroke-width: 4;
+      fill: none;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 16px 0;
+      border: none;
+      border-radius: 16px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-secondary {
+      background-color: #444446;
+      color: var(--text-main);
+    }
+
+    .btn-primary {
+      background-color: var(--accent-blue);
+      color: var(--text-main);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <div id="modal-overlay" class="overlay" onclick="closeModal()"></div>
+
+    <div id="course-modal" class="modal">
+      <div class="modal-header">
+        <h3 id="popup-title" class="modal-title">Fach</h3>
+        <p id="popup-time" class="modal-subtitle">Zeit</p>
+      </div>
+      
+      <div class="modal-info">
+        <div class="info-row">
+          <span class="info-label">Raum</span>
+          <span id="popup-room" style="font-weight: 600;">E105</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Aufgaben</span>
+          <span id="popup-tasks">Übung 3</span>
+        </div>
+        
+        <div class="minimap">
+          <svg viewBox="0 0 340 200" style="width: 100%; height: 100%;">
+            <path class="map-road" d="M 210 10 L 210 140 Q 210 155 225 155 L 330 155" />
+
+            <rect id="bldg-A" class="building" x="10" y="20" width="40" height="20" rx="3"/><text class="building-label" x="30" y="31">A</text>
+            <rect id="bldg-B" class="building" x="55" y="20" width="40" height="20" rx="3"/><text class="building-label" x="75" y="31">B</text>
+            <rect id="bldg-C" class="building" x="100" y="20" width="80" height="20" rx="3"/><text class="building-label" x="140" y="31">C</text>
+            
+            <rect id="bldg-F" class="building" x="10" y="50" width="50" height="35" rx="3"/><text class="building-label" x="35" y="68">F</text>
+            <rect id="bldg-G" class="building" x="110" y="50" width="50" height="30" rx="3"/><text class="building-label" x="135" y="66">G</text>
+            
+            <rect id="bldg-D" class="building" x="10" y="95" width="90" height="20" rx="3"/><text class="building-label" x="55" y="106">D</text>
+            <rect id="bldg-E" class="building" x="105" y="95" width="75" height="20" rx="3"/><text class="building-label" x="142" y="106">E</text>
+            
+            <rect id="bldg-H" class="building" x="50" y="125" width="30" height="30" rx="3"/><text class="building-label" x="65" y="141">H</text>
+            <rect id="bldg-I" class="building" x="105" y="125" width="55" height="30" rx="3"/><text class="building-label" x="132" y="141">I</text>
+            
+            <rect id="bldg-J" class="building" x="10" y="165" width="45" height="25" rx="3"/><text class="building-label" x="32" y="178">J</text>
+            <rect id="bldg-K" class="building" x="65" y="165" width="30" height="25" rx="3"/><text class="building-label" x="80" y="178">K</text>
+            <rect id="bldg-L" class="building" x="125" y="165" width="35" height="25" rx="3"/><text class="building-label" x="142" y="178">L</text>
+
+            <rect id="bldg-U-top" class="building" x="235" y="20" width="80" height="20" rx="3"/>
+            <rect id="bldg-U-right" class="building" x="295" y="40" width="20" height="70" rx="3"/>
+            <rect id="bldg-U-bottom" class="building" x="235" y="110" width="80" height="20" rx="3"/>
+            <rect id="bldg-ITC" class="building" x="250" y="55" width="30" height="30" rx="3"/><text class="building-label" x="265" y="71">ITC</text>
+          </svg>
+        </div>
+      </div>
+
+      <div class="modal-buttons">
+        <button class="btn btn-secondary" onclick="closeModal()">Schließen</button>
+        <button class="btn btn-primary">Zu iLearn</button>
+      </div>
+    </div>
+
+    <div class="content-area" id="swipe-area">
+      <div id="page-mails" class="page">
+        <div class="header">
+          <span>Postfach</span>
+          <svg class="header-icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+        </div>
+        <div class="placeholder-content">
+          <svg width="64" height="64" viewBox="0 0 24 24" style="margin-bottom: 15px;" stroke="currentColor" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+          <p>Keine neuen E-Mails.</p>
+        </div>
+      </div>
+
+      <div id="page-home" class="page active">
+        <div class="header">
+          <span>Dashboard</span>
+          <svg class="header-icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+        </div>
+
+        <div class="grid-top">
+          <div class="ects-free">
+            <div class="ects-number">78</div>
+            <div class="ects-label">ECTS</div>
+          </div>
+          
+          <div class="schedule-box">
+            <div class="schedule-item progress-70" onclick="openModal('Mathe E105', '11:15 - 12:45', 'E105', 'Übungsblatt 4')">
+              <div class="schedule-title">Mathe E105</div>
+              <div class="schedule-time">11:15 - 12:45</div>
+            </div>
+            <div class="schedule-item" onclick="openModal('Design J001', '12:45 - 14:15', 'J001', 'Skizzenbuch abgeben')">
+              <div class="schedule-title">Design J001</div>
+              <div class="schedule-time">12:45 - 14:15</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mensa-card">
+          <div class="balance-left">
+            <div class="balance-amount">12,00€</div>
+            <div class="balance-label">Karten-Guthaben</div>
+          </div>
+          
+          <div class="scroll-list">
+            <div class="list-item"><span>Schnitzel</span><span class="item-value">5,60€</span></div>
+            <div class="list-item"><span>Pommes</span><span class="item-value">2,50€</span></div>
+            <div class="list-item"><span>Salatbowl</span><span class="item-value">4,20€</span></div>
+            <div class="list-item"><span>Eintopf</span><span class="item-value">3,80€</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="page-profil" class="page">
+        <div class="header">
+          <span>Profil</span>
+          <svg class="header-icon-svg" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </div>
+        
+        <div class="profile-scroll-area">
+          <div class="profile-header-info">
+            <svg width="80" height="80" viewBox="0 0 24 24" style="margin-bottom: 10px;" stroke="currentColor" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            <div class="profile-name">Tobias</div>
+            <div class="profile-sub">Medientechnik</div>
+            <div class="profile-sub">4. Semester</div>
+          </div>
+
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-value">78</div>
+              <div class="stat-label">ECTS Gesamt</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value">2,1</div>
+              <div class="stat-label">Notenschnitt</div>
+            </div>
+          </div>
+
+          <div class="progress-section">
+            <div class="section-title">Studienzeit</div>
+            <div class="progress-bar-container">
+              <div class="progress-bar-fill"></div>
+              <div class="progress-bar-extra"></div>
+            </div>
+            <div class="progress-labels">
+              <span>460 Tage studiert</span>
+              <span>635 Tage übrig</span>
+            </div>
+            <div class="progress-labels" style="margin-top: 5px; justify-content: flex-end;">
+              <span style="color: var(--accent-orange);">+180 Tage (1 Extra-Semester)</span>
+            </div>
+          </div>
+
+          <div class="section-title" style="margin-left: 5px;">Alle Noten</div>
+          <div class="grades-list">
+            <div class="list-item"><span>Mediengestaltung</span><span class="grade-value">1,3</span></div>
+            <div class="list-item"><span>Programmieren 1</span><span class="grade-value">2,0</span></div>
+            <div class="list-item"><span>Audio- & Videotechnik</span><span class="grade-value">1,7</span></div>
+            <div class="list-item"><span>Mathematik</span><span class="grade-value">2,3</span></div>
+            <div class="list-item"><span>Medienrecht</span><span class="grade-value">1,0</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="navbar">
+      <div class="nav-item" onclick="switchTab('page-mails', this)">
+        <svg class="nav-icon" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+        <span>Mails</span>
+      </div>
+      <div class="nav-item active" onclick="switchTab('page-home', this)">
+        <svg class="nav-icon" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        <span>Home</span>
+      </div>
+      <div class="nav-item" onclick="switchTab('page-profil', this)">
+        <svg class="nav-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        <span>Profil</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // VOLLBILD-FUNKTION (Aktiviert beim ersten Tippen)
+    document.body.addEventListener('click', function() {
+      if (!document.fullscreenElement && !window.navigator.standalone) {
+        if (document.documentElement.requestFullscreen) {
+          document.documentElement.requestFullscreen().catch(e => {});
+        } else if (document.documentElement.webkitRequestFullscreen) {
+          document.documentElement.webkitRequestFullscreen();
+        }
+      }
+    }, { once: true });
+
+
+    // Tab Logik
+    const pagesList = ['page-mails', 'page-home', 'page-profil'];
+    let currentIndex = 1;
+
+    function switchTab(pageId, navElement) {
+      currentIndex = pagesList.indexOf(pageId);
+      
+      const pages = document.querySelectorAll('.page');
+      pages.forEach(page => page.classList.remove('active'));
+      
+      document.getElementById(pageId).classList.add('active');
+      
+      const navItems = document.querySelectorAll('.nav-item');
+      navItems.forEach(item => item.classList.remove('active'));
+      navElement.classList.add('active');
+    }
+
+    // Wischen (Swipe) Logik
+    let startX = 0;
+    const swipeArea = document.getElementById('swipe-area');
+
+    swipeArea.addEventListener('touchstart', e => {
+      startX = e.touches[0].clientX;
+    });
+
+    swipeArea.addEventListener('touchend', e => {
+      let endX = e.changedTouches[0].clientX;
+      let diff = startX - endX;
+
+      if (diff > 60) {
+        if (currentIndex < pagesList.length - 1) {
+          const nextId = pagesList[currentIndex + 1];
+          const nextNav = document.querySelectorAll('.nav-item')[currentIndex + 1];
+          switchTab(nextId, nextNav);
+        }
+      } 
+      else if (diff < -60) {
+        if (currentIndex > 0) {
+          const prevId = pagesList[currentIndex - 1];
+          const prevNav = document.querySelectorAll('.nav-item')[currentIndex - 1];
+          switchTab(prevId, prevNav);
+        }
+      }
+    });
+
+    // Modal (Popup) Logik
+    function openModal(title, time, room, tasks) {
+      document.getElementById('popup-title').innerText = title;
+      document.getElementById('popup-time').innerText = time;
+      document.getElementById('popup-room').innerText = room;
+      document.getElementById('popup-tasks').innerText = tasks;
+      
+      const buildings = document.querySelectorAll('.building');
+      buildings.forEach(b => b.style.fill = '#2C2C2E');
+      
+      const buildingLetter = room.charAt(0).toUpperCase();
+      const targetBuilding = document.getElementById('bldg-' + buildingLetter);
+      
+      if (buildingLetter === 'I' || title.includes("ITC")) {
+        const itc = document.getElementById('bldg-ITC');
+        if(itc) itc.style.fill = 'var(--accent-blue)';
+      } 
+      else if (targetBuilding) {
+        targetBuilding.style.fill = 'var(--accent-blue)';
+      }
+      
+      document.getElementById('modal-overlay').classList.add('show');
+      setTimeout(() => {
+        document.getElementById('course-modal').classList.add('show');
+      }, 10);
+    }
+
+    function closeModal() {
+      document.getElementById('course-modal').classList.remove('show');
+      setTimeout(() => {
+        document.getElementById('modal-overlay').classList.remove('show');
+      }, 300);
+    }
+
+    // Service Worker Registrierung für PWA (App-Installation)
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').then(registration => {
+          console.log('ServiceWorker erfolgreich registriert');
+        }).catch(err => {
+          console.log('ServiceWorker Registrierung fehlgeschlagen: ', err);
+        });
+      });
+    }
+  </script>
+</body>
+</html>
