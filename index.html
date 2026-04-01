@@ -24,7 +24,7 @@
 
     :root {
       --bg-color: #000000;
-      --card-bg: #1A1A1C;
+      --card-bg: #131313;
       --modal-bg: #2C2C2E;
       --text-main: #FFFFFF;
       --text-sub: #999999;
@@ -48,6 +48,7 @@
       -webkit-user-select: none; /* Safari */
       -ms-user-select: none; /* IE 10+ */
       user-select: none; /* Standard */
+      -webkit-touch-callout: none; /* Verhindert das Kontextmenü auf iOS beim Gedrückthalten */
     }
 
     .app-container {
@@ -72,28 +73,34 @@
       flex-direction: column;
       flex: 1;
       height: 100%;
-      animation: fadeIn 0.3s ease;
       position: relative;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
+    .page.active {
+      display: flex; /* Macht die aktive Seite sichtbar */
     }
 
-    .page.active {
-      display: flex; 
+    @keyframes contentReveal {
+      from { opacity: 0; filter: brightness(0.3); }
+      to { opacity: 1; filter: brightness(1); }
+    }
+
+    .page.active > *:not(.header) {
+      animation: contentReveal 0.4s cubic-bezier(0.25, 1, 0.5, 1) backwards;
     }
 
     .header {
-      padding: 20px;
+      padding: 40px 20px 20px 20px;
+      padding-top: max(40px, env(safe-area-inset-top));
       font-size: 28px;
       font-weight: 400;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      z-index: 1;
+      z-index: 20;
+      position: relative;
       flex-shrink: 0;
+      height: 40px;
     }
 
     .header-icon-svg {
@@ -111,6 +118,9 @@
     #page-home {
       overflow-y: auto;
     }
+    #page-home > *, #page-home .widget-column > * {
+      flex-shrink: 0; /* Verhindert das Quetschen der Widgets bei kleinen Bildschirmen */
+    }
     #page-home .header {
       position: sticky;
       top: 0;
@@ -120,13 +130,14 @@
     #page-home::-webkit-scrollbar {
       display: none; /* Versteckt die Scrollbar für ein cleanes Design */
     }
-    .grid-top {
+    .top-widgets-row {
       display: flex;
-      margin-top: 20px;
+      margin: 0 0 15px 0;
       padding: 0 15px;
       gap: 15px;
       z-index: 1;
       align-items: center;
+      transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
     }
 
     .ects-free {
@@ -136,6 +147,14 @@
       align-items: flex-end; 
       justify-content: center;
       padding-right: 5px;
+      transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    #page-home > .ects-free, #page-home .widget-column > .ects-free {
+      align-items: center;
+      padding: 20px;
+      background-color: var(--card-bg);
+      border-radius: 24px;
     }
 
     .ects-number { font-size: 72px; font-weight: 300; line-height: 1; }
@@ -153,17 +172,24 @@
       border-radius: 20px;
       padding: 15px;
       cursor: pointer;
+      position: relative;
+      overflow: hidden;
     }
 
-    .progress-70 {
-      background: linear-gradient(to right, #2C2C30 70%, var(--card-bg) 70%);
+    .schedule-progress-fill {
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      background-color: #2C2C30;
+      z-index: 0;
     }
 
-    .schedule-title { font-weight: 600; font-size: 15px; }
-    .schedule-time { font-size: 12px; color: var(--text-sub); margin-top: 4px; }
+    .schedule-title { font-weight: 600; font-size: 15px; position: relative; z-index: 1; }
+    .schedule-time { font-size: 12px; color: var(--text-sub); margin-top: 4px; position: relative; z-index: 1; }
 
     .mensa-card {
-      margin: 30px 15px 15px;
+      margin: 0 15px 15px;
       background-color: var(--card-bg);
       border-radius: 24px;
       padding: 20px;
@@ -190,6 +216,7 @@
       flex-direction: column;
       gap: 8px;
       padding-right: 4px;
+      border-radius: 12px;
     }
 
     .scroll-list::-webkit-scrollbar { width: 3px; }
@@ -240,14 +267,130 @@
     }
     .parking-bar-fill { 
       height: 100%; 
-      background: var(--accent-orange); 
-      width: 85%; /* Hier stellst du ein, wie voll es aussieht */
-      transition: width 0.5s ease;
+      width: 0%; 
     }
     .parking-text { 
       font-size: 12px; 
       color: var(--text-sub); 
     }
+
+    /* Chart Styles für Parkplatz-Modal */
+    .chart-container {
+      display: flex;
+      align-items: stretch;
+      justify-content: space-between;
+      height: 160px;
+      margin-top: 10px;
+      padding-bottom: 25px;
+      position: relative;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .chart-bar-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      flex: 1;
+      height: 100%;
+      position: relative;
+    }
+    .chart-bar {
+      width: 16px;
+      border-radius: 4px 4px 0 0;
+      transform-origin: bottom;
+      transform: scaleY(0);
+      transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.2s, filter 0.2s;
+    }
+    .modal.show .chart-bar {
+      transform: scaleY(1);
+      transition-delay: 0.15s;
+    }
+    .chart-bar.low {
+      background: linear-gradient(to top, rgba(52, 199, 89, 0.3), #34C759);
+      box-shadow: 0 4px 10px rgba(52, 199, 89, 0.2);
+    }
+    .chart-bar.medium {
+      background: linear-gradient(to top, rgba(255, 149, 0, 0.3), #FF9500);
+      box-shadow: 0 4px 10px rgba(255, 149, 0, 0.2);
+    }
+    .chart-bar.high {
+      background: linear-gradient(to top, rgba(255, 59, 48, 0.3), #FF3B30);
+      box-shadow: 0 4px 10px rgba(255, 59, 48, 0.2);
+    }
+    .chart-bar.future {
+      background: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05) 4px, rgba(255, 255, 255, 0.15) 4px, rgba(255, 255, 255, 0.15) 8px);
+      box-shadow: none;
+    }
+    .chart-label {
+      position: absolute;
+      bottom: -22px;
+      font-size: 12px;
+      color: var(--text-sub);
+    }
+    .chart-grid-line {
+      position: absolute;
+      left: 0;
+      right: 0;
+      border-top: 1px dashed rgba(255, 255, 255, 0.1);
+      z-index: -1;
+    }
+    .chart-container.has-active .chart-bar-wrapper:not(.active) .chart-bar {
+      opacity: 0.4;
+    }
+    .chart-bar-wrapper.active .chart-bar {
+      filter: brightness(1.2);
+    }
+    .chart-tooltip {
+      position: absolute;
+      background-color: var(--text-main);
+      color: #000;
+      padding: 4px 8px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s ease, left 0.1s ease, top 0.1s ease;
+      transform: translate(-50%, -100%);
+      z-index: 10;
+      white-space: nowrap;
+    }
+    .chart-tooltip::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      margin-left: -4px;
+      border-width: 4px 4px 0;
+      border-style: solid;
+      border-color: var(--text-main) transparent transparent transparent;
+    }
+
+    /* Custom Slider */
+    .custom-slider {
+      -webkit-appearance: none;
+      width: 100%;
+      background: transparent;
+      margin: 10px 0;
+    }
+    .custom-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 24px;
+      width: 24px;
+      border-radius: 50%;
+      background: var(--text-main);
+      cursor: pointer;
+      margin-top: -9px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+    }
+    .custom-slider::-webkit-slider-runnable-track {
+      width: 100%;
+      height: 6px;
+      cursor: pointer;
+      background: linear-gradient(to right, var(--accent-blue) var(--slider-fill, 47.3%), #2C2C30 var(--slider-fill, 47.3%));
+      border-radius: 3px;
+    }
+    .custom-slider:focus { outline: none; }
 
     /* Verleih Widget */
     .rental-card {
@@ -263,10 +406,16 @@
       margin-bottom: 15px;
     }
     .rental-title { font-weight: 600; font-size: 16px; }
-    .rental-view { display: none; }
-    .rental-view.active { display: block; }
     .rental-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #333; }
     .rental-item:last-child { border-bottom: none; padding-bottom: 0; }
+    
+    #rental-segments .segment-highlight {
+      top: 2px;
+      bottom: 2px;
+      left: 2px;
+      width: calc(50% - 2px);
+      border-radius: 7px;
+    }
     .rental-item-title { font-size: 14px; color: var(--text-main); }
     .rental-item-due { font-size: 12px; color: var(--accent-orange); }
     .rental-item-due.today { color: var(--accent-blue); }
@@ -277,6 +426,16 @@
       display: flex;
       margin: 0 15px 15px;
       gap: 15px;
+      transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    /* Standalone VPN & Dienste & ECTS & Schedule */
+    #page-home > .vpn-card, #page-home > .services-card, #page-home > .ects-free, #page-home > .schedule-box,
+    #page-home .widget-column > .vpn-card, #page-home .widget-column > .services-card, #page-home .widget-column > .ects-free, #page-home .widget-column > .schedule-box {
+      margin: 0 15px 15px;
+      flex: none;
+      width: calc(100% - 30px);
+      box-sizing: border-box;
     }
 
     /* VPN Widget (angepasst für exakt halbe Breite) */
@@ -295,7 +454,8 @@
     .services-card {
       flex: 1 1 0; /* Zwingt die Karte auf exakt 50% */
       box-sizing: border-box; /* Sichert ab, dass das Padding das Element nicht vergrößert */
-      background-color: var(--accent-blue);
+      background-color: rgba(58, 130, 247, 0.15);
+      border: 1px solid rgba(58, 130, 247, 0.3);
       border-radius: 24px;
       padding: 15px;
       display: flex;
@@ -303,12 +463,12 @@
       align-items: center;
       gap: 8px;
       cursor: pointer;
-      color: var(--text-main);
-      box-shadow: 0 4px 15px rgba(58, 130, 247, 0.2);
-      transition: transform 0.2s;
+      color: var(--accent-blue);
+      transition: transform 0.2s, background-color 0.2s;
     }
     .services-card:active {
       transform: scale(0.95);
+      background-color: rgba(58, 130, 247, 0.25);
     }
     .services-card svg {
       width: 22px;
@@ -372,8 +532,8 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 15px 0 25px;
-      gap: 6px;
+      padding: 8px 0 15px;
+      gap: 4px;
       color: var(--text-sub);
       font-size: 10px;
       cursor: pointer;
@@ -394,7 +554,7 @@
     
     .nav-badge {
       position: absolute;
-      top: 12px;
+      top: 5px;
       right: calc(50% - 16px);
       width: 8px;
       height: 8px;
@@ -409,7 +569,8 @@
     }
 
     /* Profil Styles */
-    .profile-scroll-area { padding: 0 20px 20px; overflow-y: auto; flex: 1; }
+    .profile-scroll-area { padding: 0 20px 20px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; border-radius: 20px; }
+    .profile-scroll-area > * { flex-shrink: 0; } /* Verhindert das Quetschen auf kleinen Bildschirmen */
     .profile-header-info { text-align: center; margin-bottom: 25px; }
     .profile-name { font-size: 24px; font-weight: 600; margin-bottom: 4px; }
     .profile-sub { color: var(--text-sub); font-size: 14px; margin-bottom: 2px; }
@@ -423,10 +584,16 @@
     .progress-bar-fill { height: 100%; background: var(--accent-blue); width: 42%; }
     .progress-bar-extra { height: 100%; background: var(--accent-orange); width: 15%; margin-left: auto; }
     .progress-labels { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-sub); }
-    .grades-list { display: flex; flex-direction: column; gap: 8px; max-height: 180px; overflow-y: auto; padding-right: 4px; }
+    .grades-list { display: flex; flex-direction: column; gap: 8px; max-height: 180px; overflow-y: auto; padding-right: 4px; border-radius: 12px; }
     .grades-list::-webkit-scrollbar { width: 3px; }
     .grades-list::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
     .placeholder-content { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-sub); }
+    
+    .profile-content-wrapper {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+    }
 
     /* Mails Styles */
     .mail-list {
@@ -436,6 +603,7 @@
       flex-direction: column;
       gap: 12px;
       flex: 1;
+      border-radius: 16px;
     }
     
     .mail-list::-webkit-scrollbar { width: 3px; }
@@ -536,7 +704,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 4px 15px rgba(58, 130, 247, 0.4);
+      box-shadow: 0 4px 15px rgba(92, 138, 214, 0.4);
       cursor: pointer;
       z-index: 50;
       transition: transform 0.2s, background-color 0.2s;
@@ -563,6 +731,21 @@
       border-radius: 12px;
       display: flex;
       padding: 4px;
+      position: relative;
+    }
+    .segment-highlight {
+      position: absolute;
+      top: 4px;
+      bottom: 4px;
+      left: 4px;
+      width: calc(50% - 4px);
+      background-color: var(--accent-blue);
+      border-radius: 9px;
+      transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), background-color 0.3s ease;
+      z-index: 1;
+    }
+    .segmented-control.index-1 .segment-highlight {
+      transform: translateX(100%);
     }
     .segment-btn {
       border: none;
@@ -574,13 +757,24 @@
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s ease;
+      position: relative;
+      z-index: 2;
+      flex: 1;
     }
     .segment-btn.active {
-      background-color: var(--accent-blue);
       color: var(--text-main);
     }
-    .notification-view { display: none; flex: 1; flex-direction: column; overflow: hidden; }
-    .notification-view.active { display: flex; }
+
+    #page-mails.ilearn-active .segment-highlight {
+      background-color: var(--accent-orange);
+    }
+
+    #page-mails.ilearn-active .fab-button {
+      background-color: var(--accent-orange);
+      box-shadow: 0 4px 15px rgba(230, 115, 50, 0.4);
+    }
+    
+    .notification-view { flex: 1; flex-direction: column; overflow: hidden; }
     .overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -609,10 +803,11 @@
       z-index: 100;
       opacity: 0;
       visibility: hidden;
-      transition: all 0.3s cubic-bezier(0.1, 0.8, 0.2, 1);
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
       box-shadow: 0 10px 30px rgba(0,0,0,0.5);
       box-sizing: border-box;
-      overflow: hidden; 
+      overflow-y: auto; /* Erlaubt das Scrollen im Modal, wenn der Bildschirm zu klein ist */
+      max-height: 85vh; /* Verhindert, dass das Modal über den Bildschirmrand hinausragt */
     }
 
     .modal::before {
@@ -621,7 +816,7 @@
       top: 0; left: 0; right: 0; bottom: 0;
       pointer-events: none;
       z-index: -1;
-      opacity: 0.05;
+      opacity: 0.06;
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
     }
 
@@ -631,6 +826,18 @@
       transform: translate(-50%, -50%) scale(1);
     }
 
+    .modal.show.keyboard-up {
+      top: 40%;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    .modal::-webkit-scrollbar {
+      display: none; /* Versteckt die Scrollbar für ein sauberes App-Design */
+    }
+
+    #mensa-menu-info::-webkit-scrollbar { width: 3px; }
+    #mensa-menu-info::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+
     .overlay.show {
       visibility: visible;
       opacity: 1;
@@ -639,6 +846,14 @@
     .modal-header {
       text-align: center;
       margin-bottom: 20px;
+    }
+
+    .modal-icon {
+      width: 48px;
+      height: 48px;
+      margin: 0 auto 10px;
+      display: block;
+      stroke-width: 1.5;
     }
 
     .modal-title {
@@ -669,13 +884,15 @@
     .info-label { color: var(--text-sub); }
 
     .minimap {
-      background-color: #1A1A1C;
-      height: 140px;
+      background-color: var(--card-bg);
+      width: 100%;
+      height: auto;
+      aspect-ratio: 1.7;
+      box-sizing: border-box;
       border-radius: 16px;
       display: flex;
       align-items: center;
       justify-content: center;
-      border: 1px solid #333;
       padding: 10px;
     }
 
@@ -725,19 +942,66 @@
       color: var(--text-main);
     }
     /* Such-Funktion & Highlight */
-    .search-input-wrapper { padding: 15px; }
-    .search-input { width: 100%; background: var(--card-bg); border: 1px solid #333; color: var(--text-main); padding: 12px 15px 12px 40px; border-radius: 12px; font-size: 16px; outline: none; box-sizing: border-box; background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="%23999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>'); background-repeat: no-repeat; background-position: 12px center; }
-    .search-results { flex: 1; overflow-y: auto; padding: 0 15px 20px; display: flex; flex-direction: column; gap: 10px; }
-    .search-result-item { background: var(--card-bg); padding: 15px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border: 1px solid #333; }
+    .search-input-wrapper { padding: 15px; position: relative; margin-bottom: 20px; }
+    .search-input { width: 100%; background: var(--card-bg); border: 1px solid #333; color: var(--text-main); padding: 12px 40px 12px 40px; border-radius: 12px; font-size: 16px; outline: none; box-sizing: border-box; background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="%23999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>'); background-repeat: no-repeat; background-position: 12px center; }
+    .search-input::-webkit-search-cancel-button {
+      display: none;
+    }
+    .search-clear-btn {
+      position: absolute;
+      right: 25px;
+      top: 50%;
+      transform: translateY(-50%);
+      height: 24px;
+      width: 24px;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23999'%3E%3Cpath d='M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z'/%3E%3C/svg%3E") no-repeat center center;
+      cursor: pointer;
+      display: none;
+      z-index: 2;
+    }
+    .search-results { flex: 1; overflow-y: auto; padding: 0 15px 20px; display: flex; flex-direction: column; gap: 10px; border-radius: 16px; }
+    .search-result-item { background: var(--card-bg); padding: 15px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
     .search-result-title { font-weight: 600; font-size: 15px; }
     .search-result-loc { font-size: 12px; color: var(--accent-blue); }
     
     @keyframes highlightPulse {
-      0% { box-shadow: 0 0 0 0 rgba(58, 130, 247, 0.7); transform: scale(1); }
-      50% { box-shadow: 0 0 0 15px rgba(58, 130, 247, 0); transform: scale(1.02); background-color: #2a3a5c; }
-      100% { box-shadow: 0 0 0 0 rgba(58, 130, 247, 0); transform: scale(1); }
+      0% { box-shadow: 0 0 0 0 rgba(92, 138, 214, 0.7); transform: scale(1); }
+      50% { box-shadow: 0 0 0 15px rgba(92, 138, 214, 0); transform: scale(1.02); background-color: #2a3a5c; }
+      100% { box-shadow: 0 0 0 0 rgba(92, 138, 214, 0); transform: scale(1); }
     }
     .highlight-anim { animation: highlightPulse 1s ease-out; }
+
+    /* Such-Vorschläge */
+    .search-suggestions-wrapper {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+    }
+    .suggestions-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      padding: 0 15px 20px;
+    }
+    .suggestion-tile {
+      background-color: var(--card-bg);
+      border-radius: 16px;
+      padding: 15px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: transform 0.2s, background-color 0.2s;
+    }
+    .suggestion-tile:active {
+      transform: scale(0.96);
+      background-color: #2a2a2c;
+    }
+    .suggestion-tile span {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-main);
+    }
 
     /* Service Kacheln */
     .services-grid {
@@ -767,51 +1031,347 @@
     /* --- Service Seite Design --- */
     .services-page-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 15px;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
       padding: 0 15px 20px;
       overflow-y: auto;
+      border-radius: 20px;
     }
     .service-card {
       background-color: var(--card-bg);
-      border-radius: 20px;
-      padding: 25px 15px;
+      border-radius: 10px;
+      padding: 10px 5px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 12px;
+      justify-content: center;
+      aspect-ratio: 1 / 1;
+      gap: 6px;
       text-decoration: none;
       color: var(--text-main);
       border: 1px solid #333;
-      transition: transform 0.2s, background-color 0.2s;
+      transition: transform 0.2s, filter 0.2s;
     }
-    .service-card:active {
-      transform: scale(0.95);
-      background-color: #2a2a2c;
-    }
+      .service-card:active { transform: scale(0.95); filter: brightness(0.8); }
+    
+    .service-card.color-tech { background-color: #4F8BE3; color: #FFF; border-color: #4F8BE3; }
+    .service-card.color-schedule { background-color: #DE9A35; color: #FFF; border-color: #DE9A35; }
+    .service-card.color-requests { background-color: #4EBA6B; color: #FFF; border-color: #4EBA6B; }
+    .service-card.color-ilearn { background-color: #A068CC; color: #FFF; border-color: #A068CC; }
+    .service-card.color-library { background-color: #E35272; color: #FFF; border-color: #E35272; }
+    .service-card.color-faq { background-color: #6C6AD1; color: #FFF; border-color: #6C6AD1; }
+
     .service-icon-wrapper {
-      width: 50px;
-      height: 50px;
-      border-radius: 14px;
-      background: rgba(58, 130, 247, 0.1);
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: var(--accent-blue);
     }
     .service-icon-wrapper svg {
-      width: 26px;
-      height: 26px;
+      width: 18px;
+      height: 18px;
       stroke: currentColor;
       fill: none;
       stroke-width: 2;
       stroke-linecap: round;
       stroke-linejoin: round;
+      background: transparent !important;
+      color: currentColor !important;
     }
     .service-name {
-      font-size: 14px;
+      font-size: 11px;
       font-weight: 600;
       text-align: center;
+      line-height: 1.2;
+    }
+
+    /* Rausch-Textur für alle Kacheln */
+    .ects-free, .schedule-item, .mensa-card, .parking-card, .rental-card, 
+    .vpn-card, .services-card, .stat-card, .progress-section, .mail-item, 
+    .search-result-item, .suggestion-tile, .service-tile, .service-card, 
+    .minimap, .list-item {
+      position: relative;
+      isolation: isolate;
+    }
+    .ects-free::after, .schedule-item::after, .mensa-card::after, .parking-card::after, 
+    .rental-card::after, .vpn-card::after, .services-card::after, .stat-card::after, 
+    .progress-section::after, .mail-item::after, .search-result-item::after, 
+    .suggestion-tile::after, .service-tile::after, .service-card::after, 
+    .minimap::after, .list-item::after {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      pointer-events: none;
+      opacity: 0.06;
+      border-radius: inherit;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      z-index: -1;
+    }
+
+    /* --- ZUSÄTZLICHE SCHÖNE ANIMATIONEN --- */
+    
+    /* Navbar Icon Pop-Effekt */
+    @keyframes navBounce {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.25); }
+      100% { transform: scale(1); }
+    }
+    .nav-item.active .nav-icon { 
+      animation: navBounce 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; 
+    }
+
+    /* Haptisches Klick-Feedback (Squish-Effekt) */
+    .schedule-item, .list-item, .btn, .parking-card, .mensa-card, .rental-card, .stat-card, .search-result-item {
+      transition: transform 0.2s ease, background-color 0.2s ease;
+    }
+    .schedule-item:active, .list-item:active, .btn:active, .parking-card:active, .mensa-card:active, .stat-card:active, .search-result-item:active {
+      transform: scale(0.96);
+    }
+    .mail-item { transition: transform 0.2s ease, background-color 0.2s ease; }
+    .mail-item:active { transform: scale(0.97); }
+    
+    /* Sanftes, kaskadierendes Einfliegen der Elemente (Staggered Animation) */
+    @keyframes slideUpFade {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Einfliegen-Animation für Suchergebnisse, Service-Karten und Mails */
+    .page.active .mail-item, .page.active .search-result-item, .page.active .service-card, .page.active .suggestion-tile {
+      animation: slideUpFade 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+    }
+
+    /* Verzögerungen für den Kaskaden-Effekt in den Mails (erweitert) */
+    .page.active .mail-item:nth-child(1), .page.active .suggestion-tile:nth-child(1) { animation-delay: 0.05s; }
+    .page.active .mail-item:nth-child(2), .page.active .suggestion-tile:nth-child(2) { animation-delay: 0.1s; }
+    .page.active .mail-item:nth-child(3), .page.active .suggestion-tile:nth-child(3) { animation-delay: 0.15s; }
+    .page.active .mail-item:nth-child(4), .page.active .suggestion-tile:nth-child(4) { animation-delay: 0.2s; }
+    .page.active .mail-item:nth-child(5) { animation-delay: 0.25s; }
+    .page.active .mail-item:nth-child(6) { animation-delay: 0.3s; }
+    .page.active .mail-item:nth-child(7) { animation-delay: 0.35s; }
+    .page.active .mail-item:nth-child(8) { animation-delay: 0.4s; }
+    .page.active .mail-item:nth-child(9) { animation-delay: 0.45s; }
+    .page.active .mail-item:nth-child(10) { animation-delay: 0.5s; }
+    .page.active .mail-item:nth-child(11) { animation-delay: 0.55s; }
+    .page.active .mail-item:nth-child(12) { animation-delay: 0.6s; }
+
+    /* Lade-Animation für alle Fortschrittsbalken (Parken, Zeit-Balken) */
+    @keyframes fillWidth {
+      from { width: 0; }
+    }
+    .progress-bar-fill, .progress-bar-extra, .schedule-progress-fill {
+      animation: fillWidth 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    }
+
+    /* --- Widget Toggle Animationen --- */
+    #widget-ects, #widget-schedule, #widget-mensa, #widget-parking, #widget-rental, #widget-vpn, #widget-services, #widget-bottom-row, #widget-top-row {
+      max-height: 600px; /* Genügend Platz für den Inhalt */
+      overflow: hidden;
+      transform-origin: top center;
+      transition: max-height 0.4s cubic-bezier(0.25, 1, 0.5, 1),
+                  opacity 0.3s ease,
+                  margin 0.4s cubic-bezier(0.25, 1, 0.5, 1),
+                  padding 0.4s cubic-bezier(0.25, 1, 0.5, 1),
+                  gap 0.4s cubic-bezier(0.25, 1, 0.5, 1),
+                  transform 0.4s cubic-bezier(0.25, 1, 0.5, 1),
+                  max-width 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+    
+    .widget-hidden {
+      max-height: 0 !important;
+      opacity: 0 !important;
+      margin-top: 0 !important;
+      margin-bottom: 0 !important;
+      padding-top: 0 !important;
+      padding-bottom: 0 !important;
+      gap: 0 !important;
+      transform: scaleY(0.8) !important;
+      pointer-events: none;
+    }
+
+    #widget-vpn, #widget-services, #widget-ects, #widget-schedule { max-width: 1000px; }
+    #widget-vpn.widget-hidden, #widget-services.widget-hidden, #widget-ects.widget-hidden, #widget-schedule.widget-hidden {
+      max-width: 0 !important;
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+      transform: scale(0.8) !important;
+    }
+    #widget-vpn.widget-hidden, #widget-ects.widget-hidden {
+      margin-right: -15px !important;
+    }
+    #widget-services.widget-hidden, #widget-schedule.widget-hidden {
+      margin-left: -15px !important;
+    }
+
+    /* --- Drag & Drop Animationen --- */
+    .widget-dragging {
+      position: fixed !important;
+      z-index: 1000 !important;
+      margin: 0 !important;
+      transform: scale(1.02) !important;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6) !important;
+      transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
+      opacity: 0.95;
+      pointer-events: none; /* Wichtig für elementFromPoint */
+      box-sizing: border-box;
+    }
+    .widget-placeholder {
+      border: 2px dashed rgba(255, 255, 255, 0.2);
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.02);
+      margin: 0 15px 15px; 
+      transition: height 0.2s ease;
+      box-sizing: border-box;
+    }
+
+    /* --- Tablet & Desktop Layout --- */
+    @media (min-width: 768px) and (orientation: landscape) {
+      .app-container {
+        flex-direction: row; /* Navbar wird zur Sidebar */
+      }
+      
+      .navbar {
+        flex-direction: column;
+        width: 90px;
+        height: max-content;
+        margin: auto 20px;
+        background-color: var(--card-bg);
+        border: 1px solid #333;
+        border-radius: 28px;
+        padding-top: 25px;
+        padding-bottom: 25px;
+        justify-content: center;
+        gap: 30px;
+      }
+      
+      .nav-item {
+        padding: 10px 0;
+        flex: none;
+      }
+      
+      .nav-item span {
+        font-size: 12px;
+        margin-top: 4px;
+      }
+      
+      .nav-icon {
+        width: 28px;
+        height: 28px;
+      }
+      
+      .nav-badge {
+        right: calc(50% - 22px);
+        top: 6px;
+      }
+
+      /* Zentriertes Single-Column Layout für Tablets */
+      .content-area {
+        align-items: center;
+      }
+      
+      .page {
+        max-width: 950px;
+        width: 100%;
+      }
+
+      /* Dashboard Layout für Tablets */
+      .tablet-wrapper {
+        display: flex;
+        align-items: stretch;
+        gap: 15px;
+        width: 100%;
+      }
+      
+      .widget-column {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-width: 0;
+      }
+      
+      .mail-column-wrapper {
+        width: 320px;
+        flex-shrink: 0;
+        position: relative;
+      }
+
+      .mail-column {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 15px;
+        display: flex;
+        flex-direction: column;
+        border-left: 1px solid #333;
+        padding-left: 15px;
+        padding-right: 5px;
+        overflow: hidden;
+      }
+
+      .mail-column::-webkit-scrollbar {
+        width: 3px;
+      }
+      .mail-column::-webkit-scrollbar-thumb {
+        background: #333;
+        border-radius: 3px;
+      }
+
+      /* Modals */
+      .modal {
+        max-width: 500px;
+        padding: 30px;
+      }
+
+      /* Profil Two-Column Layout */
+      .profile-content-wrapper {
+        flex-direction: row;
+        gap: 40px;
+        align-items: stretch;
+        position: relative;
+      }
+      .profile-left {
+        width: calc(50% - 20px);
+        flex: none;
+      }
+      .progress-section {
+        margin-bottom: 0;
+      }
+      .profile-right {
+        position: absolute;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        width: calc(50% - 20px);
+        display: flex;
+        flex-direction: column;
+      }
+      .grades-list {
+        max-height: none;
+        flex: 1;
+        overflow-y: auto;
+        min-height: 0;
+      }
+
+      /* Search Two-Column Layout */
+      .search-suggestions-wrapper {
+        flex-direction: row;
+        gap: 40px;
+        align-items: flex-start;
+      }
+      .search-col-left, .search-col-right {
+        flex: 1;
+        width: 50%;
+      }
+      .search-col-right .section-title {
+        margin-top: 0 !important;
+      }
+    }
+
+    /* --- Große Desktop Bildschirme --- */
+    @media (min-width: 1024px) {
+      .page {
+        max-width: 1100px;
+      }
     }
   </style>
 </head>
@@ -827,41 +1387,6 @@
         <p id="popup-time" class="modal-subtitle">Zeit</p>
       </div>
 
-      <div id="map-modal" class="modal">
-      <div class="modal-header">
-        <h3 id="map-popup-title" class="modal-title">Gebäude</h3>
-        <p id="map-popup-subtitle" class="modal-subtitle">Etage</p>
-      </div>
-      
-      <div class="modal-info">
-        <div class="minimap">
-          <svg viewBox="0 0 340 200" style="width: 100%; height: 100%;">
-            <path class="map-road" d="M 210 10 L 210 140 Q 210 155 225 155 L 330 155" />
-            <rect id="map-bldg-A" class="building" x="10" y="20" width="40" height="20" rx="3"/><text class="building-label" x="30" y="31">A</text>
-            <rect id="map-bldg-B" class="building" x="55" y="20" width="40" height="20" rx="3"/><text class="building-label" x="75" y="31">B</text>
-            <rect id="map-bldg-C" class="building" x="100" y="20" width="80" height="20" rx="3"/><text class="building-label" x="140" y="31">C</text>
-            <rect id="map-bldg-F" class="building" x="10" y="50" width="50" height="35" rx="3"/><text class="building-label" x="35" y="68">F</text>
-            <rect id="map-bldg-G" class="building" x="110" y="50" width="50" height="30" rx="3"/><text class="building-label" x="135" y="66">G</text>
-            <rect id="map-bldg-D" class="building" x="10" y="95" width="90" height="20" rx="3"/><text class="building-label" x="55" y="106">D</text>
-            <rect id="map-bldg-E" class="building" x="105" y="95" width="75" height="20" rx="3"/><text class="building-label" x="142" y="106">E</text>
-            <rect id="map-bldg-H" class="building" x="50" y="125" width="30" height="30" rx="3"/><text class="building-label" x="65" y="141">H</text>
-            <rect id="map-bldg-I" class="building" x="105" y="125" width="55" height="30" rx="3"/><text class="building-label" x="132" y="141">I</text>
-            <rect id="map-bldg-J" class="building" x="10" y="165" width="45" height="25" rx="3"/><text class="building-label" x="32" y="178">J</text>
-            <rect id="map-bldg-K" class="building" x="65" y="165" width="30" height="25" rx="3"/><text class="building-label" x="80" y="178">K</text>
-            <rect id="map-bldg-L" class="building" x="125" y="165" width="35" height="25" rx="3"/><text class="building-label" x="142" y="178">L</text>
-            <rect id="map-bldg-U-top" class="building" x="235" y="20" width="80" height="20" rx="3"/>
-            <rect id="map-bldg-U-right" class="building" x="295" y="40" width="20" height="70" rx="3"/>
-            <rect id="map-bldg-U-bottom" class="building" x="235" y="110" width="80" height="20" rx="3"/>
-            <rect id="map-bldg-ITC" class="building" x="250" y="55" width="30" height="30" rx="3"/><text class="building-label" x="265" y="71">ITC</text>
-          </svg>
-        </div>
-      </div>
-
-      <div class="modal-buttons">
-        <button class="btn btn-secondary" onclick="closeModal()" data-translate="close_button" style="width: 100%;">Schließen</button>
-      </div>
-    </div>
-      
       <div class="modal-info">
         <div class="info-row">
           <span class="info-label" data-translate="course_modal_room">Raum</span>
@@ -902,8 +1427,61 @@
       </div>
 
       <div class="modal-buttons">
-        <button class="btn btn-secondary" onclick="closeModal()" data-translate="close_button">Schließen</button>
-        <button class="btn btn-primary" data-translate="course_modal_to_ilearn">Zu iLearn</button>
+        <button id="course-modal-close-btn" class="btn btn-secondary" onclick="closeModal()" data-translate="close_button">Schließen</button>
+        <button id="course-modal-ilearn-btn" class="btn btn-primary" onclick="window.location.href='https://elearning.th-deg.de'" data-translate="course_modal_to_ilearn">Zu iLearn</button>
+      </div>
+    </div>
+
+    <div id="mensa-menu-modal" class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title" data-translate="mensa_menu_title">Speiseplan</h3>
+        <p class="modal-subtitle">Heute</p>
+      </div>
+      <div id="mensa-menu-info" class="modal-info" style="gap: 20px; overflow-y: auto; max-height: 60vh; padding: 10px 5px 10px 10px; border-radius: 12px;">
+        <!-- Hauptgerichte -->
+        <div>
+          <div class="section-title" style="margin-bottom: 10px; color: var(--accent-orange); font-size: 15px;">Hauptgerichte</div>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div class="list-item" style="cursor: pointer; background-color: #2C2C2E; margin: 0;" onclick="openFoodModalFromMenu('Schnitzel', '5,60€', 'Mit Pommes und Beilagensalat', 'A, C, G')">
+              <span>Schnitzel</span><span class="item-value">5,60€</span>
+            </div>
+            <div class="list-item" style="cursor: pointer; background-color: #2C2C2E; margin: 0;" onclick="openFoodModalFromMenu('Eintopf', '3,80€', 'Kartoffeleintopf mit Würstchen', 'I, J')">
+              <span>Eintopf</span><span class="item-value">3,80€</span>
+            </div>
+            <div class="list-item" style="cursor: pointer; background-color: #2C2C2E; margin: 0;" onclick="openFoodModalFromMenu('Veganer Burger', '4,90€', 'Mit Süßkartoffelpommes', 'A, F, K')">
+              <span>Veganer Burger</span><span class="item-value">4,90€</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Beilagen & Salate -->
+        <div>
+          <div class="section-title" style="margin-bottom: 10px; color: var(--accent-orange); font-size: 15px;">Beilagen & Salate</div>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div class="list-item" style="cursor: pointer; background-color: #2C2C2E; margin: 0;" onclick="openFoodModalFromMenu('Pommes', '2,50€', 'Portion Pommes frites', 'Keine')">
+              <span>Pommes</span><span class="item-value">2,50€</span>
+            </div>
+            <div class="list-item" style="cursor: pointer; background-color: #2C2C2E; margin: 0;" onclick="openFoodModalFromMenu('Salatbowl', '4,20€', 'Gemischter Salat mit Hausdressing', 'G, J')">
+              <span>Salatbowl</span><span class="item-value">4,20€</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Desserts -->
+        <div>
+          <div class="section-title" style="margin-bottom: 10px; color: var(--accent-orange); font-size: 15px;">Desserts</div>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div class="list-item" style="cursor: pointer; background-color: #2C2C2E; margin: 0;" onclick="openFoodModalFromMenu('Schokopudding', '1,50€', 'Hausgemachter Schokoladenpudding', 'G')">
+              <span>Schokopudding</span><span class="item-value">1,50€</span>
+            </div>
+            <div class="list-item" style="cursor: pointer; background-color: #2C2C2E; margin: 0;" onclick="openFoodModalFromMenu('Obstsalat', '1,80€', 'Frischer saisonaler Obstsalat', 'Keine')">
+              <span>Obstsalat</span><span class="item-value">1,80€</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-buttons" style="margin-top: 20px;">
+        <button class="btn btn-primary" onclick="closeModal()" data-translate="close_button" style="width: 100%;">Schließen</button>
       </div>
     </div>
 
@@ -923,7 +1501,8 @@
         </div>
       </div>
       <div class="modal-buttons" style="margin-top: 20px;">
-        <button class="btn btn-secondary" onclick="closeModal()" data-translate="close_button" style="width: 100%;">Schließen</button>
+        <button class="btn btn-secondary" onclick="goBackToMenu()" data-translate="back_button">Zurück</button>
+        <button class="btn btn-primary" onclick="closeModal()" data-translate="close_button">Schließen</button>
       </div>
     </div>
 
@@ -953,7 +1532,7 @@
       <div class="modal-info" style="gap: 10px;">
         <input type="text" name="to_dummy" id="comp-to" class="compose-input" placeholder="An:" data-translate="compose_to" autocomplete="nope" autocorrect="off" spellcheck="false">
         <input type="text" name="subj_dummy" id="comp-subject" class="compose-input" placeholder="Betreff:" data-translate="compose_subject" autocomplete="nope" autocorrect="off" spellcheck="false">
-        <textarea id="comp-body" class="compose-input" placeholder="Nachricht..." rows="5" style="resize: none;" data-translate="compose_body" autocomplete="nope" autocorrect="off" spellcheck="false"></textarea>
+        <textarea id="comp-body" class="compose-input" placeholder="Nachricht..." rows="5" style="resize: none;" data-translate="compose_body"></textarea>
       </div>
       <div class="modal-buttons" style="margin-top: 20px;">
         <button class="btn btn-secondary" onclick="closeModal()" data-translate="compose_cancel">Abbrechen</button>
@@ -970,7 +1549,24 @@
       </div>
       <div class="modal-buttons" style="margin-top: 20px;">
         <button class="btn btn-secondary" onclick="closeModal()" data-translate="gpa_modal_yes">Ja</button>
-        <button class="btn btn-primary" onclick="window.location.href='https://www.paypal.com'" style="background-color: #0070ba;">Paypal</button>
+        <button class="btn btn-primary" onclick="improveGPA()">50,00€</button>
+      </div>
+    </div>
+
+    <div id="insufficient-funds-modal" class="modal">
+      <div class="modal-header">
+        <svg class="modal-icon" style="color: var(--accent-orange);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+          <line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line>
+        </svg>
+        <h3 class="modal-title" data-translate="insufficient_funds_title">Guthaben niedrig</h3>
+      </div>
+      <div class="modal-info">
+        <p style="text-align: center; color: var(--text-sub); margin: 0;" data-translate="insufficient_funds_text">Dein Mensa-Guthaben reicht für diesen Kauf nicht aus.</p>
+      </div>
+      <div class="modal-buttons" style="margin-top: 20px;">
+        <button class="btn btn-secondary" onclick="closeModal()" data-translate="close_button">Schließen</button>
+        <button class="btn btn-primary" onclick="openTopupModalFromInsufficient()" data-translate="topup_button">Aufladen</button>
       </div>
     </div>
 
@@ -979,11 +1575,42 @@
         <h3 class="modal-title" data-translate="topup_modal_title">Guthaben aufladen</h3>
       </div>
       <div class="modal-info">
-        <p style="text-align: center; color: var(--text-sub); margin: 0;" data-translate="topup_modal_question">Möchten Sie Ihr Mensa-Guthaben aufladen?</p>
+        <p style="text-align: center; color: var(--text-sub); margin-bottom: 20px;" data-translate="topup_modal_question">Möchten Sie Ihr Mensa-Guthaben aufladen?</p>
+        <div style="text-align: center; font-size: 32px; font-weight: 600; color: var(--accent-blue); margin-bottom: 15px;" id="topup-amount-display">50,00€</div>
+        <input type="range" id="topup-slider" class="custom-slider" min="5" max="100" step="5" value="50" oninput="updateTopupDisplay()">
       </div>
       <div class="modal-buttons" style="margin-top: 20px;">
         <button class="btn btn-secondary" onclick="closeModal()" data-translate="cancel_button">Abbrechen</button>
-        <button class="btn btn-primary" onclick="window.location.href='https://www.paypal.com'" style="background-color: #0070ba;">Paypal</button>
+        <button class="btn btn-primary" onclick="openTopupConfirmModal()" data-translate="continue_button">Weiter</button>
+      </div>
+    </div>
+
+    <div id="topup-confirm-modal" class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title" data-translate="topup_confirm_title">Kaufbestätigung</h3>
+      </div>
+      <div class="modal-info">
+        <div class="info-row">
+          <span class="info-label" data-translate="topup_confirm_amount">Betrag:</span>
+          <span style="font-weight: 600;" id="confirm-amount">50,00€</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label" data-translate="topup_confirm_method">Zahlungsart:</span>
+          <span>PayPal</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label" data-translate="topup_confirm_fee">Gebühren:</span>
+          <span>0,00€</span>
+        </div>
+        <hr style="border: 0; border-top: 1px dashed rgba(255,255,255,0.1); margin: 15px 0;">
+        <div class="info-row" style="font-size: 18px;">
+          <span class="info-label" data-translate="topup_confirm_total">Gesamt:</span>
+          <span style="font-weight: bold; color: var(--accent-blue);" id="confirm-total">50,00€</span>
+        </div>
+      </div>
+      <div class="modal-buttons" style="margin-top: 20px;">
+        <button class="btn btn-secondary" onclick="closeModal()" data-translate="cancel_button">Abbrechen</button>
+        <button class="btn btn-primary" onclick="executeTopup()" data-translate="topup_confirm_buy">Kaufen</button>
       </div>
     </div>
 
@@ -996,7 +1623,85 @@
       </div>
       <div class="modal-buttons" style="margin-top: 20px;">
         <button class="btn btn-secondary" onclick="closeModal()" data-translate="cancel_button">Abbrechen</button>
-        <button class="btn btn-primary" onclick="executeTow()" style="background-color: #0070ba;">14,99€</button>
+        <button class="btn btn-primary" onclick="executeTow()">14,99€</button>
+      </div>
+    </div>
+
+    <div id="parking-modal" class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title" data-translate="parking_modal_title">Auslastung</h3>
+        <p class="modal-subtitle" data-translate="parking_modal_subtitle">Heute</p>
+      </div>
+      <div class="modal-info">
+        <div class="chart-container" id="parking-chart-container">
+          <div class="chart-grid-line" style="bottom: 20%;"></div>
+          <div class="chart-grid-line" style="bottom: 50%;"></div>
+          <div class="chart-grid-line" style="bottom: 80%;"></div>
+          
+          <div class="chart-bar-wrapper"><div class="chart-bar low" style="height: 15%;"></div><span class="chart-label">08</span></div>
+          <div class="chart-bar-wrapper"><div class="chart-bar low" style="height: 25%;"></div><span class="chart-label">09</span></div>
+          <div class="chart-bar-wrapper"><div class="chart-bar medium" style="height: 45%;"></div><span class="chart-label">10</span></div>
+          <div class="chart-bar-wrapper"><div class="chart-bar high" style="height: 70%;"></div><span class="chart-label">11</span></div>
+          <div class="chart-bar-wrapper"><div class="chart-bar high" style="height: 90%;"></div><span class="chart-label">12</span></div>
+          <div class="chart-bar-wrapper"><div class="chart-bar high" style="height: 85%;"></div><span class="chart-label">13</span></div>
+          <div class="chart-bar-wrapper"><div class="chart-bar future" style="height: 75%;"></div><span class="chart-label">14</span></div>
+          <div class="chart-bar-wrapper"><div class="chart-bar future" style="height: 60%;"></div><span class="chart-label">15</span></div>
+          <div class="chart-bar-wrapper"><div class="chart-bar future" style="height: 40%;"></div><span class="chart-label">16</span></div>
+          <div class="chart-bar-wrapper"><div class="chart-bar future" style="height: 20%;"></div><span class="chart-label">17</span></div>
+          <div class="chart-bar-wrapper"><div class="chart-bar future" style="height: 10%;"></div><span class="chart-label">18</span></div>
+        </div>
+        <div style="text-align: center; margin-top: 5px; font-size: 11px; color: var(--text-sub);">
+          <span style="display: inline-block; width: 10px; height: 10px; background: repeating-linear-gradient(45deg, rgba(255,255,255,0.05), rgba(255,255,255,0.05) 2px, rgba(255,255,255,0.2) 2px, rgba(255,255,255,0.2) 4px); margin-right: 4px; border-radius: 2px; vertical-align: middle;"></span> <span data-translate="parking_forecast">Prognose</span>
+        </div>
+      </div>
+      <div class="modal-buttons" style="margin-top: 20px;">
+        <button class="btn btn-primary" onclick="closeModal()" data-translate="close_button" style="width: 100%;">Schließen</button>
+      </div>
+    </div>
+
+    <div id="rental-modal" class="modal">
+      <div class="modal-header">
+        <h3 id="rental-popup-title" class="modal-title">Gerät</h3>
+        <p id="rental-popup-due" class="modal-subtitle" style="color: var(--accent-orange);">Fällig</p>
+      </div>
+      <div class="modal-info">
+        <div class="info-row">
+          <span class="info-label" data-translate="rental_modal_location">Rückgabeort</span>
+          <span id="rental-popup-loc" style="font-weight: 600;">Ort</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label" data-translate="rental_modal_person">Zuständig</span>
+          <span id="rental-popup-person">Person</span>
+        </div>
+        <div class="info-row" style="margin-top: 10px; flex-direction: column; gap: 6px;">
+          <span class="info-label" data-translate="rental_modal_notes">Zubehör / Notizen</span>
+          <span id="rental-popup-notes" style="text-align: left; margin-left: 15px; padding-left: 10px; border-left: 2px solid #cccccc; font-size: 14px; color: var(--text-main);">Notizen</span>
+        </div>
+        
+        <div class="minimap" style="margin-top: 20px;">
+          <svg viewBox="0 0 340 200" style="width: 100%; height: 100%;">
+            <path class="map-road" d="M 210 10 L 210 140 Q 210 155 225 155 L 330 155" />
+            <rect class="building rental-bldg-A" x="10" y="20" width="40" height="20" rx="3"/><text class="building-label" x="30" y="31">A</text>
+            <rect class="building rental-bldg-B" x="55" y="20" width="40" height="20" rx="3"/><text class="building-label" x="75" y="31">B</text>
+            <rect class="building rental-bldg-C" x="100" y="20" width="80" height="20" rx="3"/><text class="building-label" x="140" y="31">C</text>
+            <rect class="building rental-bldg-F" x="10" y="50" width="50" height="35" rx="3"/><text class="building-label" x="35" y="68">F</text>
+            <rect class="building rental-bldg-G" x="110" y="50" width="50" height="30" rx="3"/><text class="building-label" x="135" y="66">G</text>
+            <rect class="building rental-bldg-D" x="10" y="95" width="90" height="20" rx="3"/><text class="building-label" x="55" y="106">D</text>
+            <rect class="building rental-bldg-E" x="105" y="95" width="75" height="20" rx="3"/><text class="building-label" x="142" y="106">E</text>
+            <rect class="building rental-bldg-H" x="50" y="125" width="30" height="30" rx="3"/><text class="building-label" x="65" y="141">H</text>
+            <rect class="building rental-bldg-I" x="105" y="125" width="55" height="30" rx="3"/><text class="building-label" x="132" y="141">I</text>
+            <rect class="building rental-bldg-J" x="10" y="165" width="45" height="25" rx="3"/><text class="building-label" x="32" y="178">J</text>
+            <rect class="building rental-bldg-K" x="65" y="165" width="30" height="25" rx="3"/><text class="building-label" x="80" y="178">K</text>
+            <rect class="building rental-bldg-L" x="125" y="165" width="35" height="25" rx="3"/><text class="building-label" x="142" y="178">L</text>
+            <rect class="building rental-bldg-U-top" x="235" y="20" width="80" height="20" rx="3"/>
+            <rect class="building rental-bldg-U-right" x="295" y="40" width="20" height="70" rx="3"/>
+            <rect class="building rental-bldg-U-bottom" x="235" y="110" width="80" height="20" rx="3"/>
+            <rect class="building rental-bldg-ITC" x="250" y="55" width="30" height="30" rx="3"/><text class="building-label" x="265" y="71">ITC</text>
+          </svg>
+        </div>
+      </div>
+      <div class="modal-buttons" style="margin-top: 20px;">
+        <button class="btn btn-primary" onclick="closeModal()" data-translate="close_button" style="width: 100%;">Schließen</button>
       </div>
     </div>
 
@@ -1013,6 +1718,19 @@
       </div>
     </div>
 
+    <div id="clear-search-modal" class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title" data-translate="clear_search_title">Suchverlauf leeren</h3>
+      </div>
+      <div class="modal-info">
+        <p style="text-align: center; color: var(--text-sub); margin: 0;" data-translate="clear_search_confirm">Möchtest du deinen gesamten Suchverlauf löschen?</p>
+      </div>
+      <div class="modal-buttons" style="margin-top: 20px;">
+        <button class="btn btn-secondary" onclick="closeModal()" data-translate="cancel_button">Abbrechen</button>
+        <button class="btn btn-primary" onclick="confirmClearSearch()" style="background-color: #FF3B30;" data-translate="delete_button">Löschen</button>
+      </div>
+    </div>
+
     <div id="settings-modal" class="modal">
       <div class="modal-header">
         <h3 class="modal-title" data-translate="settings_title">Einstellungen</h3>
@@ -1023,33 +1741,64 @@
             <button class="btn btn-secondary" onclick="setLanguage('de')">Deutsch</button>
             <button class="btn btn-secondary" onclick="setLanguage('en')">English</button>
         </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding: 0 10px;">
+          <span data-translate="settings_storage" style="font-size: 15px; font-weight: 500;">Daten lokal speichern</span>
+          <label class="toggle-switch" style="transform: scale(0.8); transform-origin: right;">
+            <input type="checkbox" class="toggle-input" id="storage-toggle" onchange="toggleStorage(this.checked)">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
       </div>
       <button class="btn btn-primary" onclick="closeModal()" data-translate="close_button" style="width: 100%;">Schließen</button>
     </div>
     
     <div id="services-modal" class="modal">
       <div class="modal-header">
-        <h3 class="modal-title">Dienste</h3>
+        <h3 class="modal-title" data-translate="services_modal_title">Dienste</h3>
       </div>
-      <div class="services-grid">
-        <a href="https://elearning.th-deg.de" class="service-tile">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
-          <span style="font-size: 14px; font-weight: 500;">Technik</span>
-        </a>
-        <a href="#" class="service-tile">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-          <span style="font-size: 14px; font-weight: 500;">Stundenplan</span>
-        </a>
-        <a href="#" class="service-tile">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
-          <span style="font-size: 14px; font-weight: 500;">Anträge</span>
-        </a>
-        <a href="#" class="service-tile">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-          <span style="font-size: 14px; font-weight: 500;">Hilfe</span>
-        </a>
+      <div class="modal-info" style="margin-bottom: 20px;">
+        <div class="services-page-grid" style="padding: 0 12px; overflow-y: visible;">
+          <a href="https://elearning.th-deg.de" class="service-card color-tech">
+            <div class="service-icon-wrapper"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg></div>
+            <span class="service-name">Technik</span>
+          </a>
+          <a href="#" class="service-card color-schedule">
+            <div class="service-icon-wrapper"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div>
+            <span class="service-name">Stundenplan</span>
+          </a>
+          <a href="#" class="service-card color-requests">
+            <div class="service-icon-wrapper"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg></div>
+            <span class="service-name">Anträge</span>
+          </a>
+          <a href="https://ilearn.th-deg.de" class="service-card color-ilearn">
+            <div class="service-icon-wrapper"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg></div>
+            <span class="service-name">iLearn</span>
+          </a>
+          <a href="#" class="service-card color-library">
+            <div class="service-icon-wrapper"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg></div>
+            <span class="service-name">Bibliothek</span>
+          </a>
+          <a href="#" class="service-card color-faq">
+            <div class="service-icon-wrapper"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></div>
+            <span class="service-name">Hilfe & FAQ</span>
+          </a>
+        </div>
       </div>
-      <button class="btn btn-secondary" onclick="closeModal()" style="width: 100%; margin-top: 20px;">Schließen</button>
+      <button class="btn btn-primary" onclick="closeModal()" data-translate="close_button" style="width: 100%;">Schließen</button>
+    </div>
+
+    <div id="contact-modal" class="modal">
+      <div class="modal-header" style="text-align: center; margin-bottom: 25px;">
+        <div id="contact-pic-container" style="width: 80px; height: 80px; margin: 0 auto 10px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background-color: var(--card-bg);">
+          <svg id="contact-pic-svg" width="80" height="80" viewBox="0 0 24 24" stroke="var(--text-sub)" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        </div>
+        <h3 id="contact-popup-name" class="modal-title">Kontaktname</h3>
+        <p id="contact-popup-faculty" class="modal-subtitle">Fakultät</p>
+      </div>
+      <div class="modal-buttons" style="margin-top: 20px; flex-direction: column; gap: 10px;">
+        <button id="contact-action-btn" class="btn btn-primary">E-Mail schreiben</button>
+        <button class="btn btn-secondary" onclick="closeModal()">Schließen</button>
+      </div>
     </div>
 
     <div id="widget-settings-modal" class="modal">
@@ -1058,7 +1807,14 @@
       </div>
       <div class="modal-info" style="gap: 15px; margin-bottom: 20px;">
         <div style="display: flex; justify-content: space-between; align-items: center;">
-          <span data-translate="widget_schedule" style="font-size: 15px; font-weight: 500;">Stundenplan & ECTS</span>
+          <span data-translate="widget_ects" style="font-size: 15px; font-weight: 500;">ECTS</span>
+          <label class="toggle-switch" style="transform: scale(0.8); transform-origin: right;">
+            <input type="checkbox" class="toggle-input" checked onchange="toggleWidget('widget-ects', this)">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span data-translate="widget_schedule" style="font-size: 15px; font-weight: 500;">Stundenplan</span>
           <label class="toggle-switch" style="transform: scale(0.8); transform-origin: right;">
             <input type="checkbox" class="toggle-input" checked onchange="toggleWidget('widget-schedule', this)">
             <span class="toggle-slider"></span>
@@ -1092,6 +1848,13 @@
             <span class="toggle-slider"></span>
           </label>
         </div>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span data-translate="widget_services" style="font-size: 15px; font-weight: 500;">Dienste</span>
+          <label class="toggle-switch" style="transform: scale(0.8); transform-origin: right;">
+            <input type="checkbox" class="toggle-input" checked onchange="toggleWidget('widget-services', this)">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
       </div>
       <button class="btn btn-primary" onclick="closeModal()" data-translate="close_button" style="width: 100%;">Schließen</button>
     </div>
@@ -1099,7 +1862,8 @@
     <div class="content-area" id="swipe-area">
       <div id="page-mails" class="page">
         <div class="header">
-          <div class="segmented-control">
+          <div class="segmented-control" id="mail-segments">
+            <div class="segment-highlight"></div>
             <button class="segment-btn active" onclick="switchNotificationView('mails', this)" data-translate="mails_header">Mail</button>
             <button class="segment-btn" onclick="switchNotificationView('ilearn', this)" data-translate="ilearn_header">iLearn</button>
           </div>
@@ -1111,7 +1875,9 @@
           <svg class="header-icon-svg" viewBox="0 0 24 24" onclick="toggleSelectionMode()"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
         </div>
         
-        <div id="mails-view" class="notification-view active">
+        <div class="notification-views-wrapper" style="flex: 1; overflow: hidden; width: 100%; position: relative;">
+          <div class="notification-views-container" id="notification-container" style="display: flex; height: 100%; width: 200%; transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);">
+        <div id="mails-view" class="notification-view active" style="flex: 1 0 50%; display: flex; flex-direction: column; height: 100%; overflow: hidden;">
           <div class="mail-list">
             <div class="mail-item unread">
               <div class="swipe-zone"></div> <div class="selection-indicator">
@@ -1247,7 +2013,7 @@
           </div>
         </div>
 
-        <div id="ilearn-view" class="notification-view">
+        <div id="ilearn-view" class="notification-view" style="flex: 1 0 50%; display: flex; flex-direction: column; height: 100%; overflow: hidden;">
           <div class="mail-list">
             <div class="mail-item unread">
               <div class="swipe-zone"></div> <div class="selection-indicator">
@@ -1257,8 +2023,8 @@
                 <span class="mail-sender">System</span>
                 <span class="mail-time">Vor 5 Min</span>
               </div>
-              <div class="mail-subject">Neue Datei hochgeladen</div>
-              <div class="mail-preview">In "Medientechnik" wurde "Skript_Kapitel_3.pdf" hinzugefügt.</div>
+              <div class="mail-subject">Übungsblatt 4 hochgeladen</div>
+              <div class="mail-preview">In "Mathematik" wurde "Übungsblatt_4.pdf" hinzugefügt.</div>
             </div>
             
             <div class="mail-item unread">
@@ -1269,8 +2035,8 @@
                 <span class="mail-sender">Prof. Weber</span>
                 <span class="mail-time">Heute, 08:30</span>
               </div>
-              <div class="mail-subject">Erinnerung: Abgabefrist</div>
-              <div class="mail-preview">Die Abgabe für das Praxisprojekt endet heute um 23:59 Uhr. Bitte rechtzeitig hochladen.</div>
+              <div class="mail-subject">Erinnerung: Skizzenbuch abgeben</div>
+              <div class="mail-preview">Die Abgabe für das Skizzenbuch endet heute um 23:59 Uhr. Bitte rechtzeitig hochladen.</div>
             </div>
             
             <div class="mail-item">
@@ -1284,6 +2050,8 @@
               <div class="mail-subject">Note veröffentlicht</div>
               <div class="mail-preview">Deine Bewertung für die Abgabe in "Mediengestaltung" ist jetzt verfügbar.</div>
             </div>
+          </div>
+        </div>
           </div>
         </div>
 
@@ -1304,19 +2072,23 @@
         <div id="empty-dashboard-msg" style="display: none; align-items: center; justify-content: center; height: 60vh; font-size: 80px; font-weight: 800; color: var(--text-sub); opacity: 0.15; letter-spacing: -4px;">
           fr?
         </div>
+        
+        <!-- margin-top: auto drückt die Widgets bei viel Platz nach unten -->
+        <div id="dashboard-top-spacer" style="height: 15px; flex-shrink: 0; margin-top: auto;"></div>
 
-        <div class="grid-top" id="widget-schedule">
-          <div class="ects-free" id="home-ects-card">
-            <div class="ects-number">78</div>
+        <div class="top-widgets-row" id="widget-top-row">
+          <div class="ects-free" id="widget-ects">
+            <div class="ects-number" id="home-ects-number">78</div>
             <div class="ects-label" data-translate="ects_label">ECTS</div>
           </div>
           
-          <div class="schedule-box">
-            <div class="schedule-item progress-70" onclick="openModal('Mathe E105', '11:15 - 12:45', 'E105', 'Übungsblatt 4')">
+          <div class="schedule-box" id="widget-schedule">
+            <div class="schedule-item" onclick="openModal('Mathe E105', '11:15 - 12:45', 'E105', 'Übungsblatt 4', 'Übungsblatt 4')">
+              <div class="schedule-progress-fill" style="width: 70%;"></div>
               <div class="schedule-title">Mathe E105</div>
               <div class="schedule-time">11:15 - 12:45</div>
             </div>
-            <div class="schedule-item" onclick="openModal('Design J001', '12:45 - 14:15', 'J001', 'Skizzenbuch abgeben')">
+            <div class="schedule-item" onclick="openModal('Design J001', '12:45 - 14:15', 'J001', 'Skizzenbuch abgeben', 'Skizzenbuch')">
               <div class="schedule-title">Design J001</div>
               <div class="schedule-time">12:45 - 14:15</div>
             </div>
@@ -1325,7 +2097,7 @@
 
        <div class="mensa-card" id="widget-mensa">
           <div class="balance-left">
-  <div class="balance-amount" onclick="openTopupModal()">12,00€</div>
+  <div class="balance-amount" id="mensa-balance-amount" onclick="openTopupModal()">12,00€</div>
   <div class="balance-label" data-translate="mensa_balance_label">Karten-Guthaben</div>
   
   <div style="margin-top: 10px; color: var(--accent-blue); font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px;" onclick="openMapForBuilding('F', 'Mensa')">
@@ -1338,17 +2110,20 @@
 </div>
           
           <div class="scroll-list">
-            <div class="list-item" style="cursor: pointer;" onclick="openFoodModal('Schnitzel', '5,60€', 'Mit Pommes und Beilagensalat', 'A, C, G')"><span>Schnitzel</span><span class="item-value">5,60€</span></div>
-            <div class="list-item" style="cursor: pointer;" onclick="openFoodModal('Pommes', '2,50€', 'Portion Pommes frites', 'Keine')"><span>Pommes</span><span class="item-value">2,50€</span></div>
-            <div class="list-item" style="cursor: pointer;" onclick="openFoodModal('Salatbowl', '4,20€', 'Gemischter Salat mit Hausdressing', 'G, J')"><span>Salatbowl</span><span class="item-value">4,20€</span></div>
-            <div class="list-item" style="cursor: pointer;" onclick="openFoodModal('Eintopf', '3,80€', 'Kartoffeleintopf mit Würstchen', 'I, J')"><span>Eintopf</span><span class="item-value">3,80€</span></div>
+            <div class="list-item" style="cursor: pointer;" onclick="openMensaMenuModal()"><span>Schnitzel</span><span class="item-value">5,60€</span></div>
+            <div class="list-item" style="cursor: pointer;" onclick="openMensaMenuModal()"><span>Eintopf</span><span class="item-value">3,80€</span></div>
+            <div class="list-item" style="cursor: pointer;" onclick="openMensaMenuModal()"><span>Veganer Burger</span><span class="item-value">4,90€</span></div>
+            <div class="list-item" style="cursor: pointer;" onclick="openMensaMenuModal()"><span>Pommes</span><span class="item-value">2,50€</span></div>
+            <div class="list-item" style="cursor: pointer;" onclick="openMensaMenuModal()"><span>Salatbowl</span><span class="item-value">4,20€</span></div>
+            <div class="list-item" style="cursor: pointer;" onclick="openMensaMenuModal()"><span>Schokopudding</span><span class="item-value">1,50€</span></div>
+            <div class="list-item" style="cursor: pointer;" onclick="openMensaMenuModal()"><span>Obstsalat</span><span class="item-value">1,80€</span></div>
           </div>
         </div>
 
-        <div class="parking-card" id="widget-parking">
+        <div class="parking-card" id="widget-parking" style="cursor: pointer;" onclick="handleParkingClick(event)">
           <div class="parking-header">
             <span class="parking-title" data-translate="parking_title">Studierendenparkplatz</span>
-            <span class="parking-status" data-translate="parking_status_full">Fast voll</span>
+            <span class="parking-status" data-translate="parking_status_full" onclick="event.stopPropagation(); openTowModal();">Fast voll</span>
           </div>
           <div class="parking-bar-bg">
             <div class="parking-bar-fill" id="parking-bar"></div>
@@ -1359,75 +2134,52 @@
         <div class="rental-card" id="widget-rental">
           <div class="rental-header">
             <span class="rental-title" data-translate="rental_title">Verleih</span>
-            <div class="segmented-control" style="padding: 2px;">
-              <button class="segment-btn active" onclick="switchRentalView('books', this)" data-translate="rental_books" style="padding: 6px 12px; font-size: 12px;">Bücher</button>
-              <button class="segment-btn" onclick="switchRentalView('tech', this)" data-translate="rental_tech" style="padding: 6px 12px; font-size: 12px;">Technik</button>
+            <div class="segmented-control index-1" id="rental-segments" style="padding: 2px;">
+              <div class="segment-highlight"></div>
+              <button class="segment-btn" onclick="switchRentalView('books', this)" data-translate="rental_books" style="padding: 6px 12px; font-size: 12px;">Bücher</button>
+              <button class="segment-btn active" onclick="switchRentalView('tech', this)" data-translate="rental_tech" style="padding: 6px 12px; font-size: 12px;">Technik</button>
             </div>
           </div>
-          <div id="rental-books-view" class="rental-view active">
-            <div class="rental-empty" data-translate="rental_books_empty">Keine Bücher ausgeliehen.</div>
-          </div>
-          <div id="rental-tech-view" class="rental-view">
-            <div class="rental-item">
-              <span class="rental-item-title">Sony Alpha 7 IV</span>
-              <span class="rental-item-due" data-translate="rental_tech_due">In 2 Tagen</span>
-            </div>
-            <div class="rental-item">
-              <span class="rental-item-title">XLR Kabel (5m)</span>
-              <span class="rental-item-due today" data-translate="rental_tech_due_today">Heute</span>
+          <div id="rental-views-viewport" style="overflow: hidden; transition: height 0.4s cubic-bezier(0.25, 1, 0.5, 1); width: 100%;">
+            <div id="rental-views-container" style="display: flex; width: 200%; transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1); align-items: flex-start; transform: translateX(-50%);">
+              <div id="rental-books-view" class="rental-view" style="flex: 1 0 50%; width: 50%; opacity: 0; pointer-events: none; transition: opacity 0.3s;">
+                <div class="rental-empty" data-translate="rental_books_empty">Keine Bücher ausgeliehen.</div>
+              </div>
+              <div id="rental-tech-view" class="rental-view active" style="flex: 1 0 50%; width: 50%; opacity: 1; transition: opacity 0.3s;">
+                <div class="rental-item" style="cursor: pointer;" onclick="openRentalModal('Sony Alpha 7 IV', this.querySelector('.rental-item-due').innerText, 'J Gebäude (Grafiklabor)', 'Herr Bauer', 'Inkl. Tasche, 2 Akkus, 64GB SD', this)">
+                  <span class="rental-item-title">Sony Alpha 7 IV</span>
+                  <span class="rental-item-due" data-translate="rental_tech_due">In 2 Tagen</span>
+                </div>
+                <div class="rental-item" style="cursor: pointer;" onclick="openRentalModal('XLR Kabel (5m)', this.querySelector('.rental-item-due').innerText, 'J Gebäude (Audiolabor)', 'Frau Weber', 'Bitte ordentlich aufwickeln', this)">
+                  <span class="rental-item-title">XLR Kabel (5m)</span>
+                  <span class="rental-item-due today" data-translate="rental_tech_due_today">Heute</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-      <div class="bottom-widgets-row">
+      <div class="bottom-widgets-row" id="widget-bottom-row">
         <div class="vpn-card" id="widget-vpn">
           <div class="vpn-info">
             <span class="vpn-title" style="font-size: 14px;">VPN</span>
-            <span class="vpn-status" id="vpn-status-text" data-translate="vpn_status_disconnected" style="font-size: 11px;">Getrennt</span>
+            <span class="vpn-status active" id="vpn-status-text" data-translate="vpn_status_connected" style="font-size: 11px;">Verbunden</span>
           </div>
           <label class="toggle-switch" style="transform: scale(0.8); transform-origin: right;">
-            <input type="checkbox" class="toggle-input" id="vpn-toggle" onchange="toggleVPN()">
+            <input type="checkbox" class="toggle-input" id="vpn-toggle" checked onchange="toggleVPN()">
             <span class="toggle-slider"></span>
           </label>
         </div>
 
-        <div class="services-card" onclick="openServicesPage()">
+        <div class="services-card" id="widget-services" onclick="openServicesModal()">
           <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"></rect><rect x="14" y="3" width="7" height="7" rx="2"></rect><rect x="14" y="14" width="7" height="7" rx="2"></rect><rect x="3" y="14" width="7" height="7" rx="2"></rect></svg>
           <span style="font-weight: 600; font-size: 15px;">Dienste</span>
         </div>
-      </div> </div> <div id="page-services" class="page">
-        <div class="header" style="justify-content: flex-start; gap: 15px;">
-          <svg class="header-icon-svg" viewBox="0 0 24 24" onclick="closeServicesPage()"><polyline points="15 18 9 12 15 6"></polyline></svg>
-          <span>Dienste</span>
-        </div>
-        
-        <div class="services-page-grid">
-          <a href="https://elearning.th-deg.de" class="service-card">
-            <div class="service-icon-wrapper"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg></div>
-            <span class="service-name">Technik</span>
-          </a>
-          <a href="#" class="service-card">
-            <div class="service-icon-wrapper" style="color: #FF9500; background: rgba(255, 149, 0, 0.1);"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div>
-            <span class="service-name">Stundenplan</span>
-          </a>
-          <a href="#" class="service-card">
-            <div class="service-icon-wrapper" style="color: #34C759; background: rgba(52, 199, 89, 0.1);"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg></div>
-            <span class="service-name">Anträge</span>
-          </a>
-          <a href="https://ilearn.th-deg.de" class="service-card">
-            <div class="service-icon-wrapper" style="color: #AF52DE; background: rgba(175, 82, 222, 0.1);"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg></div>
-            <span class="service-name">iLearn</span>
-          </a>
-          <a href="#" class="service-card">
-            <div class="service-icon-wrapper" style="color: #FF2D55; background: rgba(255, 45, 85, 0.1);"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg></div>
-            <span class="service-name">Bibliothek</span>
-          </a>
-          <a href="#" class="service-card">
-            <div class="service-icon-wrapper" style="color: #5856D6; background: rgba(88, 86, 214, 0.1);"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></div>
-            <span class="service-name">Hilfe & FAQ</span>
-          </a>
-        </div>
-      </div>
+      </div> 
+      
+      <!-- margin-bottom: auto drückt die Widgets bei viel Platz nach oben, wodurch sie exakt zentriert werden -->
+      <div id="dashboard-bottom-spacer" style="height: 15px; flex-shrink: 0; margin-bottom: auto;"></div>
+      </div> 
       <div id="page-profil" class="page">
         <div class="header">
           <span data-translate="profile_header">Profil</span>
@@ -1438,56 +2190,112 @@
         </div>
         
         <div class="profile-scroll-area">
-          <div class="profile-header-info">
-            <svg width="80" height="80" viewBox="0 0 24 24" style="margin-bottom: 10px;" stroke="currentColor" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-            <div class="profile-name">Tobias</div>
-            <div class="profile-sub" data-translate="profile_major">Medientechnik</div>
-            <div class="profile-sub" data-translate="profile_semester">4. Semester</div>
+          <!-- Drückt das Profil nach unten, wenn viel Platz ist -->
+          <div id="profile-top-spacer" style="height: 15px; flex-shrink: 0; margin-top: auto;"></div>
+          
+          <div class="profile-content-wrapper">
+            <div class="profile-left">
+              <div class="profile-header-info">
+                <div id="profile-pic-container" style="width: 80px; height: 80px; margin: 0 auto 10px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; cursor: pointer;" onclick="document.getElementById('profile-pic-upload').click()">
+                  <img id="profile-pic-img" style="width: 100%; height: 100%; object-fit: cover; display: none;" />
+                  <svg id="profile-pic-svg" width="80" height="80" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                </div>
+                <input type="file" id="profile-pic-upload" accept="image/*" style="display: none;" onchange="handleProfilePicUpload(event)">
+                <div class="profile-name">Tobias</div>
+                <div class="profile-sub" data-translate="profile_major">Medientechnik</div>
+                <div class="profile-sub" data-translate="profile_semester">4. Semester</div>
+              </div>
+
+              <div class="stats-grid">
+                <div class="stat-card" id="profile-ects-card">
+                  <div class="stat-value">78</div>
+                  <div class="stat-label" data-translate="stats_ects_total">ECTS Gesamt</div>
+                </div>
+                <div class="stat-card" onclick="openGpaModal()" style="cursor: pointer;">
+                  <div class="stat-value" id="profile-gpa-value">2,1</div>
+                  <div class="stat-label" data-translate="stats_gpa">Notenschnitt</div>
+                </div>
+              </div>
+
+              <div class="progress-section">
+                <div class="section-title" data-translate="study_time_title">Studienzeit</div>
+                <div class="progress-bar-container">
+                  <div class="progress-bar-fill"></div>
+                  <div class="progress-bar-extra"></div>
+                </div>
+                <div class="progress-labels">
+                  <span data-translate="study_time_studied">460 Tage studiert</span>
+                  <span data-translate="study_time_remaining">635 Tage übrig</span>
+                </div>
+                <div class="progress-labels" style="margin-top: 5px; justify-content: flex-end;">
+                  <span style="color: var(--accent-orange);" data-translate="study_time_extra">+180 Tage (1 Extra-Semester)</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="profile-right">
+              <div class="section-title" style="margin-left: 5px;" data-translate="all_grades_title">Alle Noten</div>
+              <div class="grades-list">
+                <div class="list-item"><span>Mediengestaltung</span><span class="grade-value">1,3</span></div>
+                <div class="list-item"><span>Programmieren 1</span><span class="grade-value">2,0</span></div>
+                <div class="list-item"><span>Audio- & Videotechnik</span><span class="grade-value">1,7</span></div>
+                <div class="list-item"><span>Mathematik</span><span class="grade-value">2,3</span></div>
+                <div class="list-item"><span>Medienrecht</span><span class="grade-value">1,0</span></div>
+                <div class="list-item"><span>Webentwicklung</span><span class="grade-value">1,3</span></div>
+                <div class="list-item"><span>Computergrafik</span><span class="grade-value">2,7</span></div>
+                <div class="list-item"><span>Datenbanksysteme</span><span class="grade-value">2,0</span></div>
+                <div class="list-item"><span>Projektmanagement</span><span class="grade-value">1,3</span></div>
+                <div class="list-item"><span>Englisch B2</span><span class="grade-value">1,7</span></div>
+                <div class="list-item"><span>Physik</span><span class="grade-value">3,0</span></div>
+                <div class="list-item"><span>Algorithmen & Datenstrukturen</span><span class="grade-value">2,3</span></div>
+              </div>
+            </div>
           </div>
 
-          <div class="stats-grid">
-            <div class="stat-card" id="profile-ects-card">
-              <div class="stat-value">78</div>
-              <div class="stat-label" data-translate="stats_ects_total">ECTS Gesamt</div>
-            </div>
-            <div class="stat-card" onclick="openGpaModal()" style="cursor: pointer;">
-              <div class="stat-value">2,1</div>
-              <div class="stat-label" data-translate="stats_gpa">Notenschnitt</div>
-            </div>
-          </div>
-
-          <div class="progress-section">
-            <div class="section-title" data-translate="study_time_title">Studienzeit</div>
-            <div class="progress-bar-container">
-              <div class="progress-bar-fill"></div>
-              <div class="progress-bar-extra"></div>
-            </div>
-            <div class="progress-labels">
-              <span data-translate="study_time_studied">460 Tage studiert</span>
-              <span data-translate="study_time_remaining">635 Tage übrig</span>
-            </div>
-            <div class="progress-labels" style="margin-top: 5px; justify-content: flex-end;">
-              <span style="color: var(--accent-orange);" data-translate="study_time_extra">+180 Tage (1 Extra-Semester)</span>
-            </div>
-          </div>
-
-          <div class="section-title" style="margin-left: 5px;" data-translate="all_grades_title">Alle Noten</div>
-          <div class="grades-list">
-            <div class="list-item"><span>Mediengestaltung</span><span class="grade-value">1,3</span></div>
-            <div class="list-item"><span>Programmieren 1</span><span class="grade-value">2,0</span></div>
-            <div class="list-item"><span>Audio- & Videotechnik</span><span class="grade-value">1,7</span></div>
-            <div class="list-item"><span>Mathematik</span><span class="grade-value">2,3</span></div>
-            <div class="list-item"><span>Medienrecht</span><span class="grade-value">1,0</span></div>
-          </div>
+          <!-- Drückt das Profil nach oben, wenn viel Platz ist -->
+          <div id="profile-bottom-spacer" style="height: 15px; flex-shrink: 0; margin-bottom: auto;"></div>
         </div>
       </div>
 
       <div id="page-search" class="page">
         <div class="header">
           <span data-translate="search_header">Suche</span>
+          <svg class="header-icon-svg" viewBox="0 0 24 24" onclick="requestSearchClearConfirmation()"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
         </div>
         <div class="search-input-wrapper">
-          <input type="search" name="search_dummy" id="search-input" class="search-input" placeholder="Widgets & Elemente suchen..." data-translate="search_placeholder" onkeyup="performSearch()" autocomplete="nope" autocorrect="off" spellcheck="false">
+          <input type="search" name="search_dummy" id="search-input" class="search-input" placeholder="Widgets & Elemente suchen..." data-translate="search_placeholder" oninput="performSearch()" autocomplete="nope" autocorrect="off" spellcheck="false">
+          <div id="search-clear-btn" class="search-clear-btn" onclick="clearSearch()"></div>
+        </div>
+        <div class="search-suggestions" id="search-suggestions">
+        <div class="search-suggestions-wrapper">
+          <div class="search-col-left">
+            <div class="section-title" style="margin: 0 15px 10px;" data-translate="search_suggestions">Vorschläge</div>
+            <div class="suggestions-grid">
+              <div class="suggestion-tile" onclick="document.getElementById('search-input').value='Prof.'; performSearch();">
+                <svg viewBox="0 0 24 24" width="20" height="20" stroke="var(--accent-blue)" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                <span>Dozierende</span>
+              </div>
+              <div class="suggestion-tile" onclick="document.getElementById('search-input').value='Mensa'; performSearch();">
+                <svg viewBox="0 0 24 24" width="20" height="20" stroke="var(--accent-orange)" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"></path><path d="M7 2v20"></path><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"></path></svg>
+                <span>Mensa</span>
+              </div>
+              <div class="suggestion-tile" onclick="document.getElementById('search-input').value='VPN'; performSearch();">
+                <svg viewBox="0 0 24 24" width="20" height="20" stroke="var(--accent-blue)" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                <span>VPN</span>
+              </div>
+            <div class="suggestion-tile" onclick="addToHistory({id: 'profile-ects-card', title: 'Notenschnitt', page: 'page-profil', loc: 'Profil'}); jumpToElement('page-profil', 'profile-ects-card')">
+                <svg viewBox="0 0 24 24" width="20" height="20" stroke="#34C759" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                <span>Noten</span>
+              </div>
+            </div>
+          </div>
+          <div class="search-col-right">
+            <div class="section-title" style="margin: 20px 15px 10px;" data-translate="search_history">Zuletzt gesucht</div>
+            <div id="search-history-list" style="padding: 0 15px; display: flex; flex-direction: column; gap: 10px;">
+              <div style="color: var(--text-sub); font-size: 13px; text-align: center; padding: 10px;" data-translate="search_history_empty">Noch keine Suchanfragen</div>
+            </div>
+          </div>
+        </div>
         </div>
         <div class="search-results" id="search-results-container">
           </div>
@@ -1517,6 +2325,11 @@
   </div>
 
   <script>
+    // Blockiere das Standard-Kontextmenü, um Probleme beim Drag & Drop auf Android zu vermeiden
+    window.addEventListener('contextmenu', function (e) {
+      e.preventDefault();
+    });
+
     // VOLLBILD-FUNKTION (Aktiviert beim ersten Tippen, aber NICHT als installierte App)
     document.body.addEventListener('click', function() {
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
@@ -1534,6 +2347,9 @@
     let currentIndex = 0;
 
     function switchTab(pageId, navElement) {
+      // Wenn man bereits auf der ausgewählten Seite ist, Funktion sofort abbrechen
+      if (document.getElementById(pageId).classList.contains('active')) return;
+
       document.querySelector('.navbar').style.display = 'flex'; // Stellt sicher, dass die Navbar sichtbar ist
       currentIndex = pagesList.indexOf(pageId);
       
@@ -1545,34 +2361,167 @@
       const navItems = document.querySelectorAll('.nav-item');
       navItems.forEach(item => item.classList.remove('active'));
       navElement.classList.add('active');
+      
+      // JS-Animationen und Layout-Anpassungen beim Wechsel zum Dashboard
+      if (pageId === 'page-home') {
+        // Roll-Animationen von vorne starten
+        currentParkingSpots = 0;
+        updateParkingDisplay(true);
+        displayedMensaBalance = 0;
+        updateMensaBalance(true);
+
+        const activeRental = document.querySelector('#rental-views-container .rental-view.active');
+        const viewport = document.getElementById('rental-views-viewport');
+        if (activeRental && viewport && activeRental.offsetHeight > 0) {
+          viewport.style.height = activeRental.offsetHeight + 'px';
+        }
+      }
     }
 
     // Wischen (Swipe) Logik
     let startX = 0;
+    let startY = 0;
     const swipeArea = document.getElementById('swipe-area');
 
     swipeArea.addEventListener('touchstart', e => {
       startX = e.touches[0].clientX;
-    });
+      startY = e.touches[0].clientY;
+    }, { passive: true });
 
     swipeArea.addEventListener('touchend', e => {
-      let endX = e.changedTouches[0].clientX;
-      let diff = startX - endX;
+      if (typeof dragState !== 'undefined' && (dragState.isDragging || dragState.wasDragging)) return; // Blockiert Seitenwechsel beim Sortieren
 
-      if (diff > 60) {
-        if (currentIndex < pagesList.length - 1) {
-          const nextId = pagesList[currentIndex + 1];
-          const nextNav = document.querySelectorAll('.nav-item')[currentIndex + 1];
-          switchTab(nextId, nextNav);
-        }
-      } 
-      else if (diff < -60) {
-        if (currentIndex > 0) {
-          const prevId = pagesList[currentIndex - 1];
-          const prevNav = document.querySelectorAll('.nav-item')[currentIndex - 1];
-          switchTab(prevId, prevNav);
+      let endX = e.changedTouches[0].clientX;
+      let endY = e.changedTouches[0].clientY;
+      let diffX = startX - endX;
+      let diffY = startY - endY;
+
+      // Nur wischen, wenn die horizontale Bewegung größer als die vertikale ist (verhindert Auslösen beim Scrollen)
+      if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 70) {
+        if (diffX > 0) {
+          if (currentIndex < pagesList.length - 1) {
+            const nextId = pagesList[currentIndex + 1];
+            const nextNav = document.querySelectorAll('.nav-item')[currentIndex + 1];
+            switchTab(nextId, nextNav);
+          }
+        } 
+        else if (diffX < 0) {
+          if (currentIndex > 0) {
+            const prevId = pagesList[currentIndex - 1];
+            const prevNav = document.querySelectorAll('.nav-item')[currentIndex - 1];
+            switchTab(prevId, prevNav);
+          }
         }
       }
+    });
+
+    // Wischen für Verleih-Widget
+    const rentalWidget = document.getElementById('widget-rental');
+    let rentalStartX = 0;
+    let rentalStartY = 0;
+
+    if (rentalWidget) {
+      rentalWidget.addEventListener('touchstart', e => {
+        rentalStartX = e.touches[0].clientX;
+        rentalStartY = e.touches[0].clientY;
+      }, { passive: true });
+
+      rentalWidget.addEventListener('touchend', e => {
+        if (typeof dragState !== 'undefined' && (dragState.isDragging || dragState.wasDragging)) return;
+
+        let endX = e.changedTouches[0].clientX;
+        let endY = e.changedTouches[0].clientY;
+        let diffX = rentalStartX - endX;
+        let diffY = rentalStartY - endY;
+
+        if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 40) {
+          const booksBtn = rentalWidget.querySelector('.segment-btn[onclick*="books"]');
+          const techBtn = rentalWidget.querySelector('.segment-btn[onclick*="tech"]');
+
+          if (diffX > 0 && booksBtn.classList.contains('active')) {
+            switchRentalView('tech', techBtn);
+            e.stopPropagation(); // Verhindert Seitenwechsel, da intern gewischt wurde
+          } else if (diffX < 0 && techBtn.classList.contains('active')) {
+            switchRentalView('books', booksBtn);
+            e.stopPropagation(); // Verhindert Seitenwechsel, da intern gewischt wurde
+          }
+        }
+      });
+    }
+
+    // Wischen für Mails/iLearn-Ansicht
+    const mailViewsWrapper = document.querySelector('.notification-views-wrapper');
+    let mailStartX = 0;
+    let mailStartY = 0;
+
+    if (mailViewsWrapper) {
+      mailViewsWrapper.addEventListener('touchstart', e => {
+        const mailPage = document.getElementById('page-mails');
+        if (mailPage && mailPage.classList.contains('selection-mode')) return; // Swipen beim Auswählen blockieren
+        mailStartX = e.touches[0].clientX;
+        mailStartY = e.touches[0].clientY;
+      }, { passive: true });
+
+      mailViewsWrapper.addEventListener('touchend', e => {
+        const mailPage = document.getElementById('page-mails');
+        if (mailPage && mailPage.classList.contains('selection-mode')) return;
+        if (typeof isDraggingSelection !== 'undefined' && isDraggingSelection) return;
+
+        let endX = e.changedTouches[0].clientX;
+        let endY = e.changedTouches[0].clientY;
+        let diffX = mailStartX - endX;
+        let diffY = mailStartY - endY;
+
+        if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 40) {
+          const mailSegments = document.getElementById('mail-segments');
+          const mailsBtn = mailSegments.querySelector('.segment-btn[onclick*="mails"]');
+          const ilearnBtn = mailSegments.querySelector('.segment-btn[onclick*="ilearn"]');
+
+          if (diffX > 0 && mailsBtn.classList.contains('active')) {
+            switchNotificationView('ilearn', ilearnBtn);
+            e.stopPropagation(); // Verhindert allgemeinen Seitenwechsel
+          } else if (diffX < 0 && ilearnBtn.classList.contains('active')) {
+            switchNotificationView('mails', mailsBtn);
+            e.stopPropagation(); // Verhindert allgemeinen Seitenwechsel
+          }
+        }
+      });
+    }
+
+    function ensureMailIds() {
+      document.querySelectorAll('.mail-item').forEach((item, index) => {
+        if (!item.hasAttribute('data-mail-id')) {
+          item.setAttribute('data-mail-id', 'mail-' + Date.now() + '-' + Math.floor(Math.random() * 10000) + '-' + index);
+        }
+      });
+    }
+
+    // Initiale Setup-Logik für Slider
+    window.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+        const activeRental = document.querySelector('#rental-views-container .rental-view.active');
+        const viewport = document.getElementById('rental-views-viewport');
+        if (activeRental && viewport) {
+          viewport.style.height = activeRental.offsetHeight + 'px';
+        }
+      }, 50);
+
+      loadAllData();
+      ensureMailIds();
+      initWidgetDragAndDrop();
+      initParkingChartInteraction();
+      setupTabletLayout();
+      checkEmptyMailLists();
+      updateParkingDisplay();
+    });
+
+    window.addEventListener('resize', () => {
+      const activeRental = document.querySelector('#rental-views-container .rental-view.active');
+      const viewport = document.getElementById('rental-views-viewport');
+      if (activeRental && viewport && activeRental.offsetHeight > 0) {
+        viewport.style.height = activeRental.offsetHeight + 'px';
+      }
+      setupTabletLayout();
     });
 
     // Umschalter für Mail / iLearn
@@ -1581,11 +2530,26 @@
       buttons.forEach(btn => btn.classList.remove('active'));
       buttonElement.classList.add('active');
 
+      const segmentedControl = document.getElementById('mail-segments');
+      if (viewId === 'ilearn') segmentedControl.classList.add('index-1');
+      else segmentedControl.classList.remove('index-1');
+
       const views = document.querySelectorAll('#page-mails .notification-view');
       views.forEach(view => view.classList.remove('active'));
       
       const targetView = document.getElementById(viewId + '-view');
       if (targetView) targetView.classList.add('active');
+
+      const container = document.getElementById('notification-container');
+      if (viewId === 'mails') container.style.transform = 'translateX(0)';
+      else container.style.transform = 'translateX(-50%)';
+
+      const mailPage = document.getElementById('page-mails');
+      if (viewId === 'ilearn') {
+        mailPage.classList.add('ilearn-active');
+      } else {
+        mailPage.classList.remove('ilearn-active');
+      }
     }
 
     // Umschalter für Verleih
@@ -1595,15 +2559,35 @@
       buttons.forEach(btn => btn.classList.remove('active'));
       buttonElement.classList.add('active');
 
+      const segmentedControl = document.getElementById('rental-segments');
+      if (viewId === 'tech') segmentedControl.classList.add('index-1');
+      else segmentedControl.classList.remove('index-1');
+
       const views = card.querySelectorAll('.rental-view');
-      views.forEach(view => view.classList.remove('active'));
+      views.forEach(view => {
+        view.classList.remove('active');
+        view.style.opacity = '0';
+        view.style.pointerEvents = 'none';
+      });
       
       const targetView = card.querySelector('#rental-' + viewId + '-view');
-      if (targetView) targetView.classList.add('active');
+      if (targetView) {
+        targetView.classList.add('active');
+        targetView.style.opacity = '1';
+        targetView.style.pointerEvents = 'auto';
+      }
+
+      const container = document.getElementById('rental-views-container');
+      if (viewId === 'books') container.style.transform = 'translateX(0)';
+      else container.style.transform = 'translateX(-50%)';
+      
+      // Passe Wrapper-Höhe an Inhalt an
+      const viewport = document.getElementById('rental-views-viewport');
+      if (viewport && targetView) viewport.style.height = targetView.offsetHeight + 'px';
     }
 
     // Modal (Popup) Logik
-    function openModal(title, time, room, tasks) {
+    function openModal(title, time, room, tasks, searchKeyword) {
       document.getElementById('popup-title').innerText = title;
       document.getElementById('popup-time').innerText = time;
       document.getElementById('popup-room').innerText = room;
@@ -1624,9 +2608,54 @@
       }
       
       document.getElementById('modal-overlay').classList.add('show');
+      
+      const closeBtn = document.getElementById('course-modal-close-btn');
+      if (closeBtn) {
+        closeBtn.classList.remove('btn-primary');
+        closeBtn.classList.add('btn-secondary');
+      }
+
+      const iLearnBtn = document.getElementById('course-modal-ilearn-btn');
+      if (iLearnBtn) {
+        iLearnBtn.style.display = 'block';
+        if (searchKeyword) {
+            iLearnBtn.onclick = () => goToILearnNotification(searchKeyword);
+        } else {
+            iLearnBtn.onclick = () => window.location.href='https://elearning.th-deg.de';
+        }
+      }
+
       setTimeout(() => {
         document.getElementById('course-modal').classList.add('show');
       }, 10);
+    }
+
+    function goToILearnNotification(keyword) {
+      closeModal();
+      setTimeout(() => {
+        // Zum Mails Tab wechseln per Klick
+        const mailsNavBtn = document.querySelectorAll('.nav-item')[2];
+        if (mailsNavBtn) mailsNavBtn.click();
+        
+        // Zum iLearn Segment wechseln per Klick
+        const ilearnSegmentBtn = document.querySelectorAll('#mail-segments .segment-btn')[1];
+        if (ilearnSegmentBtn && !ilearnSegmentBtn.classList.contains('active')) {
+            ilearnSegmentBtn.click();
+        }
+        
+        // iLearn E-Mail finden und öffnen
+        const ilearnMails = document.querySelectorAll('#ilearn-view .mail-item');
+        for (let mail of ilearnMails) {
+            if (mail.innerText.toLowerCase().includes(keyword.toLowerCase())) {
+                setTimeout(() => {
+                    mail.click();
+                    mail.classList.add('highlight-anim');
+                    setTimeout(() => mail.classList.remove('highlight-anim'), 1000);
+                }, 400); // Kurz warten, bis die Ansicht und Animationen fertig sind
+                break;
+            }
+        }
+      }, 300); // Warten bis das alte Modal zu ist
     }
 
     function openFoodModal(name, price, desc, allergens) {
@@ -1641,6 +2670,27 @@
       }, 10);
     }
 
+    function openMensaMenuModal() {
+      document.getElementById('modal-overlay').classList.add('show');
+      setTimeout(() => {
+        document.getElementById('mensa-menu-modal').classList.add('show');
+      }, 10);
+    }
+
+    function openFoodModalFromMenu(name, price, desc, allergens) {
+      closeModal();
+      setTimeout(() => {
+        openFoodModal(name, price, desc, allergens);
+      }, 300);
+    }
+
+    function goBackToMenu() {
+      closeModal();
+      setTimeout(() => {
+        openMensaMenuModal();
+      }, 300);
+    }
+
     function openMapForBuilding(letter, title) {
   // Wenn es Gebäude F ist, zeige "1. Stock" statt Erdgeschoss
   let floor = "Erdgeschoss";
@@ -1650,6 +2700,17 @@
   
   // Nutzt das bestehende Kurs-Modal für die Karte
   openModal(title, 'Gebäude ' + letter, letter + ' Gebäude', floor);
+  
+  const closeBtn = document.getElementById('course-modal-close-btn');
+  if (closeBtn) {
+    closeBtn.classList.remove('btn-secondary');
+    closeBtn.classList.add('btn-primary');
+  }
+
+  const iLearnBtn = document.getElementById('course-modal-ilearn-btn');
+  if (iLearnBtn) {
+    iLearnBtn.style.display = 'none';
+  }
 }
 
     function closeModal() {
@@ -1662,8 +2723,12 @@
           document.querySelectorAll('.mail-item.selected').forEach(item => item.classList.remove('selected'));
       }
 
-      allModals.forEach(m => m.classList.remove('show'));
+      allModals.forEach(m => {
+        m.classList.remove('show');
+        m.classList.remove('keyboard-up');
+      });
       document.getElementById('modal-overlay').classList.remove('show');
+      isLongPress = false; // Sicherheitsnetz: Setzt den Status global zurück
     }
 
     function openComposeModal() {
@@ -1691,6 +2756,18 @@
       }, 10);
     }
 
+    function openInsufficientFundsModal() {
+      document.getElementById('modal-overlay').classList.add('show');
+      setTimeout(() => {
+        document.getElementById('insufficient-funds-modal').classList.add('show');
+      }, 10);
+    }
+
+    function openTopupModalFromInsufficient() {
+      closeModal();
+      setTimeout(openTopupModal, 300);
+    }
+
     function openGpaModal() {
       document.getElementById('modal-overlay').classList.add('show');
       setTimeout(() => {
@@ -1698,11 +2775,41 @@
       }, 10);
     }
 
+    let selectedTopupAmount = 50;
+
+    function updateTopupDisplay() {
+        const slider = document.getElementById('topup-slider');
+        selectedTopupAmount = parseInt(slider.value, 10);
+        document.getElementById('topup-amount-display').innerText = selectedTopupAmount.toFixed(2).replace('.', ',') + '€';
+        
+        const percentage = ((selectedTopupAmount - slider.min) / (slider.max - slider.min)) * 100;
+        slider.style.setProperty('--slider-fill', percentage + '%');
+    }
+
     function openTopupModal() {
+      selectedTopupAmount = 50;
+      const slider = document.getElementById('topup-slider');
+      if(slider) {
+          slider.value = 50;
+          updateTopupDisplay();
+      }
       document.getElementById('modal-overlay').classList.add('show');
       setTimeout(() => {
         document.getElementById('topup-modal').classList.add('show');
       }, 10);
+    }
+
+    function openTopupConfirmModal() {
+      closeModal();
+      
+      const amountStr = selectedTopupAmount.toFixed(2).replace('.', ',') + '€';
+      document.getElementById('confirm-amount').innerText = amountStr;
+      document.getElementById('confirm-total').innerText = amountStr;
+      
+      setTimeout(() => {
+        document.getElementById('modal-overlay').classList.add('show');
+        document.getElementById('topup-confirm-modal').classList.add('show');
+      }, 300); // Kurz warten bis das erste Fenster geschlossen ist
     }
 
     function openTowModal() {
@@ -1712,23 +2819,71 @@
       }, 10);
     }
 
+    function openParkingModal() {
+      document.getElementById('modal-overlay').classList.add('show');
+      setTimeout(() => {
+        document.getElementById('parking-modal').classList.add('show');
+      }, 10);
+    }
+
+    function handleParkingClick(e) {
+      openParkingModal();
+    }
+
     // Alte Parkplatz-Klick-Logik entfernt
 
     function toggleWidget(widgetId, checkbox) {
       const widget = document.getElementById(widgetId);
       if (widget) {
-        widget.style.display = checkbox.checked ? '' : 'none';
+        if (checkbox.checked) {
+          widget.classList.remove('widget-hidden');
+        } else {
+          widget.classList.add('widget-hidden');
+        }
+      }
+
+      // Special handling for the bottom row container
+      if (widgetId === 'widget-vpn' || widgetId === 'widget-services') {
+        const vpnInput = document.querySelector('input[onchange="toggleWidget(\'widget-vpn\', this)"]');
+        const servicesInput = document.querySelector('input[onchange="toggleWidget(\'widget-services\', this)"]');
+        const bottomRow = document.getElementById('widget-bottom-row');
+        if (bottomRow && vpnInput && servicesInput) {
+            if (!vpnInput.checked && !servicesInput.checked) {
+                bottomRow.classList.add('widget-hidden');
+            } else {
+                bottomRow.classList.remove('widget-hidden');
+            }
+        }
+      }
+
+      // Special handling for the top row container
+      if (widgetId === 'widget-ects' || widgetId === 'widget-schedule') {
+        const ectsInput = document.querySelector('input[onchange="toggleWidget(\'widget-ects\', this)"]');
+        const schedInput = document.querySelector('input[onchange="toggleWidget(\'widget-schedule\', this)"]');
+        const topRow = document.getElementById('widget-top-row');
+        if (topRow && ectsInput && schedInput) {
+            if (!ectsInput.checked && !schedInput.checked) {
+                topRow.classList.add('widget-hidden');
+            } else {
+                topRow.classList.remove('widget-hidden');
+            }
+        }
       }
 
       // Prüfen, ob alle Widgets ausgeblendet sind (Easter Egg)
-      const allWidgets = ['widget-schedule', 'widget-mensa', 'widget-parking', 'widget-rental', 'widget-vpn'];
+      const allWidgets = ['widget-ects', 'widget-schedule', 'widget-mensa', 'widget-parking', 'widget-rental', 'widget-vpn', 'widget-services'];
       const isAnyVisible = allWidgets.some(id => {
         const w = document.getElementById(id);
-        return w && w.style.display !== 'none';
+        return w && !w.classList.contains('widget-hidden');
       });
       const emptyMsg = document.getElementById('empty-dashboard-msg');
       if (emptyMsg) {
-        emptyMsg.style.display = isAnyVisible ? 'none' : 'flex';
+        if (!isAnyVisible) {
+          emptyMsg.style.display = 'flex';
+          emptyMsg.style.animation = 'fadeIn 0.5s ease';
+        } else {
+          emptyMsg.style.display = 'none';
+        }
       }
     }
 
@@ -1742,6 +2897,31 @@
           badge.classList.remove('show');
         }
       }
+    }
+
+    function checkEmptyMailLists() {
+      document.querySelectorAll('.mail-list').forEach(list => {
+        const hasMails = list.querySelector('.mail-item') !== null;
+        let emptyMsg = list.querySelector('.empty-mail-msg');
+        
+        if (!hasMails) {
+          if (!emptyMsg) {
+            emptyMsg = document.createElement('div');
+            emptyMsg.className = 'empty-mail-msg';
+            emptyMsg.style.textAlign = 'center';
+            emptyMsg.style.color = 'var(--text-sub)';
+            emptyMsg.style.padding = '30px 15px';
+            emptyMsg.style.margin = 'auto';
+            emptyMsg.style.fontSize = '14px';
+            emptyMsg.setAttribute('data-translate', 'empty_mails');
+            emptyMsg.innerText = translations[currentLanguage] ? translations[currentLanguage].empty_mails : "Keine Nachrichten vorhanden";
+            list.appendChild(emptyMsg);
+          }
+          emptyMsg.style.display = 'block';
+        } else if (emptyMsg) {
+          emptyMsg.style.display = 'none';
+        }
+      });
     }
 
     function openDeleteModal() {
@@ -1760,8 +2940,34 @@
         // ECTS auf dem Home-Dashboard ebenfalls auf 0 setzen
         const homeEctsValue = document.querySelector('.ects-number');
         if (homeEctsValue) homeEctsValue.innerText = '0';
+        
+        // Studienzeit als Strafe anpassen
+        translations['de'].study_time_studied = "0 Tage studiert";
+        translations['en'].study_time_studied = "0 days studied";
+        translations['de'].study_time_remaining = "1095 Tage übrig";
+        translations['en'].study_time_remaining = "1095 days remaining";
+        translations['de'].study_time_extra = "+900 Tage (5 Extra-Semester)";
+        translations['en'].study_time_extra = "+900 days (5 extra semesters)";
+        
+        document.querySelectorAll('[data-translate="study_time_studied"]').forEach(el => el.innerText = translations[currentLanguage].study_time_studied);
+        document.querySelectorAll('[data-translate="study_time_remaining"]').forEach(el => el.innerText = translations[currentLanguage].study_time_remaining);
+        document.querySelectorAll('[data-translate="study_time_extra"]').forEach(el => el.innerText = translations[currentLanguage].study_time_extra);
+        
+        const fillBar = document.querySelector('.progress-bar-fill');
+        const extraBar = document.querySelector('.progress-bar-extra');
+        
+        if (fillBar) {
+          fillBar.style.animation = 'none';
+          fillBar.style.transition = 'width 1.5s cubic-bezier(0.25, 1, 0.5, 1)';
+          setTimeout(() => fillBar.style.width = '0%', 10);
+        }
+        if (extraBar) {
+          extraBar.style.animation = 'none';
+          extraBar.style.transition = 'width 1.5s cubic-bezier(0.25, 1, 0.5, 1)';
+          setTimeout(() => extraBar.style.width = '75%', 10);
+        }
       } else {
-        const selectedItems = document.querySelectorAll('#page-mails .mail-item.selected');
+        const selectedItems = document.querySelectorAll('.mail-item.selected');
         if (selectedItems.length > 0) {
           selectedItems.forEach(item => {
             item.style.transition = 'all 0.3s ease';
@@ -1770,6 +2976,7 @@
             setTimeout(() => {
               item.remove();
               updateUnreadBadge();
+              checkEmptyMailLists();
             }, 300);
           });
           if (document.getElementById('page-mails').classList.contains('selection-mode')) {
@@ -1792,6 +2999,12 @@
             modalText.innerText = translations[currentLanguage].delete_confirm_single;
         } else {
             modalText.innerText = translations[currentLanguage].delete_confirm_multiple.replace('{count}', selectedCount);
+        }
+        
+        const modalTitle = document.querySelector('#delete-modal .modal-title');
+        if (modalTitle) {
+            modalTitle.innerText = translations[currentLanguage].delete_title;
+            modalTitle.setAttribute('data-translate', 'delete_title');
         }
         openDeleteModal();
     }
@@ -1817,7 +3030,40 @@
         deleteBtn.style.cursor = selectedCount > 0 ? 'pointer' : 'default';
     }
 
+    function addMailToDOM(newMailElement, isILearn = false) {
+      if (!newMailElement.hasAttribute('data-mail-id')) {
+        newMailElement.setAttribute('data-mail-id', 'mail-' + Date.now() + '-' + Math.floor(Math.random() * 10000));
+      }
+      
+      attachMailEventListeners(newMailElement);
+      
+      const targetListSelector = isILearn ? '#ilearn-view .mail-list' : '#mails-view .mail-list';
+      const mainList = document.querySelector(targetListSelector);
+      if (mainList) mainList.prepend(newMailElement);
+
+      const tabletMailCol = document.querySelector('.tablet-wrapper .mail-column');
+      if (tabletMailCol) {
+        const clone = newMailElement.cloneNode(true);
+        attachMailEventListeners(clone);
+        const tabletLists = tabletMailCol.querySelectorAll('.mail-list');
+        if (isILearn && tabletLists.length > 1) {
+          tabletLists[1].prepend(clone);
+        } else if (!isILearn && tabletLists.length > 0) {
+          tabletLists[0].prepend(clone);
+        }
+      }
+      updateUnreadBadge();
+      checkEmptyMailLists();
+    }
+
     function executeTow() {
+      if (mensaBalance < 14.99) {
+        closeModal();
+        setTimeout(openInsufficientFundsModal, 300);
+        return;
+      }
+      mensaBalance -= 14.99;
+      updateMensaBalance();
       closeModal();
 
       if (occupiedParkingSpots > 0) {
@@ -1826,7 +3072,6 @@
       }
 
       // Neue E-Mail erstellen
-      const mailList = document.querySelector('#mails-view .mail-list');
       const newMail = document.createElement('div');
       newMail.className = 'mail-item unread';
       
@@ -1843,45 +3088,197 @@
         <div class="mail-preview" data-translate="tow_mail_body">${translations[currentLanguage].tow_mail_body}</div>
       `;
 
-      attachMailEventListeners(newMail);
-      mailList.prepend(newMail);
-      updateUnreadBadge();
+      addMailToDOM(newMail, false);
+    }
+
+    function openRentalModal(title, due, loc, person, notes, element) {
+      document.getElementById('rental-popup-title').innerText = title;
+      document.getElementById('rental-popup-due').innerText = due;
+      document.getElementById('rental-popup-loc').innerText = loc;
+      document.getElementById('rental-popup-person').innerText = person;
+      document.getElementById('rental-popup-notes').innerText = notes;
+      
+      const modal = document.getElementById('rental-modal');
+      const buildings = modal.querySelectorAll('.building');
+      buildings.forEach(b => b.style.fill = '#2C2C2E');
+      
+      const buildingLetter = loc.charAt(0).toUpperCase();
+      const targetBuilding = modal.querySelector('.rental-bldg-' + buildingLetter);
+      
+      if (buildingLetter === 'I' || loc.includes("ITC")) {
+        const itc = modal.querySelector('.rental-bldg-ITC');
+        if(itc) itc.style.fill = 'var(--accent-blue)';
+      } else if (targetBuilding) {
+        targetBuilding.style.fill = 'var(--accent-blue)';
+      }
+
+      document.getElementById('modal-overlay').classList.add('show');
+      setTimeout(() => {
+        modal.classList.add('show');
+      }, 10);
+    }
+
+    function openContactModal(contact) {
+      clearSearch();
+
+      document.getElementById('contact-popup-name').innerText = contact.title;
+      document.getElementById('contact-popup-faculty').innerText = contact.faculty || contact.loc;
+      
+      const actionBtn = document.getElementById('contact-action-btn');
+      actionBtn.onclick = () => {
+        closeModal();
+        setTimeout(() => {
+          document.getElementById('comp-to').value = contact.email || contact.title;
+          document.getElementById('comp-subject').value = '';
+          document.getElementById('comp-body').value = ''; 
+          openComposeModal();
+        }, 300);
+      };
+      
+      document.getElementById('modal-overlay').classList.add('show');
+      setTimeout(() => {
+        document.getElementById('contact-modal').classList.add('show');
+      }, 10);
     }
 
     // --- Such-Logik Start ---
     const searchData = [
-      { id: 'widget-schedule', title: 'Stundenplan & ECTS', page: 'page-home', loc: 'Home' },
+      { id: 'widget-schedule', title: 'Stundenplan', page: 'page-home', loc: 'Home' },
+      { id: 'widget-ects', title: 'ECTS', page: 'page-home', loc: 'Home' },
       { id: 'widget-mensa', title: 'Mensa & Guthaben', page: 'page-home', loc: 'Home' },
       { id: 'widget-parking', title: 'Parkplatz', page: 'page-home', loc: 'Home' },
       { id: 'widget-rental', title: 'Verleih', page: 'page-home', loc: 'Home' },
       { id: 'widget-vpn', title: 'VPN', page: 'page-home', loc: 'Home' },
       { id: 'page-services', title: 'Dienste', page: 'page-services', loc: 'Menü' },
       { id: 'mails-view', title: 'Posteingang', page: 'page-mails', loc: 'Mails' },
-      { id: 'profile-ects-card', title: 'Notenschnitt', page: 'page-profil', loc: 'Profil' }
+      { id: 'profile-ects-card', title: 'Notenschnitt', page: 'page-profil', loc: 'Profil' },
+      { type: 'contact', id: 'prof-schmidt', title: 'Prof. Dr. Schmidt', loc: 'Fakultät AN', email: 'prof.schmidt@th-deg.de', faculty: 'Angewandte Naturwissenschaften' },
+      { type: 'contact', id: 'prof-weber', title: 'Prof. Weber', loc: 'Fakultät EI', email: 'prof.weber@th-deg.de', faculty: 'Elektrotechnik, Medientechnik & Informatik' },
+      { type: 'contact', id: 'prof-meier', title: 'Prof. Dr. Meier', loc: 'Fakultät AW', email: 'prof.meier@th-deg.de', faculty: 'Angewandte Wirtschaftswissenschaften' },
+      { type: 'contact', id: 'prof-bauer', title: 'Prof. Dr. Bauer', loc: 'Fakultät B', email: 'prof.bauer@th-deg.de', faculty: 'Bauingenieurwesen & Umwelttechnik' },
+      { type: 'contact', id: 'prof-fuchs', title: 'Prof. Dr. Fuchs', loc: 'Fakultät M', email: 'prof.fuchs@th-deg.de', faculty: 'Maschinenbau & Mechatronik' },
+      { type: 'contact', id: 'it-support', title: 'IT-Support', loc: 'Service', email: 'it-support@th-deg.de', faculty: 'Zentrale Dienste' },
+      { type: 'contact', id: 'pruefungsamt', title: 'Prüfungsamt', loc: 'Service', email: 'pruefungsamt@th-deg.de', faculty: 'Studienzentrum' },
+      { type: 'contact', id: 'career-service', title: 'Career Service', loc: 'Service', email: 'career-service@th-deg.de', faculty: 'Zentrale Dienste' },
+      { type: 'contact', id: 'asta', title: 'AStA', loc: 'Studentenvertretung', email: 'asta@th-deg.de', faculty: 'Allgemeiner Studierendenausschuss' }
     ];
+
+    let searchHistory = JSON.parse(localStorage.getItem('thd_search_history') || '[]');
+
+    function addToHistory(item) {
+      // Entferne Element falls es schon im Verlauf ist, damit es ganz oben neu auftaucht
+      searchHistory = searchHistory.filter(i => i.title !== item.title);
+      searchHistory.unshift(item);
+      if (searchHistory.length > 5) searchHistory.pop(); // Maximal 5 Einträge speichern
+      if (isStorageEnabled()) {
+        localStorage.setItem('thd_search_history', JSON.stringify(searchHistory));
+      }
+      renderSearchHistory();
+    }
+
+    function requestSearchClearConfirmation() {
+      document.getElementById('modal-overlay').classList.add('show');
+      setTimeout(() => {
+        document.getElementById('clear-search-modal').classList.add('show');
+      }, 10);
+    }
+
+    function confirmClearSearch() {
+      clearSearchHistory();
+      closeModal();
+    }
+
+    function clearSearchHistory() {
+      searchHistory = [];
+      if (isStorageEnabled()) {
+        localStorage.removeItem('thd_search_history');
+      }
+      renderSearchHistory();
+    }
+
+    function renderSearchHistory() {
+      const container = document.getElementById('search-history-list');
+      if (!container) return;
+      container.innerHTML = '';
+      
+      if (searchHistory.length === 0) {
+        container.innerHTML = `<div style="color: var(--text-sub); font-size: 13px; text-align: center; padding: 10px;" data-translate="search_history_empty">${translations[currentLanguage].search_history_empty}</div>`;
+        return;
+      }
+
+      searchHistory.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'search-result-item';
+        div.innerHTML = `<span class="search-result-title">${item.title}</span><span class="search-result-loc">${item.loc}</span>`;
+        
+        if (item.type === 'contact') {
+          div.onclick = () => {
+            addToHistory(item); // Klick aus dem Verlauf aktualisiert ihn ebenfalls wieder nach oben
+            openContactModal(item);
+          };
+        } else {
+          div.onclick = () => {
+            addToHistory(item); // Klick aus dem Verlauf aktualisiert ihn ebenfalls wieder nach oben
+            jumpToElement(item.page, item.id);
+          };
+        }
+        container.appendChild(div);
+      });
+    }
 
     function performSearch() {
       const q = document.getElementById('search-input').value.toLowerCase();
       const container = document.getElementById('search-results-container');
-      container.innerHTML = '';
-      if(!q) return;
+      const suggestions = document.getElementById('search-suggestions');
+      const clearBtn = document.getElementById('search-clear-btn');
       
+      if(clearBtn) {
+        clearBtn.style.display = q.length > 0 ? 'block' : 'none';
+      }
+
+      container.innerHTML = '';
+      
+      if(!q) {
+        if(suggestions) suggestions.style.display = 'block';
+        return;
+      }
+      
+      if(suggestions) suggestions.style.display = 'none';
+
       searchData.filter(item => item.title.toLowerCase().includes(q)).forEach(item => {
         const div = document.createElement('div');
         div.className = 'search-result-item';
         div.innerHTML = `<span class="search-result-title">${item.title}</span><span class="search-result-loc">${item.loc}</span>`;
-        div.onclick = () => jumpToElement(item.page, item.id);
+        
+        if (item.type === 'contact') {
+          div.onclick = () => {
+            addToHistory(item);
+            openContactModal(item);
+          };
+        } else {
+          div.onclick = () => {
+            addToHistory(item);
+            jumpToElement(item.page, item.id);
+          };
+        }
         container.appendChild(div);
       });
     }
 
     function jumpToElement(pageId, elementId) {
-      if (pageId === 'page-services') {
-        openServicesPage();
-      } else {
-        const navIndex = pagesList.indexOf(pageId);
-        if(navIndex > -1) switchTab(pageId, document.querySelectorAll('.nav-item')[navIndex]);
+      const searchInput = document.getElementById('search-input');
+      if (searchInput) {
+        searchInput.value = '';
+        performSearch();
       }
+
+      if (pageId === 'page-services') {
+        openServicesModal();
+        return;
+      }
+      
+      const navIndex = pagesList.indexOf(pageId);
+      if(navIndex > -1) switchTab(pageId, document.querySelectorAll('.nav-item')[navIndex]);
       
       setTimeout(() => {
         const el = document.getElementById(elementId);
@@ -1891,6 +3288,14 @@
           setTimeout(() => el.classList.remove('highlight-anim'), 1000);
         }
       }, 300);
+    }
+
+    function clearSearch() {
+      const searchInput = document.getElementById('search-input');
+      if (searchInput) {
+        searchInput.value = '';
+        performSearch();
+      }
     }
     // --- Such-Logik Ende ---
 
@@ -1903,7 +3308,12 @@
         search_nav: "Suche",
         search_header: "Suche",
         search_placeholder: "Widgets & Elemente suchen...",
+        search_suggestions: "Vorschläge",
+        search_history: "Zuletzt gesucht",
+        search_history_empty: "Noch keine Suchanfragen",
         profile_nav: "Profil",
+        clear_search_title: "Suchverlauf leeren",
+        clear_search_confirm: "Möchtest du deinen gesamten Suchverlauf löschen?",
         // Mails Page
         mails_header: "Mail",
         ilearn_header: "iLearn",
@@ -1922,16 +3332,28 @@
         mensa_balance_label: "Karten-Guthaben",
         parking_title: "Studierendenparkplatz",
         parking_status_full: "Fast voll",
+        parking_status_medium: "Gut besucht",
+        parking_status_low: "Viele frei",
         parking_text: "Ca. {spots} von 200 Plätzen belegt",
+        parking_modal_title: "Auslastung",
+        parking_modal_subtitle: "Heute",
+        parking_forecast: "Prognose",
         vpn_title: "Hochschul-VPN",
         vpn_status_disconnected: "Getrennt",
         vpn_status_connected: "Verbunden",
+        vpn_notif_title: "VPN Verbunden",
+        vpn_notif_body: "Die Verbindung zum Hochschulnetzwerk wurde hergestellt.",
         widget_settings_title: "Widgets anpassen",
-        widget_schedule: "Stundenplan & ECTS",
+        widget_ects: "ECTS",
+        widget_schedule: "Stundenplan",
         widget_mensa: "Mensa",
         widget_parking: "Parkplatz",
         widget_rental: "Verleih",
         widget_vpn: "VPN",
+        services_modal_title: "Dienste",
+        widget_services: "Dienste",
+        mensa_menu_title: "Speiseplan",
+        back_button: "Zurück",
         food_desc: "Beschreibung",
         food_allergens: "Allergene",
         rental_title: "Verleih",
@@ -1940,6 +3362,9 @@
         rental_books_empty: "Keine Bücher ausgeliehen.",
         rental_tech_due: "In 2 Tagen",
         rental_tech_due_today: "Heute",
+        rental_modal_location: "Rückgabeort",
+        rental_modal_person: "Zuständig",
+        rental_modal_notes: "Zubehör / Notizen",
         // Profile Page
         profile_header: "Profil",
         profile_major: "Medientechnik",
@@ -1958,6 +3383,7 @@
         // Generic
         close_button: "Schließen",
         cancel_button: "Abbrechen",
+         continue_button: "Weiter",
         // GPA Modal
         gpa_modal_title: "Notenschnitt",
         gpa_modal_question: "Sind Sie zufrieden mit Ihrer Note?",
@@ -1965,6 +3391,12 @@
         // Topup Modal
         topup_modal_title: "Guthaben aufladen",
         topup_modal_question: "Möchten Sie Ihr Mensa-Guthaben aufladen?",
+        topup_confirm_title: "Kaufbestätigung",
+        topup_confirm_amount: "Betrag:",
+        topup_confirm_method: "Zahlungsart:",
+        topup_confirm_fee: "Gebühren:",
+        topup_confirm_total: "Gesamt:",
+        topup_confirm_buy: "Kostenpflichtig aufladen",
         // Tow Modal
         tow_modal_title: "Parkplatz freiräumen",
         tow_modal_question: "Möchten Sie ein Auto verschwinden lassen?",
@@ -1974,12 +3406,15 @@
         just_now: "Gerade eben",
         // Delete Modal
         delete_title: "E-Mail löschen",
+        delete_ects_title: "ECTS zurücksetzen",
         delete_confirm_single: "Möchtest du diese E-Mail wirklich löschen?",
         delete_confirm_multiple: "Möchtest du die {count} ausgewählten E-Mails wirklich löschen?",
         delete_button: "Löschen",
+        empty_mails: "Keine Nachrichten vorhanden",
         // Settings Modal
         settings_title: "Einstellungen",
         language_label: "Sprache",
+        settings_storage: "Daten lokal speichern",
       },
       en: {
         // Navbar
@@ -1988,7 +3423,12 @@
         search_nav: "Search",
         search_header: "Search",
         search_placeholder: "Search widgets & items...",
+        search_suggestions: "Suggestions",
+        search_history: "Recent searches",
+        search_history_empty: "No recent searches",
         profile_nav: "Profile",
+        clear_search_title: "Clear History",
+        clear_search_confirm: "Do you want to clear your entire search history?",
         // Mails Page
         mails_header: "Mail",
         ilearn_header: "iLearn",
@@ -2007,16 +3447,28 @@
         mensa_balance_label: "Card Balance",
         parking_title: "Student Parking",
         parking_status_full: "Almost full",
+        parking_status_medium: "Busy",
+        parking_status_low: "Many free",
         parking_text: "Approx. {spots} of 200 spots taken",
+        parking_modal_title: "Utilization",
+        parking_modal_subtitle: "Today",
+        parking_forecast: "Forecast",
         vpn_title: "University VPN",
         vpn_status_disconnected: "Disconnected",
         vpn_status_connected: "Connected",
+        vpn_notif_title: "VPN Connected",
+        vpn_notif_body: "Connection to the university network has been established.",
         widget_settings_title: "Edit Widgets",
-        widget_schedule: "Schedule & ECTS",
+        widget_ects: "ECTS",
+        widget_schedule: "Schedule",
         widget_mensa: "Cafeteria",
         widget_parking: "Parking",
         widget_rental: "Rentals",
         widget_vpn: "VPN",
+        services_modal_title: "Services",
+        widget_services: "Services",
+        mensa_menu_title: "Menu",
+        back_button: "Back",
         food_desc: "Description",
         food_allergens: "Allergens",
         rental_title: "Rentals",
@@ -2025,6 +3477,9 @@
         rental_books_empty: "No books borrowed.",
         rental_tech_due: "In 2 days",
         rental_tech_due_today: "Today",
+        rental_modal_location: "Return Location",
+        rental_modal_person: "Contact Person",
+        rental_modal_notes: "Accessories / Notes",
         // Profile Page
         profile_header: "Profile",
         profile_major: "Media Technology",
@@ -2043,6 +3498,7 @@
         // Generic
         close_button: "Close",
         cancel_button: "Cancel",
+        continue_button: "Continue",
         // GPA Modal
         gpa_modal_title: "GPA",
         gpa_modal_question: "Are you satisfied with your grade?",
@@ -2050,6 +3506,12 @@
         // Topup Modal
         topup_modal_title: "Top Up Balance",
         topup_modal_question: "Do you want to top up your cafeteria balance?",
+        topup_confirm_title: "Purchase Confirmation",
+        topup_confirm_amount: "Amount:",
+        topup_confirm_method: "Payment Method:",
+        topup_confirm_fee: "Fees:",
+        topup_confirm_total: "Total:",
+        topup_confirm_buy: "Confirm Purchase",
         // Tow Modal
         tow_modal_title: "Clear Parking Space",
         tow_modal_question: "Do you want to make a car disappear?",
@@ -2059,27 +3521,231 @@
         just_now: "Just now",
         // Delete Modal
         delete_title: "Delete Email",
+        delete_ects_title: "Reset ECTS",
         delete_confirm_single: "Are you sure you want to delete this email?",
         delete_confirm_multiple: "Are you sure you want to delete the {count} selected emails?",
         delete_button: "Delete",
+        empty_mails: "No messages available",
         // Settings Modal
         settings_title: "Settings",
         language_label: "Language",
+        settings_storage: "Save data locally",
       }
     };
 
     let currentLanguage = 'de';
     let occupiedParkingSpots = 170;
+    let currentParkingSpots = 0;
+    let mensaBalance = 12.00;
+    let displayedMensaBalance = 12.00;
+    let currentGPA = 2.1;
 
-    function updateParkingDisplay() {
+    function updateMensaBalance(animate = true) {
+      const balanceEl = document.getElementById('mensa-balance-amount');
+      if (!balanceEl) return;
+      
+      if (!animate) {
+        displayedMensaBalance = mensaBalance;
+        balanceEl.innerText = mensaBalance.toFixed(2).replace('.', ',') + '€';
+        return;
+      }
+
+      const startValue = displayedMensaBalance;
+      const endValue = mensaBalance;
+      const duration = 1200; // 1.2 Sekunden für die Roll-Animation
+      const startTime = performance.now();
+
+      function animateBalance(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const easeOut = 1 - Math.pow(1 - progress, 4); // easeOutQuart
+        
+        displayedMensaBalance = startValue + (endValue - startValue) * easeOut;
+        balanceEl.innerText = displayedMensaBalance.toFixed(2).replace('.', ',') + '€';
+        
+        if (progress < 1) {
+          requestAnimationFrame(animateBalance);
+        } else {
+          displayedMensaBalance = mensaBalance;
+          balanceEl.innerText = mensaBalance.toFixed(2).replace('.', ',') + '€';
+        }
+      }
+      
+      requestAnimationFrame(animateBalance);
+    }
+
+    function executeTopup() {
+      mensaBalance += selectedTopupAmount;
+      updateMensaBalance();
+      closeModal();
+    }
+
+    function improveGPA() {
+      if (mensaBalance < 50.00) {
+        closeModal();
+        setTimeout(openInsufficientFundsModal, 300);
+        return;
+      }
+      if (currentGPA <= 1.0) {
+        alert(currentLanguage === 'de' ? "Besser geht's nicht!" : "Can't get any better!");
+        return;
+      }
+      
+      mensaBalance -= 50.00;
+      updateMensaBalance();
+      
+      currentGPA = Math.max(1.0, currentGPA - 0.1);
+      const gpaEl = document.getElementById('profile-gpa-value');
+      if (gpaEl) {
+        gpaEl.innerText = currentGPA.toFixed(1).replace('.', ',');
+      }
+      closeModal();
+    }
+
+    function updateParkingDisplay(animate = true) {
+      const bar = document.getElementById('parking-bar');
+      const statusText = document.querySelector('.parking-status');
+      if (!bar) return;
+
+      if (!animate) {
+        currentParkingSpots = occupiedParkingSpots;
+        applyParkingVisuals(currentParkingSpots, bar, statusText);
+        return;
+      }
+
+      const startValue = currentParkingSpots;
+      const endValue = occupiedParkingSpots;
+      const duration = 1200; // 1.2s analog zur bisherigen CSS-Animation
+      const startTime = performance.now();
+
+      function animateBar(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const easeOut = 1 - Math.pow(1 - progress, 4); // Sanftes Abbremsen
+        
+        currentParkingSpots = startValue + (endValue - startValue) * easeOut;
+        applyParkingVisuals(currentParkingSpots, bar, statusText);
+        
+        if (progress < 1) {
+          requestAnimationFrame(animateBar);
+        } else {
+          currentParkingSpots = occupiedParkingSpots;
+          applyParkingVisuals(currentParkingSpots, bar, statusText);
+        }
+      }
+      
+      requestAnimationFrame(animateBar);
+    }
+
+    function applyParkingVisuals(spots, bar, statusText) {
+      const percentage = (spots / 200) * 100;
+      bar.style.width = percentage + '%';
+      
       const el = document.querySelector('[data-translate="parking_text"]');
       if (el) {
-        el.innerText = translations[currentLanguage].parking_text.replace('{spots}', occupiedParkingSpots);
+        el.innerText = translations[currentLanguage].parking_text.replace('{spots}', Math.round(spots));
       }
-      const bar = document.getElementById('parking-bar');
-      if (bar) {
-        bar.style.width = (occupiedParkingSpots / 200 * 100) + '%';
+      
+      let r, g, b;
+      if (percentage <= 50) {
+          const p = percentage / 50;
+          r = Math.round(52 + (255 - 52) * p); // Fließend von Grün zu Orange
+          g = Math.round(199 + (149 - 199) * p);
+          b = Math.round(89 + (0 - 89) * p);
+      } else {
+          const p = Math.min((percentage - 50) / 35, 1); // Fließend von Orange zu Rot
+          r = 255;
+          g = Math.round(149 + (59 - 149) * p);
+          b = Math.round(0 + (48 - 0) * p);
       }
+      
+      const color = `rgb(${r}, ${g}, ${b})`;
+      bar.style.backgroundColor = color;
+      
+      if (statusText) {
+          statusText.style.color = color;
+          statusText.style.backgroundColor = `rgba(${r}, ${g}, ${b}, 0.15)`;
+          
+          if (percentage >= 85) {
+              statusText.innerText = translations[currentLanguage].parking_status_full;
+          } else if (percentage >= 50) {
+              statusText.innerText = translations[currentLanguage].parking_status_medium;
+          } else {
+              statusText.innerText = translations[currentLanguage].parking_status_low;
+          }
+      }
+    }
+
+    function initParkingChartInteraction() {
+      const chartContainer = document.getElementById('parking-chart-container');
+      if (!chartContainer) return;
+
+      const tooltip = document.createElement('div');
+      tooltip.className = 'chart-tooltip';
+      tooltip.id = 'chart-tooltip';
+      chartContainer.appendChild(tooltip);
+
+      let isInteracting = false;
+
+      const handleInteraction = (e) => {
+        if (e.cancelable) e.preventDefault(); // Verhindert Scrollen beim Wischen über das Diagramm
+        
+        isInteracting = true;
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        
+        const wrappers = chartContainer.querySelectorAll('.chart-bar-wrapper');
+        let closestWrapper = null;
+        let minDistance = Infinity;
+        
+        // Findet den Balken, der am nächsten am Finger liegt
+        wrappers.forEach(wrapper => {
+          const rect = wrapper.getBoundingClientRect();
+          const center = rect.left + rect.width / 2;
+          const distance = Math.abs(clientX - center);
+          if (distance < minDistance) {
+            minDistance = distance;
+            closestWrapper = wrapper;
+          }
+        });
+        
+        if (closestWrapper && minDistance < 40) {
+          wrappers.forEach(w => w.classList.remove('active'));
+          closestWrapper.classList.add('active');
+          chartContainer.classList.add('has-active');
+          
+          const bar = closestWrapper.querySelector('.chart-bar');
+          const heightPercent = parseInt(bar.style.height);
+          const cars = Math.round((heightPercent / 100) * 200); // 200 ist die maximale Auslastung
+          
+          tooltip.innerText = cars + (currentLanguage === 'de' ? ' Autos' : ' Cars');
+          
+          const wRect = closestWrapper.getBoundingClientRect();
+          const cRect = chartContainer.getBoundingClientRect();
+          
+          const leftPos = (wRect.left - cRect.left) + (wRect.width / 2);
+          const topPos = cRect.height - 25 - ((heightPercent / 100) * (cRect.height - 25)) - 8;
+          
+          tooltip.style.left = leftPos + 'px';
+          tooltip.style.top = topPos + 'px';
+          tooltip.style.opacity = '1';
+        }
+      };
+
+      const stopInteraction = () => {
+        isInteracting = false;
+        chartContainer.classList.remove('has-active');
+        chartContainer.querySelectorAll('.chart-bar-wrapper').forEach(w => w.classList.remove('active'));
+        tooltip.style.opacity = '0';
+      };
+
+      chartContainer.addEventListener('touchstart', handleInteraction, { passive: false });
+      chartContainer.addEventListener('touchmove', handleInteraction, { passive: false });
+      chartContainer.addEventListener('touchend', stopInteraction);
+      chartContainer.addEventListener('touchcancel', stopInteraction);
+      
+      chartContainer.addEventListener('mousedown', (e) => { if (e.button === 0) handleInteraction(e); });
+      chartContainer.addEventListener('mousemove', (e) => { if (isInteracting) handleInteraction(e); });
+      document.addEventListener('mouseup', () => { if (isInteracting) stopInteraction(); });
     }
 
     function setLanguage(lang) {
@@ -2101,6 +3767,7 @@
       });
       toggleVPN(); 
       closeModal();
+      renderSearchHistory();
     }
 
     function openSettingsModal() {
@@ -2123,7 +3790,12 @@
         if (el) {
           const mail = el.closest('.mail-item');
           if (mail && !mail.classList.contains('selected')) {
-            mail.classList.add('selected');
+            const mailId = mail.getAttribute('data-mail-id');
+            if (mailId) {
+                document.querySelectorAll(`.mail-item[data-mail-id="${mailId}"]`).forEach(m => m.classList.add('selected'));
+            } else {
+                mail.classList.add('selected');
+            }
             updateSelectionCount();
           }
         }
@@ -2132,88 +3804,6 @@
 
     document.addEventListener('touchend', () => isDraggingSelection = false);
     document.addEventListener('mouseup', () => isDraggingSelection = false);
-
-    function attachMailEventListeners(item) {
-        const mailPage = document.getElementById('page-mails');
-
-        const startTouch = (e) => {
-            if (mailPage.classList.contains('selection-mode')) {
-                // Berührt der Finger die linke Seite (max 70px vom Rand)?
-                const touchX = e.touches ? e.touches[0].clientX : e.clientX;
-                const rect = item.getBoundingClientRect();
-                
-                if ((touchX - rect.left) < 70) { 
-                    isDraggingSelection = true;
-                    item.classList.add('selected'); // Die angetippte Mail markieren
-                    updateSelectionCount();
-                }
-                return; // Im Lösch-Modus gibt es kein Long-Press
-            }
-            
-            isLongPress = false;
-            pressTimer = setTimeout(() => {
-                isLongPress = true;
-                document.querySelectorAll('.mail-item.selected').forEach(i => i.classList.remove('selected'));
-                item.classList.add('selected');
-                requestDeleteConfirmation();
-            }, 600);
-        };
-
-        const cancelPress = () => clearTimeout(pressTimer);
-
-        item.addEventListener('mousedown', startTouch);
-        item.addEventListener('touchstart', startTouch, { passive: true });
-        item.addEventListener('mouseup', cancelPress);
-        item.addEventListener('mouseleave', cancelPress);
-        item.addEventListener('touchend', cancelPress);
-        item.addEventListener('touchmove', cancelPress, { passive: true });
-
-        item.addEventListener('click', function(e) {
-            if (isLongPress) {
-                e.preventDefault();
-                isLongPress = false;
-                return;
-            }
-
-            if (mailPage.classList.contains('selection-mode')) {
-                if (isDraggingSelection) return; // Klick ignorieren, wenn gewischt wurde
-                this.classList.toggle('selected');
-                updateSelectionCount();
-                return;
-            }
-            
-            this.classList.remove('unread');
-            updateUnreadBadge();
-            
-            const sender = this.querySelector('.mail-sender').innerText;
-            const time = this.querySelector('.mail-time').innerText;
-            const subject = this.querySelector('.mail-subject').innerText;
-            const preview = this.querySelector('.mail-preview').innerText;
-            
-            document.getElementById('email-popup-sender').innerText = sender;
-            document.getElementById('email-popup-time').innerText = time;
-            document.getElementById('email-popup-subject').innerText = subject;
-            document.getElementById('email-popup-body').innerText = preview;
-            
-            const actionBtn = document.getElementById('email-action-btn');
-            const isILearn = this.closest('#ilearn-view') !== null;
-            
-            if (isILearn) {
-              actionBtn.innerText = translations[currentLanguage].course_modal_to_ilearn;
-              actionBtn.setAttribute('data-translate', 'course_modal_to_ilearn');
-              actionBtn.onclick = () => window.location.href = 'https://elearning.th-deg.de';
-            } else {
-              actionBtn.innerText = translations[currentLanguage].email_detail_reply;
-              actionBtn.setAttribute('data-translate', 'email_detail_reply');
-              actionBtn.onclick = () => replyToMail(sender, subject); 
-            }
-            
-            document.getElementById('modal-overlay').classList.add('show');
-            setTimeout(() => {
-              document.getElementById('email-modal').classList.add('show');
-            }, 10);
-        });
-    }
 
     function attachMailEventListeners(item) {
         const mailPage = document.getElementById('page-mails');
@@ -2229,7 +3819,12 @@
         const startDrag = (e) => {
             if (mailPage.classList.contains('selection-mode')) {
                 isDraggingSelection = true;
-                item.classList.add('selected'); // Markiert die erste Mail beim Berühren
+                const mailId = item.getAttribute('data-mail-id');
+                if (mailId) {
+                    document.querySelectorAll(`.mail-item[data-mail-id="${mailId}"]`).forEach(el => el.classList.add('selected'));
+                } else {
+                    item.classList.add('selected');
+                }
                 updateSelectionCount();
             }
         };
@@ -2244,7 +3839,12 @@
             pressTimer = setTimeout(() => {
                 isLongPress = true;
                 document.querySelectorAll('.mail-item.selected').forEach(i => i.classList.remove('selected'));
-                item.classList.add('selected');
+                const mailId = item.getAttribute('data-mail-id');
+                if (mailId) {
+                    document.querySelectorAll(`.mail-item[data-mail-id="${mailId}"]`).forEach(el => el.classList.add('selected'));
+                } else {
+                    item.classList.add('selected');
+                }
                 requestDeleteConfirmation();
             }, 600);
         };
@@ -2272,14 +3872,30 @@
 
         // Logik für den Auswahlmodus
         if (mailPage.classList.contains('selection-mode')) {
-          if (didDrag) return; // Verhindert Abwählen nach dem Wischen
-          this.classList.toggle('selected');
+          if (isDraggingSelection) return; // Verhindert Abwählen nach dem Wischen
+          
+          const mailId = this.getAttribute('data-mail-id');
+          const isSelected = this.classList.contains('selected');
+          
+          if (mailId) {
+              document.querySelectorAll(`.mail-item[data-mail-id="${mailId}"]`).forEach(el => {
+                  if (isSelected) el.classList.remove('selected');
+                  else el.classList.add('selected');
+              });
+          } else {
+              this.classList.toggle('selected');
+          }
           updateSelectionCount();
           return;
         }
         
-        // Markiere E-Mail als gelesen (entfernt den blauen Punkt)
-        this.classList.remove('unread');
+        // Markiere E-Mail über alle synchronisierten Ansichten als gelesen
+        const mailId = this.getAttribute('data-mail-id');
+        if (mailId) {
+            document.querySelectorAll(`.mail-item[data-mail-id="${mailId}"]`).forEach(el => el.classList.remove('unread'));
+        } else {
+            this.classList.remove('unread');
+        }
         updateUnreadBadge();
         
         // Lese Daten aus dem geklickten Listeneintrag aus
@@ -2296,7 +3912,7 @@
         
         // Button dynamisch anpassen (Mail vs. iLearn)
         const actionBtn = document.getElementById('email-action-btn');
-        const isILearn = this.closest('#ilearn-view') !== null;
+        const isILearn = this.closest('#ilearn-view') !== null || (this.closest('.mail-column') && Array.from(this.closest('.mail-column').querySelectorAll('.mail-list')).indexOf(this.closest('.mail-list')) === 1);
         
         if (isILearn) {
           actionBtn.innerText = translations[currentLanguage].course_modal_to_ilearn;
@@ -2325,6 +3941,25 @@
     // Initiale Prüfung beim Start der App
     updateUnreadBadge();
 
+    // Suchverlauf initial laden
+    renderSearchHistory();
+
+    // Tastatur-Fix für E-Mail verfassen (verschiebt das Fenster nach oben)
+    const composeInputs = document.querySelectorAll('.compose-input');
+    const composeModalEl = document.getElementById('compose-modal');
+    composeInputs.forEach(input => {
+      input.addEventListener('focus', () => {
+        if(composeModalEl) composeModalEl.classList.add('keyboard-up');
+      });
+      input.addEventListener('blur', () => {
+        setTimeout(() => {
+          if (!document.activeElement.classList.contains('compose-input')) {
+            if(composeModalEl) composeModalEl.classList.remove('keyboard-up');
+          }
+        }, 50);
+      });
+    });
+
     // ECTS Gedrückthalten (Long-Press) Logik
     function requestEctsDeleteConfirmation() {
       itemToDelete = 'ects'; // Hier geht es um die ECTS Karte
@@ -2338,7 +3973,10 @@
       if (!el) return;
       let pressTimer;
       const startPress = (e) => {
-        pressTimer = setTimeout(action, 600); // 600ms gedrückt halten
+        pressTimer = setTimeout(() => {
+          isLongPress = true;
+          action();
+        }, 600); // 600ms gedrückt halten
       };
       const cancelPress = () => {
         clearTimeout(pressTimer);
@@ -2354,8 +3992,6 @@
 
     // Long-Press aktivieren
     addLongPress('profile-ects-card', requestEctsDeleteConfirmation);
-    addLongPress('home-ects-card', requestEctsDeleteConfirmation);
-    addLongPress('widget-parking', openTowModal);
 
     // VPN Toggle Logik
     function toggleVPN() {
@@ -2365,6 +4001,22 @@
       if (vpnToggle.checked) {
         vpnStatusText.innerText = translations[currentLanguage].vpn_status_connected;
         vpnStatusText.classList.add('active');
+        
+        // Benachrichtigung auslösen
+        if ("Notification" in window) {
+          const title = translations[currentLanguage].vpn_notif_title;
+          const options = { body: translations[currentLanguage].vpn_notif_body, icon: 'icon-192.png' };
+          
+          if (Notification.permission === "granted") {
+            new Notification(title, options);
+          } else if (Notification.permission !== "denied") {
+            Notification.requestPermission().then(permission => {
+              if (permission === "granted") {
+                new Notification(title, options);
+              }
+            });
+          }
+        }
       } else {
         vpnStatusText.innerText = translations[currentLanguage].vpn_status_disconnected;
         vpnStatusText.classList.remove('active');
@@ -2390,7 +4042,6 @@
       if (!to || !subject) return; // Nichts tun, wenn Felder leer sind
 
       // 2. Das HTML-Element für die Liste bauen
-      const mailList = document.querySelector('#mails-view .mail-list');
       const newMail = document.createElement('div');
       newMail.className = 'mail-item'; // Ohne "unread", da selbst geschrieben
       
@@ -2407,8 +4058,7 @@
       `;
 
       // 3. Klick-Funktionen aktivieren und oben in die Liste einfügen
-      attachMailEventListeners(newMail);
-      mailList.prepend(newMail);
+      addMailToDOM(newMail, false);
       
       // 4. Felder leeren und Fenster schließen
       document.getElementById('comp-to').value = '';
@@ -2416,51 +4066,661 @@
       document.getElementById('comp-body').value = '';
       closeModal();
     }
-    function openServicesPage() {
-      // Verlauf-Status setzen, damit die Android-Zurücktaste funktioniert
-      history.pushState({ page: 'services' }, "Dienste", "#services");
-      
-      document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
-      document.getElementById('page-services').classList.add('active');
-      document.querySelector('.navbar').style.display = 'none';
+
+    function openServicesModal() {
+      document.getElementById('modal-overlay').classList.add('show');
+      setTimeout(() => {
+        document.getElementById('services-modal').classList.add('show');
+      }, 10);
     }
 
-    // Überwacht die Zurücktaste (Android / Browser Back)
-    window.onpopstate = function(event) {
-      // Wenn wir zurückgehen und nicht mehr im Dienste-Status sind:
-      closeServicesPage();
+    // --- Widget Drag & Drop Logik ---
+    let dragState = {
+        isDragging: false,
+        wasDragging: false,
+        element: null,
+        placeholder: null,
+        startY: 0,
+        startX: 0,
+        initialX: 0,
+        initialY: 0,
+        longPressTimer: null
     };
+    
+    let autoScrollInterval = null;
+    let currentTouchX = 0;
+    let currentTouchY = 0;
 
-    // Die Schließen-Funktion muss jetzt auch den Verlauf bereinigen
-    function closeServicesPage() {
-      // Falls wir noch das "#services" in der URL haben, gehen wir einen Schritt zurück
-      if (window.location.hash === "#services") {
-        history.back();
-        return; // Die Funktion wird durch onpopstate erneut aufgerufen
-      }
-      
-      document.getElementById('page-services').classList.remove('active');
-      document.getElementById('page-home').classList.add('active');
-      document.querySelector('.navbar').style.display = 'flex';
-    }
-    // Überwacht die Zurücktaste (Android / Browser Back)
-    window.onpopstate = function(event) {
-      // Wenn wir zurückgehen und nicht mehr im Dienste-Status sind:
-      closeServicesPage();
-    };
+    document.addEventListener('mousemove', (e) => {
+        currentTouchX = e.clientX;
+        currentTouchY = e.clientY;
+    }, { passive: true });
+    
+    document.addEventListener('touchmove', (e) => {
+        if (e.touches && e.touches.length > 0) {
+            currentTouchX = e.touches[0].clientX;
+            currentTouchY = e.touches[0].clientY;
+        }
+    }, { passive: true });
 
-    // Die Schließen-Funktion muss jetzt auch den Verlauf bereinigen
-    function closeServicesPage() {
-      // Falls wir noch das "#services" in der URL haben, gehen wir einen Schritt zurück
-      if (window.location.hash === "#services") {
-        history.back();
-        return; // Die Funktion wird durch onpopstate erneut aufgerufen
-      }
-      
-      document.getElementById('page-services').classList.remove('active');
-      document.getElementById('page-home').classList.add('active');
-      document.querySelector('.navbar').style.display = 'flex';
+    function initWidgetDragAndDrop() {
+        const widgets = ['widget-ects', 'widget-schedule', 'widget-mensa', 'widget-parking', 'widget-rental', 'widget-vpn', 'widget-services'];
+        
+        widgets.forEach(id => {
+            const el = document.getElementById(id);
+            if (!el) return;
+
+            const startDrag = (e) => {
+                // Verhindert Multitouch-Bugs (z.B. zwei Widgets gleichzeitig greifen)
+                if (dragState.isDragging || dragState.longPressTimer) return;
+                if (e.touches && e.touches.length > 1) return;
+
+                // Ignoriere Klicks auf interaktive Bereiche wie Listen, Buttons & Schalter
+                if (e.target.closest('button, input, .scroll-list, .toggle-switch, .segmented-control, .rental-item')) return;
+                
+                // Nur Linksklick bei der Maus
+                if (e.type === 'mousedown' && e.button !== 0) return;
+
+                // Startposition sofort speichern (verhindert asynchrone Fehler auf Mobile)
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                
+                currentTouchX = clientX;
+                currentTouchY = clientY;
+
+                dragState.startX = clientX;
+                dragState.startY = clientY;
+
+                dragState.longPressTimer = setTimeout(() => {
+                    // Nur aufteilen, wenn auch wirklich eines der gruppierten Widgets bewegt wird
+                    if (el.id === 'widget-vpn' || el.id === 'widget-services') {
+                        unwrapRow('widget-bottom-row');
+                    }
+                    if (el.id === 'widget-ects' || el.id === 'widget-schedule') {
+                        unwrapRow('widget-top-row');
+                    }
+
+                    const rect = el.getBoundingClientRect();
+                    
+                    dragState.isDragging = true;
+                    dragState.element = el;
+                    
+                    // Placeholder erstellen
+                    dragState.placeholder = document.createElement('div');
+                    dragState.placeholder.className = 'widget-placeholder';
+                    dragState.placeholder.style.height = rect.height + 'px';
+                    
+                    el.parentNode.insertBefore(dragState.placeholder, el.nextSibling);
+                    
+                    // Zentriert das Widget beim Aufheben exakt in der Mitte unter dem Finger
+                    dragState.initialX = currentTouchX - (rect.width / 2);
+                    dragState.initialY = currentTouchY - (rect.height / 2);
+                    dragState.startX = currentTouchX;
+                    dragState.startY = currentTouchY;
+                    
+                    // Styles für freies Bewegen anwenden
+                    el.style.width = rect.width + 'px';
+                    el.style.height = rect.height + 'px';
+                    el.style.left = dragState.initialX + 'px';
+                    el.style.top = dragState.initialY + 'px';
+                    el.classList.add('widget-dragging');
+                    
+                    // Haptisches Feedback (wenn verfügbar)
+                    if (navigator.vibrate) navigator.vibrate(50);
+                }, 400); // Löst nach 400ms Gedrückthalten aus
+            };
+
+            el.addEventListener('mousedown', startDrag);
+            el.addEventListener('touchstart', startDrag, { passive: true });
+        });
+
+        const unwrapPreviewRow = () => {
+            const rows = document.querySelectorAll('.preview-row');
+            rows.forEach(row => {
+                while(row.firstChild) {
+                    if (row.firstChild.nodeType === 1) {
+                        row.firstChild.style.margin = '';
+                        row.firstChild.style.flex = '';
+                    }
+                    row.parentNode.insertBefore(row.firstChild, row);
+                }
+                row.remove();
+            });
+        };
+
+        const checkPlacement = (x, y) => {
+            const elemBelow = document.elementFromPoint(x, y);
+            if (!elemBelow) return;
+            
+            // Flimmer-Schutz 1: Ignoriert den Platzhalter komplett
+            if (elemBelow.closest('.widget-placeholder')) return;
+
+            let targetWidget = elemBelow.closest('.top-widgets-row, .mensa-card, .parking-card, .rental-card, .vpn-card, .services-card, .bottom-widgets-row, .ects-free, .schedule-box');
+            
+            if (targetWidget && targetWidget !== dragState.placeholder && targetWidget !== dragState.element) {
+                const isDraggingBottomHalf = dragState.element.id === 'widget-vpn' || dragState.element.id === 'widget-services';
+                const isDraggingTopHalf = dragState.element.id === 'widget-ects' || dragState.element.id === 'widget-schedule';
+                const isDraggingHalf = isDraggingBottomHalf || isDraggingTopHalf;
+
+                // Flimmer-Schutz 2: Falls der Finger auf die Lücke in einer Reihe rutscht, 
+                // fokussieren wir das noch verbleibende Ziel-Widget darin, damit die Vorschau nicht abbricht.
+                if (isDraggingBottomHalf && targetWidget.classList.contains('bottom-widgets-row')) {
+                    const innerChild = Array.from(targetWidget.children).find(c => (c.id === 'widget-vpn' || c.id === 'widget-services') && c !== dragState.element);
+                    if (innerChild) targetWidget = innerChild;
+                }
+                if (isDraggingTopHalf && targetWidget.classList.contains('top-widgets-row')) {
+                    const innerChild = Array.from(targetWidget.children).find(c => (c.id === 'widget-ects' || c.id === 'widget-schedule') && c !== dragState.element);
+                    if (innerChild) targetWidget = innerChild;
+                }
+
+                // Wenn ein großes Widget über ein gruppiertes kleines Widget gezogen wird, 
+                // nimm die ganze Reihe als Ziel, damit die kleinen in der Vorschau nicht getrennt werden.
+                if (!isDraggingBottomHalf && (targetWidget.id === 'widget-vpn' || targetWidget.id === 'widget-services') && targetWidget.parentNode && targetWidget.parentNode.classList.contains('bottom-widgets-row')) {
+                    targetWidget = targetWidget.parentNode;
+                }
+                if (!isDraggingTopHalf && (targetWidget.id === 'widget-ects' || targetWidget.id === 'widget-schedule') && targetWidget.parentNode && targetWidget.parentNode.classList.contains('top-widgets-row')) {
+                    targetWidget = targetWidget.parentNode;
+                }
+                
+                const rect = targetWidget.getBoundingClientRect();
+                
+                const isTargetBottomHalf = targetWidget.id === 'widget-vpn' || targetWidget.id === 'widget-services';
+                const isTargetTopHalf = targetWidget.id === 'widget-ects' || targetWidget.id === 'widget-schedule';
+
+                if ((isDraggingBottomHalf && isTargetBottomHalf) || (isDraggingTopHalf && isTargetTopHalf)) {
+                    const isLeft = x < rect.left + rect.width / 2;
+                    let row = targetWidget.parentNode.classList.contains('preview-row') ? targetWidget.parentNode : null;
+                    
+                    if (!row) {
+                        unwrapPreviewRow();
+                        row = document.createElement('div');
+                        row.className = isDraggingBottomHalf ? 'bottom-widgets-row preview-row' : 'top-widgets-row preview-row';
+                        targetWidget.parentNode.insertBefore(row, targetWidget);
+                        row.appendChild(targetWidget);
+                    }
+                    
+                    if (isLeft) {
+                        row.insertBefore(dragState.placeholder, targetWidget);
+                    } else {
+                        row.insertBefore(dragState.placeholder, targetWidget.nextSibling);
+                    }
+                    
+                    if (isDraggingTopHalf) {
+                        dragState.placeholder.style.flex = dragState.element.id === 'widget-ects' ? '1' : '1.2';
+                        targetWidget.style.flex = targetWidget.id === 'widget-ects' ? '1' : '1.2';
+                    } else {
+                        dragState.placeholder.style.flex = '1 1 0';
+                        targetWidget.style.flex = '1 1 0';
+                    }
+                    dragState.placeholder.style.margin = '0';
+                    targetWidget.style.margin = '0';
+                } else {
+                    unwrapPreviewRow();
+                    const targetMiddle = rect.top + rect.height / 2;
+                    if (y < targetMiddle) {
+                        targetWidget.parentNode.insertBefore(dragState.placeholder, targetWidget);
+                    } else {
+                        targetWidget.parentNode.insertBefore(dragState.placeholder, targetWidget.nextSibling);
+                    }
+                    dragState.placeholder.style.flex = '';
+                    dragState.placeholder.style.margin = '0 15px 15px';
+                }
+            }
+        };
+
+        const stopDrag = () => {
+            clearTimeout(dragState.longPressTimer);
+            dragState.longPressTimer = null;
+            clearInterval(autoScrollInterval);
+            
+            if (!dragState.isDragging) return;
+            
+            dragState.wasDragging = true;
+            setTimeout(() => dragState.wasDragging = false, 100);
+
+            const el = dragState.element;
+            
+            el.classList.remove('widget-dragging');
+            el.style.width = '';
+            el.style.height = '';
+            el.style.left = '';
+            el.style.top = '';
+            el.style.margin = '';
+            el.style.flex = '';
+            
+            if (dragState.placeholder && dragState.placeholder.parentNode) {
+                dragState.placeholder.parentNode.insertBefore(el, dragState.placeholder);
+                dragState.placeholder.remove();
+            }
+            
+            dragState.isDragging = false;
+            dragState.element = null;
+            dragState.placeholder = null;
+            
+            // Vorschau-Reihe nahtlos in echte Reihe umwandeln, um Layout-Sprünge zu vermeiden
+            const previewRows = document.querySelectorAll('.preview-row');
+            previewRows.forEach(row => {
+                const isBottom = row.classList.contains('bottom-widgets-row');
+                const isTop = row.classList.contains('top-widgets-row');
+                
+                if (isBottom) {
+                    const vpn = document.getElementById('widget-vpn');
+                    const services = document.getElementById('widget-services');
+                    if (vpn && services && row.contains(vpn) && row.contains(services)) {
+                        row.classList.remove('preview-row');
+                        row.id = 'widget-bottom-row';
+                        Array.from(row.children).forEach(c => {
+                            c.style.flex = '';
+                            c.style.margin = '';
+                        });
+                    }
+                } else if (isTop) {
+                    const ects = document.getElementById('widget-ects');
+                    const sched = document.getElementById('widget-schedule');
+                    if (ects && sched && row.contains(ects) && row.contains(sched)) {
+                        row.classList.remove('preview-row');
+                        row.id = 'widget-top-row';
+                        Array.from(row.children).forEach(c => {
+                            c.style.flex = '';
+                            c.style.margin = '';
+                        });
+                    }
+                }
+            });
+
+            unwrapPreviewRow();
+            wrapAdjacentHalfWidgets(); // Verbindet VPN und Dienste wieder, wenn sie nebeneinander liegen
+            saveWidgetOrder(); // Reihenfolge permanent speichern
+        };
+
+        const moveDrag = (e) => {
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+            if (!dragState.isDragging) {
+                // Toleranz für "Touch-Jitter" (winziges Zittern des Fingers auf dem Display)
+                if (dragState.longPressTimer) {
+                    const dx = Math.abs(clientX - dragState.startX);
+                    const dy = Math.abs(clientY - dragState.startY);
+                    
+                    // Bricht das Halten erst ab, wenn > 10px gescrollt / gewischt wird
+                    if (dx > 10 || dy > 10) {
+                        clearTimeout(dragState.longPressTimer);
+                        dragState.longPressTimer = null;
+                    }
+                }
+                return;
+            }
+            
+            e.preventDefault(); // Verhindert klassisches Scrollen während des Ziehens
+            
+            const dx = clientX - dragState.startX;
+            const dy = clientY - dragState.startY;
+            
+            dragState.element.style.left = dragState.initialX + dx + 'px';
+            dragState.element.style.top = dragState.initialY + dy + 'px';
+            
+            // Auto-Scrolling, wenn der Finger an den oberen oder unteren Rand gezogen wird
+            const edgeThreshold = 100;
+            const scrollContainer = document.getElementById('page-home');
+            
+            clearInterval(autoScrollInterval);
+            autoScrollInterval = null;
+
+            if (clientY < edgeThreshold) {
+                autoScrollInterval = setInterval(() => {
+                    scrollContainer.scrollTop -= 8;
+                    checkPlacement(clientX, clientY);
+                }, 16);
+            } else if (clientY > window.innerHeight - edgeThreshold - 60) { // 60px für Navbar
+                autoScrollInterval = setInterval(() => {
+                    scrollContainer.scrollTop += 8;
+                    checkPlacement(clientX, clientY);
+                }, 16);
+            }
+
+            checkPlacement(clientX, clientY);
+        };
+
+        document.addEventListener('mouseup', stopDrag);
+        document.addEventListener('touchend', stopDrag);
+        
+        document.addEventListener('mousemove', moveDrag, { passive: false });
+        document.addEventListener('touchmove', moveDrag, { passive: false });
+
+        // Verhindert, dass das Ablegen auf einem klickbaren Widget aus Versehen dessen Funktion triggert
+        document.addEventListener('click', (e) => {
+            if (dragState.wasDragging) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        }, true);
     }
+
+    function unwrapRow(rowId) {
+        const row = document.getElementById(rowId);
+        if (row) {
+            while(row.firstChild) {
+                if (row.firstChild.nodeType === 1) {
+                    row.firstChild.style.margin = '';
+                    row.firstChild.style.flex = '';
+                }
+                row.parentNode.insertBefore(row.firstChild, row);
+            }
+            row.remove();
+        }
+    }
+
+    function wrapAdjacentHalfWidgets() {
+        const home = document.getElementById('page-home');
+        
+        // Wrap bottom
+        const vpn = document.getElementById('widget-vpn');
+        const services = document.getElementById('widget-services');
+        const existingBottomRow = document.getElementById('widget-bottom-row');
+        
+        if (!existingBottomRow || !vpn || !services || !existingBottomRow.contains(vpn) || !existingBottomRow.contains(services)) {
+            unwrapRow('widget-bottom-row');
+            
+            if (vpn && services && home.contains(vpn) && home.contains(services)) {
+                const widgets = Array.from(home.children).filter(c => c.id && c.id.startsWith('widget-'));
+                const vpnIdx = widgets.indexOf(vpn);
+                const srvIdx = widgets.indexOf(services);
+                
+                if (Math.abs(vpnIdx - srvIdx) === 1) {
+                    const row = document.createElement('div');
+                    row.id = 'widget-bottom-row';
+                    row.className = 'bottom-widgets-row';
+                    
+                    const first = vpnIdx < srvIdx ? vpn : services;
+                    const second = vpnIdx < srvIdx ? services : vpn;
+                    
+                    home.insertBefore(row, first);
+                    row.appendChild(first);
+                    row.appendChild(second);
+                    
+                    if (first.classList.contains('widget-hidden') && second.classList.contains('widget-hidden')) {
+                        row.classList.add('widget-hidden');
+                    }
+                }
+            }
+        }
+        
+        // Wrap top
+        const ects = document.getElementById('widget-ects');
+        const sched = document.getElementById('widget-schedule');
+        const existingTopRow = document.getElementById('widget-top-row');
+        
+        if (!existingTopRow || !ects || !sched || !existingTopRow.contains(ects) || !existingTopRow.contains(sched)) {
+            unwrapRow('widget-top-row');
+            
+            if (ects && sched && home.contains(ects) && home.contains(sched)) {
+                const widgets = Array.from(home.children).filter(c => c.id && c.id.startsWith('widget-'));
+                const ectsIdx = widgets.indexOf(ects);
+                const schedIdx = widgets.indexOf(sched);
+                
+                if (Math.abs(ectsIdx - schedIdx) === 1) {
+                    const row = document.createElement('div');
+                    row.id = 'widget-top-row';
+                    row.className = 'top-widgets-row';
+                    
+                    const first = ectsIdx < schedIdx ? ects : sched;
+                    const second = ectsIdx < schedIdx ? sched : ects;
+                    
+                    home.insertBefore(row, first);
+                    row.appendChild(first);
+                    row.appendChild(second);
+                    
+                    if (first.classList.contains('widget-hidden') && second.classList.contains('widget-hidden')) {
+                        row.classList.add('widget-hidden');
+                    }
+                }
+            }
+        }
+    }
+
+    function saveWidgetOrder() {
+            if (!isStorageEnabled()) return;
+        const container = document.querySelector('.widget-column') || document.getElementById('page-home');
+        const order = [];
+        Array.from(container.children).forEach(child => {
+            if (child.id === 'widget-bottom-row' || child.id === 'widget-top-row') {
+                Array.from(child.children).forEach(c => { if(c.id) order.push(c.id); });
+            } else if (child.id && child.id.startsWith('widget-')) {
+                order.push(child.id);
+            }
+        });
+        localStorage.setItem('thd_widget_order', JSON.stringify(order));
+    }
+
+    function loadWidgetOrder() {
+        let savedOrder = JSON.parse(localStorage.getItem('thd_widget_order'));
+        if (!savedOrder) {
+            wrapAdjacentHalfWidgets();
+            return;
+        }
+        
+        // Migration alter Speicherstände (Falls sie noch als Gruppe gespeichert waren)
+        if (savedOrder.includes('widget-bottom-row')) {
+            const idx = savedOrder.indexOf('widget-bottom-row');
+            savedOrder.splice(idx, 1, 'widget-vpn', 'widget-services');
+        }
+        // Migration für das alte widget-schedule (Gruppierung aus ECTS und Stundenplan)
+        if (savedOrder.includes('widget-schedule') && !savedOrder.includes('widget-ects')) {
+            const idx = savedOrder.indexOf('widget-schedule');
+            savedOrder.splice(idx, 1, 'widget-ects', 'widget-schedule');
+        }
+        
+        savedOrder = savedOrder.filter(id => id !== 'widget-bottom-row' && id !== 'widget-top-row');
+        
+        const homePage = document.getElementById('page-home');
+        const topSpacer = document.getElementById('dashboard-top-spacer');
+        let insertAfter = topSpacer;
+        
+        savedOrder.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                homePage.insertBefore(el, insertAfter.nextSibling);
+                insertAfter = el;
+            }
+        });
+                
+        wrapAdjacentHalfWidgets();
+    }
+   
+    // --- Profilbild Logik ---
+    function handleProfilePicUpload(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const dataUrl = e.target.result;
+                setProfilePic(dataUrl);
+                if (isStorageEnabled()) {
+                    localStorage.setItem('thd_profile_pic', dataUrl);
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    function setProfilePic(dataUrl) {
+        const img = document.getElementById('profile-pic-img');
+        const svg = document.getElementById('profile-pic-svg');
+        if (img && svg) {
+            img.src = dataUrl;
+            img.style.display = 'block';
+            svg.style.display = 'none';
+        }
+    }
+
+    // --- Data Storage Logik ---
+    function isStorageEnabled() {
+        return localStorage.getItem('thd_storage_enabled') === 'true';
+    }
+
+    function toggleStorage(enabled) {
+        if (enabled) {
+            localStorage.setItem('thd_storage_enabled', 'true');
+            saveAllData();
+        } else {
+            localStorage.setItem('thd_storage_enabled', 'false');
+            // Alle Daten löschen, außer der Einstellung selbst
+            const keysToRemove = ['thd_widget_order', 'thd_mensa_balance', 'thd_gpa', 'thd_parking_spots', 'thd_ects', 'thd_mails_html', 'thd_search_history', 'thd_profile_pic'];
+            keysToRemove.forEach(k => localStorage.removeItem(k));
+        }
+    }
+
+    function saveAllData() {
+        if (!isStorageEnabled()) return;
+        
+        saveWidgetOrder();
+        
+        localStorage.setItem('thd_mensa_balance', mensaBalance);
+        localStorage.setItem('thd_gpa', currentGPA);
+        localStorage.setItem('thd_parking_spots', occupiedParkingSpots);
+        
+        const homeEctsValue = document.querySelector('.ects-number');
+        if (homeEctsValue) localStorage.setItem('thd_ects', homeEctsValue.innerText);
+
+        const mailsViewList = document.querySelector('#mails-view .mail-list');
+        if (mailsViewList) localStorage.setItem('thd_mails_html', mailsViewList.innerHTML);
+    }
+
+    function loadAllData() {
+        const toggle = document.getElementById('storage-toggle');
+        if (toggle) toggle.checked = isStorageEnabled();
+
+        if (!isStorageEnabled()) return;
+
+        const savedBalance = localStorage.getItem('thd_mensa_balance');
+        if (savedBalance !== null) { mensaBalance = parseFloat(savedBalance); updateMensaBalance(false); }
+
+        const savedGPA = localStorage.getItem('thd_gpa');
+        if (savedGPA !== null) {
+            currentGPA = parseFloat(savedGPA);
+            const gpaEl = document.getElementById('profile-gpa-value');
+            if (gpaEl) gpaEl.innerText = currentGPA.toFixed(1).replace('.', ',');
+        }
+
+        const savedParking = localStorage.getItem('thd_parking_spots');
+    if (savedParking !== null) { occupiedParkingSpots = parseInt(savedParking, 10); }
+
+        const savedEcts = localStorage.getItem('thd_ects');
+        if (savedEcts !== null) {
+            const profileEctsValue = document.querySelector('#profile-ects-card .stat-value');
+            if (profileEctsValue) profileEctsValue.innerText = savedEcts;
+            const homeEctsValue = document.querySelector('.ects-number');
+            if (homeEctsValue) homeEctsValue.innerText = savedEcts;
+        
+        // Stellt sicher, dass die "Strafe" beim Neuladen der App bestehen bleibt
+        if (savedEcts === '0') {
+            translations['de'].study_time_studied = "0 Tage studiert";
+            translations['en'].study_time_studied = "0 days studied";
+            translations['de'].study_time_remaining = "1095 Tage übrig";
+            translations['en'].study_time_remaining = "1095 days remaining";
+            translations['de'].study_time_extra = "+900 Tage (5 Extra-Semester)";
+            translations['en'].study_time_extra = "+900 days (5 extra semesters)";
+            
+            document.querySelectorAll('[data-translate="study_time_studied"]').forEach(el => el.innerText = translations[currentLanguage].study_time_studied);
+            document.querySelectorAll('[data-translate="study_time_remaining"]').forEach(el => el.innerText = translations[currentLanguage].study_time_remaining);
+            document.querySelectorAll('[data-translate="study_time_extra"]').forEach(el => el.innerText = translations[currentLanguage].study_time_extra);
+            
+            const fillBar = document.querySelector('.progress-bar-fill');
+            const extraBar = document.querySelector('.progress-bar-extra');
+            if (fillBar) fillBar.style.width = '0%';
+            if (extraBar) extraBar.style.width = '75%';
+        }
+        }
+
+        const savedMailsHtml = localStorage.getItem('thd_mails_html');
+        if (savedMailsHtml !== null) {
+            const mailsViewList = document.querySelector('#mails-view .mail-list');
+            if (mailsViewList) {
+                // Stellt die verschobenen/gelöschten Mails exakt so wieder her
+                mailsViewList.innerHTML = savedMailsHtml;
+                // Reaktiviert die Klick-Funktionen für die reingeladenen Mails
+                const mailItems = mailsViewList.querySelectorAll('.mail-item');
+                mailItems.forEach(item => attachMailEventListeners(item));
+                updateUnreadBadge();
+            }
+        }
+        
+        const savedProfilePic = localStorage.getItem('thd_profile_pic');
+        if (savedProfilePic !== null) {
+            setProfilePic(savedProfilePic);
+        }
+        
+        loadWidgetOrder();
+        checkEmptyMailLists();
+    }
+
+    function setupTabletLayout() {
+        const isTablet = window.innerWidth >= 768 && window.matchMedia("(orientation: landscape)").matches;
+        const homePage = document.getElementById('page-home');
+        const isSetup = homePage.querySelector('.tablet-wrapper');
+
+        if (isTablet && !isSetup) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'tablet-wrapper';
+
+            const widgetCol = document.createElement('div');
+            widgetCol.className = 'widget-column';
+
+            const mailColWrapper = document.createElement('div');
+            mailColWrapper.className = 'mail-column-wrapper';
+
+            const mailCol = document.createElement('div');
+            mailCol.className = 'mail-column';
+
+            const topSpacer = document.getElementById('dashboard-top-spacer');
+            const bottomSpacer = document.getElementById('dashboard-bottom-spacer');
+            
+            let current = topSpacer.nextElementSibling;
+            while (current && current !== bottomSpacer) {
+                const next = current.nextElementSibling;
+                widgetCol.appendChild(current);
+                current = next;
+            }
+
+            // Mail-Spalte befüllen
+            const mailsView = document.querySelector('#mails-view .mail-list');
+            const ilearnView = document.querySelector('#ilearn-view .mail-list');
+            
+            if (mailsView && ilearnView) {
+                 mailCol.innerHTML = `
+                    <div class="header" style="padding: 0 0 15px 0; font-size: 20px; flex-shrink: 0;">E-Mails</div>
+                    <div class="mail-list" style="padding: 0; gap: 12px; flex: 1; overflow-y: auto; min-height: 0;">${mailsView.innerHTML}</div>
+                    <div class="header" style="padding: 25px 0 15px 0; font-size: 20px; flex-shrink: 0;">iLearn Benachrichtigungen</div>
+                    <div class="mail-list" style="padding: 0 0 15px 0; gap: 12px; flex: 1; overflow-y: auto; min-height: 0;">${ilearnView.innerHTML}</div>
+                `;
+                // Wichtig: Event-Listener für die geklonten Mails neu anhängen
+                mailCol.querySelectorAll('.mail-item').forEach(item => attachMailEventListeners(item));
+            }
+
+            mailColWrapper.appendChild(mailCol);
+            wrapper.appendChild(widgetCol);
+            wrapper.appendChild(mailColWrapper);
+            
+            homePage.insertBefore(wrapper, bottomSpacer);
+            checkEmptyMailLists();
+
+        } else if (!isTablet && isSetup) {
+            // Tablet-Ansicht abbauen und zur mobilen Ansicht zurückkehren
+            const wrapper = homePage.querySelector('.tablet-wrapper');
+            const widgetCol = wrapper.querySelector('.widget-column');
+            const bottomSpacer = document.getElementById('dashboard-bottom-spacer');
+            
+            if (widgetCol) {
+                // Elemente zurück an die richtige Stelle im DOM verschieben
+                while (widgetCol.firstChild) {
+                    homePage.insertBefore(widgetCol.firstChild, bottomSpacer);
+                }
+            }
+            wrapper.remove();
+        }
+    }
+
   </script>
 </body>
 </html>
