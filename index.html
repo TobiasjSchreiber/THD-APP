@@ -511,6 +511,9 @@
         justify-content: center;
         transition: all 0.2s;
     }
+    /* Wisch-Zone für die Mehrfachauswahl */
+    .mail-item .swipe-zone { position: absolute; left: 0; top: 0; bottom: 0; width: 60px; z-index: 10; display: none; }
+    #page-mails.selection-mode .mail-item .swipe-zone { display: block; }
 
     .selection-indicator svg { display: none; stroke: white; stroke-width: 3; }
     #page-mails.selection-mode .mail-item { padding-left: 50px; transition: background-color 0.2s; }
@@ -721,6 +724,21 @@
       background-color: var(--accent-blue);
       color: var(--text-main);
     }
+    /* Such-Funktion & Highlight */
+    .search-input-wrapper { padding: 15px; }
+    .search-input { width: 100%; background: var(--card-bg); border: 1px solid #333; color: var(--text-main); padding: 12px 15px 12px 40px; border-radius: 12px; font-size: 16px; outline: none; box-sizing: border-box; background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="%23999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>'); background-repeat: no-repeat; background-position: 12px center; }
+    .search-results { flex: 1; overflow-y: auto; padding: 0 15px 20px; display: flex; flex-direction: column; gap: 10px; }
+    .search-result-item { background: var(--card-bg); padding: 15px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border: 1px solid #333; }
+    .search-result-title { font-weight: 600; font-size: 15px; }
+    .search-result-loc { font-size: 12px; color: var(--accent-blue); }
+    
+    @keyframes highlightPulse {
+      0% { box-shadow: 0 0 0 0 rgba(58, 130, 247, 0.7); transform: scale(1); }
+      50% { box-shadow: 0 0 0 15px rgba(58, 130, 247, 0); transform: scale(1.02); background-color: #2a3a5c; }
+      100% { box-shadow: 0 0 0 0 rgba(58, 130, 247, 0); transform: scale(1); }
+    }
+    .highlight-anim { animation: highlightPulse 1s ease-out; }
+
     /* Service Kacheln */
     .services-grid {
       display: grid;
@@ -808,6 +826,41 @@
         <h3 id="popup-title" class="modal-title">Fach</h3>
         <p id="popup-time" class="modal-subtitle">Zeit</p>
       </div>
+
+      <div id="map-modal" class="modal">
+      <div class="modal-header">
+        <h3 id="map-popup-title" class="modal-title">Gebäude</h3>
+        <p id="map-popup-subtitle" class="modal-subtitle">Etage</p>
+      </div>
+      
+      <div class="modal-info">
+        <div class="minimap">
+          <svg viewBox="0 0 340 200" style="width: 100%; height: 100%;">
+            <path class="map-road" d="M 210 10 L 210 140 Q 210 155 225 155 L 330 155" />
+            <rect id="map-bldg-A" class="building" x="10" y="20" width="40" height="20" rx="3"/><text class="building-label" x="30" y="31">A</text>
+            <rect id="map-bldg-B" class="building" x="55" y="20" width="40" height="20" rx="3"/><text class="building-label" x="75" y="31">B</text>
+            <rect id="map-bldg-C" class="building" x="100" y="20" width="80" height="20" rx="3"/><text class="building-label" x="140" y="31">C</text>
+            <rect id="map-bldg-F" class="building" x="10" y="50" width="50" height="35" rx="3"/><text class="building-label" x="35" y="68">F</text>
+            <rect id="map-bldg-G" class="building" x="110" y="50" width="50" height="30" rx="3"/><text class="building-label" x="135" y="66">G</text>
+            <rect id="map-bldg-D" class="building" x="10" y="95" width="90" height="20" rx="3"/><text class="building-label" x="55" y="106">D</text>
+            <rect id="map-bldg-E" class="building" x="105" y="95" width="75" height="20" rx="3"/><text class="building-label" x="142" y="106">E</text>
+            <rect id="map-bldg-H" class="building" x="50" y="125" width="30" height="30" rx="3"/><text class="building-label" x="65" y="141">H</text>
+            <rect id="map-bldg-I" class="building" x="105" y="125" width="55" height="30" rx="3"/><text class="building-label" x="132" y="141">I</text>
+            <rect id="map-bldg-J" class="building" x="10" y="165" width="45" height="25" rx="3"/><text class="building-label" x="32" y="178">J</text>
+            <rect id="map-bldg-K" class="building" x="65" y="165" width="30" height="25" rx="3"/><text class="building-label" x="80" y="178">K</text>
+            <rect id="map-bldg-L" class="building" x="125" y="165" width="35" height="25" rx="3"/><text class="building-label" x="142" y="178">L</text>
+            <rect id="map-bldg-U-top" class="building" x="235" y="20" width="80" height="20" rx="3"/>
+            <rect id="map-bldg-U-right" class="building" x="295" y="40" width="20" height="70" rx="3"/>
+            <rect id="map-bldg-U-bottom" class="building" x="235" y="110" width="80" height="20" rx="3"/>
+            <rect id="map-bldg-ITC" class="building" x="250" y="55" width="30" height="30" rx="3"/><text class="building-label" x="265" y="71">ITC</text>
+          </svg>
+        </div>
+      </div>
+
+      <div class="modal-buttons">
+        <button class="btn btn-secondary" onclick="closeModal()" data-translate="close_button" style="width: 100%;">Schließen</button>
+      </div>
+    </div>
       
       <div class="modal-info">
         <div class="info-row">
@@ -854,6 +907,26 @@
       </div>
     </div>
 
+    <div id="food-modal" class="modal">
+      <div class="modal-header">
+        <h3 id="food-popup-title" class="modal-title">Gericht</h3>
+        <p id="food-popup-price" class="modal-subtitle">Preis</p>
+      </div>
+      <div class="modal-info">
+        <div class="info-row">
+          <span class="info-label" data-translate="food_desc">Beschreibung</span>
+          <span id="food-popup-desc" style="text-align: right; max-width: 60%; font-size: 14px;">Inhalt</span>
+        </div>
+        <div class="info-row" style="margin-top: 10px;">
+          <span class="info-label" data-translate="food_allergens">Allergene</span>
+          <span id="food-popup-allergens" style="font-weight: 600; font-size: 14px;">A, B</span>
+        </div>
+      </div>
+      <div class="modal-buttons" style="margin-top: 20px;">
+        <button class="btn btn-secondary" onclick="closeModal()" data-translate="close_button" style="width: 100%;">Schließen</button>
+      </div>
+    </div>
+
     <div id="email-modal" class="modal">
       <div class="modal-header" style="text-align: left; margin-bottom: 15px;">
         <h3 id="email-popup-subject" class="modal-title" style="font-size: 18px; margin-bottom: 8px;">Betreff</h3>
@@ -878,9 +951,9 @@
         <h3 class="modal-title" data-translate="compose_title">Neue E-Mail</h3>
       </div>
       <div class="modal-info" style="gap: 10px;">
-        <input type="text" id="comp-to" class="compose-input" placeholder="An:" data-translate="compose_to">
-        <input type="text" id="comp-subject" class="compose-input" placeholder="Betreff:" data-translate="compose_subject">
-        <textarea id="comp-body" class="compose-input" placeholder="Nachricht..." rows="5" style="resize: none;" data-translate="compose_body"></textarea>
+        <input type="text" name="to_dummy" id="comp-to" class="compose-input" placeholder="An:" data-translate="compose_to" autocomplete="nope" autocorrect="off" spellcheck="false">
+        <input type="text" name="subj_dummy" id="comp-subject" class="compose-input" placeholder="Betreff:" data-translate="compose_subject" autocomplete="nope" autocorrect="off" spellcheck="false">
+        <textarea id="comp-body" class="compose-input" placeholder="Nachricht..." rows="5" style="resize: none;" data-translate="compose_body" autocomplete="nope" autocorrect="off" spellcheck="false"></textarea>
       </div>
       <div class="modal-buttons" style="margin-top: 20px;">
         <button class="btn btn-secondary" onclick="closeModal()" data-translate="compose_cancel">Abbrechen</button>
@@ -1041,7 +1114,7 @@
         <div id="mails-view" class="notification-view active">
           <div class="mail-list">
             <div class="mail-item unread">
-              <div class="selection-indicator">
+              <div class="swipe-zone"></div> <div class="selection-indicator">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"></polyline></svg>
               </div>
               <div class="mail-top">
@@ -1053,7 +1126,7 @@
             </div>
             
             <div class="mail-item unread">
-              <div class="selection-indicator">
+              <div class="swipe-zone"></div> <div class="selection-indicator">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"></polyline></svg>
               </div>
               <div class="mail-top">
@@ -1177,7 +1250,7 @@
         <div id="ilearn-view" class="notification-view">
           <div class="mail-list">
             <div class="mail-item unread">
-              <div class="selection-indicator">
+              <div class="swipe-zone"></div> <div class="selection-indicator">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"></polyline></svg>
               </div>
               <div class="mail-top">
@@ -1189,7 +1262,7 @@
             </div>
             
             <div class="mail-item unread">
-              <div class="selection-indicator">
+              <div class="swipe-zone"></div> <div class="selection-indicator">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"></polyline></svg>
               </div>
               <div class="mail-top">
@@ -1250,17 +1323,25 @@
           </div>
         </div>
 
-        <div class="mensa-card" id="widget-mensa">
+       <div class="mensa-card" id="widget-mensa">
           <div class="balance-left">
-            <div class="balance-amount" onclick="openTopupModal()">12,00€</div>
-            <div class="balance-label" data-translate="mensa_balance_label">Karten-Guthaben</div>
-          </div>
+  <div class="balance-amount" onclick="openTopupModal()">12,00€</div>
+  <div class="balance-label" data-translate="mensa_balance_label">Karten-Guthaben</div>
+  
+  <div style="margin-top: 10px; color: var(--accent-blue); font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px;" onclick="openMapForBuilding('F', 'Mensa')">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+      <circle cx="12" cy="10" r="3"></circle>
+    </svg>
+    Gebäude F (1. Stock)
+  </div>
+</div>
           
           <div class="scroll-list">
-            <div class="list-item"><span>Schnitzel</span><span class="item-value">5,60€</span></div>
-            <div class="list-item"><span>Pommes</span><span class="item-value">2,50€</span></div>
-            <div class="list-item"><span>Salatbowl</span><span class="item-value">4,20€</span></div>
-            <div class="list-item"><span>Eintopf</span><span class="item-value">3,80€</span></div>
+            <div class="list-item" style="cursor: pointer;" onclick="openFoodModal('Schnitzel', '5,60€', 'Mit Pommes und Beilagensalat', 'A, C, G')"><span>Schnitzel</span><span class="item-value">5,60€</span></div>
+            <div class="list-item" style="cursor: pointer;" onclick="openFoodModal('Pommes', '2,50€', 'Portion Pommes frites', 'Keine')"><span>Pommes</span><span class="item-value">2,50€</span></div>
+            <div class="list-item" style="cursor: pointer;" onclick="openFoodModal('Salatbowl', '4,20€', 'Gemischter Salat mit Hausdressing', 'G, J')"><span>Salatbowl</span><span class="item-value">4,20€</span></div>
+            <div class="list-item" style="cursor: pointer;" onclick="openFoodModal('Eintopf', '3,80€', 'Kartoffeleintopf mit Würstchen', 'I, J')"><span>Eintopf</span><span class="item-value">3,80€</span></div>
           </div>
         </div>
 
@@ -1401,17 +1482,32 @@
         </div>
       </div>
 
+      <div id="page-search" class="page">
+        <div class="header">
+          <span data-translate="search_header">Suche</span>
+        </div>
+        <div class="search-input-wrapper">
+          <input type="search" name="search_dummy" id="search-input" class="search-input" placeholder="Widgets & Elemente suchen..." data-translate="search_placeholder" onkeyup="performSearch()" autocomplete="nope" autocorrect="off" spellcheck="false">
+        </div>
+        <div class="search-results" id="search-results-container">
+          </div>
+      </div>
+
     </div>
 
     <div class="navbar">
+      <div class="nav-item active" onclick="switchTab('page-home', this)">
+        <svg class="nav-icon" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        <span data-translate="home_nav">Home</span>
+      </div>
+      <div class="nav-item" onclick="switchTab('page-search', this)">
+        <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <span data-translate="search_nav">Suche</span>
+      </div>
       <div class="nav-item" onclick="switchTab('page-mails', this)">
         <div class="nav-badge" id="unread-badge"></div>
         <svg class="nav-icon" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
         <span data-translate="mails_nav">Mails</span>
-      </div>
-      <div class="nav-item active" onclick="switchTab('page-home', this)">
-        <svg class="nav-icon" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-        <span data-translate="home_nav">Home</span>
       </div>
       <div class="nav-item" onclick="switchTab('page-profil', this)">
         <svg class="nav-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
@@ -1434,8 +1530,8 @@
     }, { once: true });
 
     // Tab Logik
-    const pagesList = ['page-mails', 'page-home', 'page-profil'];
-    let currentIndex = 1;
+    const pagesList = ['page-home', 'page-search', 'page-mails', 'page-profil'];
+    let currentIndex = 0;
 
     function switchTab(pageId, navElement) {
       document.querySelector('.navbar').style.display = 'flex'; // Stellt sicher, dass die Navbar sichtbar ist
@@ -1533,6 +1629,29 @@
       }, 10);
     }
 
+    function openFoodModal(name, price, desc, allergens) {
+      document.getElementById('food-popup-title').innerText = name;
+      document.getElementById('food-popup-price').innerText = price;
+      document.getElementById('food-popup-desc').innerText = desc;
+      document.getElementById('food-popup-allergens').innerText = allergens;
+      
+      document.getElementById('modal-overlay').classList.add('show');
+      setTimeout(() => {
+        document.getElementById('food-modal').classList.add('show');
+      }, 10);
+    }
+
+    function openMapForBuilding(letter, title) {
+  // Wenn es Gebäude F ist, zeige "1. Stock" statt Erdgeschoss
+  let floor = "Erdgeschoss";
+  if (letter === 'F') {
+    floor = "1. Stock (Lernplätze)";
+  }
+  
+  // Nutzt das bestehende Kurs-Modal für die Karte
+  openModal(title, 'Gebäude ' + letter, letter + ' Gebäude', floor);
+}
+
     function closeModal() {
       const allModals = document.querySelectorAll('.modal');
       const deleteModal = document.getElementById('delete-modal');
@@ -1552,6 +1671,17 @@
       setTimeout(() => {
         document.getElementById('compose-modal').classList.add('show');
       }, 10);
+    }
+
+    function replyToMail(sender, subject) {
+      closeModal(); // Erstes Fenster schließen
+      setTimeout(() => {
+        // Felder automatisch ausfüllen
+        document.getElementById('comp-to').value = sender;
+        document.getElementById('comp-subject').value = "Re: " + subject;
+        document.getElementById('comp-body').value = ""; 
+        openComposeModal(); // Neues Fenster öffnen
+      }, 300); // Kurz warten, bis das erste Fenster zu ist
     }
 
     function openWidgetSettingsModal() {
@@ -1701,6 +1831,7 @@
       newMail.className = 'mail-item unread';
       
       newMail.innerHTML = `
+        <div class="swipe-zone"></div>
         <div class="selection-indicator">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"></polyline></svg>
         </div>
@@ -1717,12 +1848,61 @@
       updateUnreadBadge();
     }
 
+    // --- Such-Logik Start ---
+    const searchData = [
+      { id: 'widget-schedule', title: 'Stundenplan & ECTS', page: 'page-home', loc: 'Home' },
+      { id: 'widget-mensa', title: 'Mensa & Guthaben', page: 'page-home', loc: 'Home' },
+      { id: 'widget-parking', title: 'Parkplatz', page: 'page-home', loc: 'Home' },
+      { id: 'widget-rental', title: 'Verleih', page: 'page-home', loc: 'Home' },
+      { id: 'widget-vpn', title: 'VPN', page: 'page-home', loc: 'Home' },
+      { id: 'page-services', title: 'Dienste', page: 'page-services', loc: 'Menü' },
+      { id: 'mails-view', title: 'Posteingang', page: 'page-mails', loc: 'Mails' },
+      { id: 'profile-ects-card', title: 'Notenschnitt', page: 'page-profil', loc: 'Profil' }
+    ];
+
+    function performSearch() {
+      const q = document.getElementById('search-input').value.toLowerCase();
+      const container = document.getElementById('search-results-container');
+      container.innerHTML = '';
+      if(!q) return;
+      
+      searchData.filter(item => item.title.toLowerCase().includes(q)).forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'search-result-item';
+        div.innerHTML = `<span class="search-result-title">${item.title}</span><span class="search-result-loc">${item.loc}</span>`;
+        div.onclick = () => jumpToElement(item.page, item.id);
+        container.appendChild(div);
+      });
+    }
+
+    function jumpToElement(pageId, elementId) {
+      if (pageId === 'page-services') {
+        openServicesPage();
+      } else {
+        const navIndex = pagesList.indexOf(pageId);
+        if(navIndex > -1) switchTab(pageId, document.querySelectorAll('.nav-item')[navIndex]);
+      }
+      
+      setTimeout(() => {
+        const el = document.getElementById(elementId);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          el.classList.add('highlight-anim');
+          setTimeout(() => el.classList.remove('highlight-anim'), 1000);
+        }
+      }, 300);
+    }
+    // --- Such-Logik Ende ---
+
     // Sprach- und Übersetzungslogik
     const translations = {
       de: {
         // Navbar
         mails_nav: "Mails",
         home_nav: "Home",
+        search_nav: "Suche",
+        search_header: "Suche",
+        search_placeholder: "Widgets & Elemente suchen...",
         profile_nav: "Profil",
         // Mails Page
         mails_header: "Mail",
@@ -1752,6 +1932,8 @@
         widget_parking: "Parkplatz",
         widget_rental: "Verleih",
         widget_vpn: "VPN",
+        food_desc: "Beschreibung",
+        food_allergens: "Allergene",
         rental_title: "Verleih",
         rental_books: "Bücher",
         rental_tech: "Technik",
@@ -1803,6 +1985,9 @@
         // Navbar
         mails_nav: "Mails",
         home_nav: "Home",
+        search_nav: "Search",
+        search_header: "Search",
+        search_placeholder: "Search widgets & items...",
         profile_nav: "Profile",
         // Mails Page
         mails_header: "Mail",
@@ -1832,6 +2017,8 @@
         widget_parking: "Parking",
         widget_rental: "Rentals",
         widget_vpn: "VPN",
+        food_desc: "Description",
+        food_allergens: "Allergens",
         rental_title: "Rentals",
         rental_books: "Books",
         rental_tech: "Tech",
@@ -1925,22 +2112,145 @@
 
     let pressTimer;
     let isLongPress = false;
+    let isDraggingSelection = false;
+
+    // Scrollen blockieren und Mails beim Wischen markieren
+    document.addEventListener('touchmove', (e) => {
+      if (isDraggingSelection) {
+        if(e.cancelable) e.preventDefault(); // Stoppt das Scrollen sofort
+        const touch = e.touches ? e.touches[0] : e;
+        const el = document.elementFromPoint(touch.clientX, touch.clientY);
+        if (el) {
+          const mail = el.closest('.mail-item');
+          if (mail && !mail.classList.contains('selected')) {
+            mail.classList.add('selected');
+            updateSelectionCount();
+          }
+        }
+      }
+    }, { passive: false });
+
+    document.addEventListener('touchend', () => isDraggingSelection = false);
+    document.addEventListener('mouseup', () => isDraggingSelection = false);
+
+    function attachMailEventListeners(item) {
+        const mailPage = document.getElementById('page-mails');
+
+        const startTouch = (e) => {
+            if (mailPage.classList.contains('selection-mode')) {
+                // Berührt der Finger die linke Seite (max 70px vom Rand)?
+                const touchX = e.touches ? e.touches[0].clientX : e.clientX;
+                const rect = item.getBoundingClientRect();
+                
+                if ((touchX - rect.left) < 70) { 
+                    isDraggingSelection = true;
+                    item.classList.add('selected'); // Die angetippte Mail markieren
+                    updateSelectionCount();
+                }
+                return; // Im Lösch-Modus gibt es kein Long-Press
+            }
+            
+            isLongPress = false;
+            pressTimer = setTimeout(() => {
+                isLongPress = true;
+                document.querySelectorAll('.mail-item.selected').forEach(i => i.classList.remove('selected'));
+                item.classList.add('selected');
+                requestDeleteConfirmation();
+            }, 600);
+        };
+
+        const cancelPress = () => clearTimeout(pressTimer);
+
+        item.addEventListener('mousedown', startTouch);
+        item.addEventListener('touchstart', startTouch, { passive: true });
+        item.addEventListener('mouseup', cancelPress);
+        item.addEventListener('mouseleave', cancelPress);
+        item.addEventListener('touchend', cancelPress);
+        item.addEventListener('touchmove', cancelPress, { passive: true });
+
+        item.addEventListener('click', function(e) {
+            if (isLongPress) {
+                e.preventDefault();
+                isLongPress = false;
+                return;
+            }
+
+            if (mailPage.classList.contains('selection-mode')) {
+                if (isDraggingSelection) return; // Klick ignorieren, wenn gewischt wurde
+                this.classList.toggle('selected');
+                updateSelectionCount();
+                return;
+            }
+            
+            this.classList.remove('unread');
+            updateUnreadBadge();
+            
+            const sender = this.querySelector('.mail-sender').innerText;
+            const time = this.querySelector('.mail-time').innerText;
+            const subject = this.querySelector('.mail-subject').innerText;
+            const preview = this.querySelector('.mail-preview').innerText;
+            
+            document.getElementById('email-popup-sender').innerText = sender;
+            document.getElementById('email-popup-time').innerText = time;
+            document.getElementById('email-popup-subject').innerText = subject;
+            document.getElementById('email-popup-body').innerText = preview;
+            
+            const actionBtn = document.getElementById('email-action-btn');
+            const isILearn = this.closest('#ilearn-view') !== null;
+            
+            if (isILearn) {
+              actionBtn.innerText = translations[currentLanguage].course_modal_to_ilearn;
+              actionBtn.setAttribute('data-translate', 'course_modal_to_ilearn');
+              actionBtn.onclick = () => window.location.href = 'https://elearning.th-deg.de';
+            } else {
+              actionBtn.innerText = translations[currentLanguage].email_detail_reply;
+              actionBtn.setAttribute('data-translate', 'email_detail_reply');
+              actionBtn.onclick = () => replyToMail(sender, subject); 
+            }
+            
+            document.getElementById('modal-overlay').classList.add('show');
+            setTimeout(() => {
+              document.getElementById('email-modal').classList.add('show');
+            }, 10);
+        });
+    }
+
     function attachMailEventListeners(item) {
         const mailPage = document.getElementById('page-mails');
         
+        // Prüft, ob die swipe-zone fehlt und fügt sie automatisch ein
+        let swipeZone = item.querySelector('.swipe-zone');
+        if (!swipeZone) {
+            swipeZone = document.createElement('div');
+            swipeZone.className = 'swipe-zone';
+            item.prepend(swipeZone);
+        }
+
+        const startDrag = (e) => {
+            if (mailPage.classList.contains('selection-mode')) {
+                isDraggingSelection = true;
+                item.classList.add('selected'); // Markiert die erste Mail beim Berühren
+                updateSelectionCount();
+            }
+        };
+
+        swipeZone.addEventListener('mousedown', startDrag);
+        swipeZone.addEventListener('touchstart', startDrag, { passive: true });
+
         const startPress = (e) => {
-        if (mailPage.classList.contains('selection-mode')) return;
-        isLongPress = false;
-        pressTimer = setTimeout(() => {
-          isLongPress = true;
-          document.querySelectorAll('.mail-item.selected').forEach(i => i.classList.remove('selected'));
-          item.classList.add('selected');
-          requestDeleteConfirmation();
-        }, 600);
+            if (mailPage.classList.contains('selection-mode')) return;
+            
+            isLongPress = false;
+            pressTimer = setTimeout(() => {
+                isLongPress = true;
+                document.querySelectorAll('.mail-item.selected').forEach(i => i.classList.remove('selected'));
+                item.classList.add('selected');
+                requestDeleteConfirmation();
+            }, 600);
         };
 
         const cancelPress = () => {
-        clearTimeout(pressTimer);
+          clearTimeout(pressTimer);
         };
 
         // Event-Listener für Gedrückthalten (Long-Press)
@@ -1962,6 +2272,7 @@
 
         // Logik für den Auswahlmodus
         if (mailPage.classList.contains('selection-mode')) {
+          if (didDrag) return; // Verhindert Abwählen nach dem Wischen
           this.classList.toggle('selected');
           updateSelectionCount();
           return;
@@ -1994,7 +2305,7 @@
         } else {
           actionBtn.innerText = translations[currentLanguage].email_detail_reply;
           actionBtn.setAttribute('data-translate', 'email_detail_reply');
-          actionBtn.onclick = () => closeModal(); 
+          actionBtn.onclick = () => replyToMail(sender, subject); 
         }
         
         // Öffne das Modal
