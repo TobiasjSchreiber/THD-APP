@@ -37,7 +37,7 @@
     }
 
     body {
-      background-color: #0c0c0d;
+      background-color: #000000;
       margin: 0;
       padding: 0;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -272,15 +272,52 @@
     .rental-item-due.today { color: var(--accent-blue); }
     .rental-empty { font-size: 13px; color: var(--text-sub); }
 
-    /* VPN Widget */
-    .vpn-card {
+    /* Bottom Widgets Row (VPN & Dienste) */
+    .bottom-widgets-row {
+      display: flex;
       margin: 0 15px 15px;
+      gap: 15px;
+    }
+
+    /* VPN Widget (angepasst für exakt halbe Breite) */
+    .vpn-card {
+      flex: 1 1 0; /* Zwingt die Karte auf exakt 50% */
+      box-sizing: border-box; /* Sichert ab, dass das Padding das Element nicht vergrößert */
       background-color: var(--card-bg);
       border-radius: 24px;
-      padding: 20px;
+      padding: 15px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+    }
+
+    /* Dienste Widget (Neu) */
+    .services-card {
+      flex: 1 1 0; /* Zwingt die Karte auf exakt 50% */
+      box-sizing: border-box; /* Sichert ab, dass das Padding das Element nicht vergrößert */
+      background-color: var(--accent-blue);
+      border-radius: 24px;
+      padding: 15px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      color: var(--text-main);
+      box-shadow: 0 4px 15px rgba(58, 130, 247, 0.2);
+      transition: transform 0.2s;
+    }
+    .services-card:active {
+      transform: scale(0.95);
+    }
+    .services-card svg {
+      width: 22px;
+      height: 22px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
     }
     .vpn-info { display: flex; flex-direction: column; gap: 4px; }
     .vpn-title { font-weight: 600; font-size: 16px; }
@@ -684,6 +721,80 @@
       background-color: var(--accent-blue);
       color: var(--text-main);
     }
+    /* Service Kacheln */
+    .services-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-top: 10px;
+    }
+    .service-tile {
+      background-color: var(--card-bg);
+      border-radius: 16px;
+      padding: 20px 10px;
+      text-align: center;
+      text-decoration: none;
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid #333;
+    }
+    .service-tile svg {
+      width: 28px;
+      height: 28px;
+      stroke: var(--accent-blue);
+    }
+    /* --- Service Seite Design --- */
+    .services-page-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      padding: 0 15px 20px;
+      overflow-y: auto;
+    }
+    .service-card {
+      background-color: var(--card-bg);
+      border-radius: 20px;
+      padding: 25px 15px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--text-main);
+      border: 1px solid #333;
+      transition: transform 0.2s, background-color 0.2s;
+    }
+    .service-card:active {
+      transform: scale(0.95);
+      background-color: #2a2a2c;
+    }
+    .service-icon-wrapper {
+      width: 50px;
+      height: 50px;
+      border-radius: 14px;
+      background: rgba(58, 130, 247, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-blue);
+    }
+    .service-icon-wrapper svg {
+      width: 26px;
+      height: 26px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .service-name {
+      font-size: 14px;
+      font-weight: 600;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
@@ -758,7 +869,7 @@
       </div>
       <div class="modal-buttons" style="margin-top: 20px;">
         <button class="btn btn-secondary" onclick="closeModal()" data-translate="close_button">Schließen</button>
-        <button class="btn btn-primary" onclick="closeModal()" data-translate="email_detail_reply">Antworten</button>
+        <button id="email-action-btn" class="btn btn-primary" onclick="closeModal()" data-translate="email_detail_reply">Antworten</button>
       </div>
     </div>
 
@@ -767,13 +878,13 @@
         <h3 class="modal-title" data-translate="compose_title">Neue E-Mail</h3>
       </div>
       <div class="modal-info" style="gap: 10px;">
-        <input type="text" class="compose-input" placeholder="An:" data-translate="compose_to">
-        <input type="text" class="compose-input" placeholder="Betreff:" data-translate="compose_subject">
-        <textarea class="compose-input" placeholder="Nachricht..." rows="5" style="resize: none;" data-translate="compose_body"></textarea>
+        <input type="text" id="comp-to" class="compose-input" placeholder="An:" data-translate="compose_to">
+        <input type="text" id="comp-subject" class="compose-input" placeholder="Betreff:" data-translate="compose_subject">
+        <textarea id="comp-body" class="compose-input" placeholder="Nachricht..." rows="5" style="resize: none;" data-translate="compose_body"></textarea>
       </div>
       <div class="modal-buttons" style="margin-top: 20px;">
         <button class="btn btn-secondary" onclick="closeModal()" data-translate="compose_cancel">Abbrechen</button>
-        <button class="btn btn-primary" onclick="closeModal()" data-translate="compose_send">Senden</button>
+        <button class="btn btn-primary" onclick="sendMail()" data-translate="compose_send">Senden</button>
       </div>
     </div>
 
@@ -841,6 +952,31 @@
         </div>
       </div>
       <button class="btn btn-primary" onclick="closeModal()" data-translate="close_button" style="width: 100%;">Schließen</button>
+    </div>
+    
+    <div id="services-modal" class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Dienste</h3>
+      </div>
+      <div class="services-grid">
+        <a href="https://elearning.th-deg.de" class="service-tile">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+          <span style="font-size: 14px; font-weight: 500;">Technik</span>
+        </a>
+        <a href="#" class="service-tile">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+          <span style="font-size: 14px; font-weight: 500;">Stundenplan</span>
+        </a>
+        <a href="#" class="service-tile">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+          <span style="font-size: 14px; font-weight: 500;">Anträge</span>
+        </a>
+        <a href="#" class="service-tile">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+          <span style="font-size: 14px; font-weight: 500;">Hilfe</span>
+        </a>
+      </div>
+      <button class="btn btn-secondary" onclick="closeModal()" style="width: 100%; margin-top: 20px;">Schließen</button>
     </div>
 
     <div id="widget-settings-modal" class="modal">
@@ -1097,7 +1233,7 @@
         </div>
 
         <div class="grid-top" id="widget-schedule">
-          <div class="ects-free">
+          <div class="ects-free" id="home-ects-card">
             <div class="ects-number">78</div>
             <div class="ects-label" data-translate="ects_label">ECTS</div>
           </div>
@@ -1128,7 +1264,7 @@
           </div>
         </div>
 
-        <div class="parking-card" id="widget-parking" onclick="handleParkingClick()">
+        <div class="parking-card" id="widget-parking">
           <div class="parking-header">
             <span class="parking-title" data-translate="parking_title">Studierendenparkplatz</span>
             <span class="parking-status" data-translate="parking_status_full">Fast voll</span>
@@ -1162,19 +1298,55 @@
           </div>
         </div>
 
-      <div class="vpn-card" id="widget-vpn">
-        <div class="vpn-info">
-          <span class="vpn-title" data-translate="vpn_title">Hochschul-VPN</span>
-          <span class="vpn-status" id="vpn-status-text" data-translate="vpn_status_disconnected">Getrennt</span>
+      <div class="bottom-widgets-row">
+        <div class="vpn-card" id="widget-vpn">
+          <div class="vpn-info">
+            <span class="vpn-title" style="font-size: 14px;">VPN</span>
+            <span class="vpn-status" id="vpn-status-text" data-translate="vpn_status_disconnected" style="font-size: 11px;">Getrennt</span>
+          </div>
+          <label class="toggle-switch" style="transform: scale(0.8); transform-origin: right;">
+            <input type="checkbox" class="toggle-input" id="vpn-toggle" onchange="toggleVPN()">
+            <span class="toggle-slider"></span>
+          </label>
         </div>
-        <label class="toggle-switch">
-          <input type="checkbox" class="toggle-input" id="vpn-toggle" onchange="toggleVPN()">
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
 
+        <div class="services-card" onclick="openServicesPage()">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"></rect><rect x="14" y="3" width="7" height="7" rx="2"></rect><rect x="14" y="14" width="7" height="7" rx="2"></rect><rect x="3" y="14" width="7" height="7" rx="2"></rect></svg>
+          <span style="font-weight: 600; font-size: 15px;">Dienste</span>
+        </div>
+      </div> </div> <div id="page-services" class="page">
+        <div class="header" style="justify-content: flex-start; gap: 15px;">
+          <svg class="header-icon-svg" viewBox="0 0 24 24" onclick="closeServicesPage()"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          <span>Dienste</span>
+        </div>
+        
+        <div class="services-page-grid">
+          <a href="https://elearning.th-deg.de" class="service-card">
+            <div class="service-icon-wrapper"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg></div>
+            <span class="service-name">Technik</span>
+          </a>
+          <a href="#" class="service-card">
+            <div class="service-icon-wrapper" style="color: #FF9500; background: rgba(255, 149, 0, 0.1);"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div>
+            <span class="service-name">Stundenplan</span>
+          </a>
+          <a href="#" class="service-card">
+            <div class="service-icon-wrapper" style="color: #34C759; background: rgba(52, 199, 89, 0.1);"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg></div>
+            <span class="service-name">Anträge</span>
+          </a>
+          <a href="https://ilearn.th-deg.de" class="service-card">
+            <div class="service-icon-wrapper" style="color: #AF52DE; background: rgba(175, 82, 222, 0.1);"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg></div>
+            <span class="service-name">iLearn</span>
+          </a>
+          <a href="#" class="service-card">
+            <div class="service-icon-wrapper" style="color: #FF2D55; background: rgba(255, 45, 85, 0.1);"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg></div>
+            <span class="service-name">Bibliothek</span>
+          </a>
+          <a href="#" class="service-card">
+            <div class="service-icon-wrapper" style="color: #5856D6; background: rgba(88, 86, 214, 0.1);"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></div>
+            <span class="service-name">Hilfe & FAQ</span>
+          </a>
+        </div>
       </div>
-
       <div id="page-profil" class="page">
         <div class="header">
           <span data-translate="profile_header">Profil</span>
@@ -1193,7 +1365,7 @@
           </div>
 
           <div class="stats-grid">
-            <div class="stat-card">
+            <div class="stat-card" id="profile-ects-card">
               <div class="stat-value">78</div>
               <div class="stat-label" data-translate="stats_ects_total">ECTS Gesamt</div>
             </div>
@@ -1266,6 +1438,7 @@
     let currentIndex = 1;
 
     function switchTab(pageId, navElement) {
+      document.querySelector('.navbar').style.display = 'flex'; // Stellt sicher, dass die Navbar sichtbar ist
       currentIndex = pagesList.indexOf(pageId);
       
       const pages = document.querySelectorAll('.page');
@@ -1409,21 +1582,7 @@
       }, 10);
     }
 
-    let parkingClickCount = 0;
-    let parkingClickTimer;
-    function handleParkingClick() {
-      parkingClickCount++;
-      clearTimeout(parkingClickTimer);
-      
-      if (parkingClickCount >= 5) {
-        parkingClickCount = 0;
-        openTowModal();
-      } else {
-        parkingClickTimer = setTimeout(() => {
-          parkingClickCount = 0;
-        }, 1000); // Setzt den Zähler nach 1 Sekunde ohne Klick zurück
-      }
-    }
+    // Alte Parkplatz-Klick-Logik entfernt
 
     function toggleWidget(widgetId, checkbox) {
       const widget = document.getElementById(widgetId);
@@ -1463,25 +1622,38 @@
     }
 
     function confirmDelete() {
-      const selectedItems = document.querySelectorAll('#page-mails .mail-item.selected');
-      if (selectedItems.length > 0) {
-        selectedItems.forEach(item => {
-          item.style.transition = 'all 0.3s ease';
-          item.style.opacity = '0';
-          item.style.transform = 'translateX(-100%)';
-          setTimeout(() => {
-            item.remove();
-            updateUnreadBadge();
-          }, 300);
-        });
-        if (document.getElementById('page-mails').classList.contains('selection-mode')) {
-            toggleSelectionMode();
+      if (itemToDelete === 'ects') {
+        // ECTS im Profil auf 0 setzen
+        const profileEctsValue = document.querySelector('#profile-ects-card .stat-value');
+        if (profileEctsValue) profileEctsValue.innerText = '0';
+        
+        // ECTS auf dem Home-Dashboard ebenfalls auf 0 setzen
+        const homeEctsValue = document.querySelector('.ects-number');
+        if (homeEctsValue) homeEctsValue.innerText = '0';
+      } else {
+        const selectedItems = document.querySelectorAll('#page-mails .mail-item.selected');
+        if (selectedItems.length > 0) {
+          selectedItems.forEach(item => {
+            item.style.transition = 'all 0.3s ease';
+            item.style.opacity = '0';
+            item.style.transform = 'translateX(-100%)';
+            setTimeout(() => {
+              item.remove();
+              updateUnreadBadge();
+            }, 300);
+          });
+          if (document.getElementById('page-mails').classList.contains('selection-mode')) {
+              toggleSelectionMode();
+          }
         }
       }
       closeModal();
     }
 
+    let itemToDelete = 'mail'; // Merkt sich, was gelöscht wird
+
     function requestDeleteConfirmation() {
+        itemToDelete = 'mail'; // Hier geht es um Mails
         const selectedCount = document.querySelectorAll('#page-mails .mail-item.selected').length;
         if (selectedCount === 0) return;
 
@@ -1809,7 +1981,21 @@
         document.getElementById('email-popup-sender').innerText = sender;
         document.getElementById('email-popup-time').innerText = time;
         document.getElementById('email-popup-subject').innerText = subject;
-        document.getElementById('email-popup-body').innerText = preview + "\n\n(Dies ist eine simulierte Detailansicht. Der vollständige E-Mail-Text würde hier stehen.)";
+        document.getElementById('email-popup-body').innerText = preview;
+        
+        // Button dynamisch anpassen (Mail vs. iLearn)
+        const actionBtn = document.getElementById('email-action-btn');
+        const isILearn = this.closest('#ilearn-view') !== null;
+        
+        if (isILearn) {
+          actionBtn.innerText = translations[currentLanguage].course_modal_to_ilearn;
+          actionBtn.setAttribute('data-translate', 'course_modal_to_ilearn');
+          actionBtn.onclick = () => window.location.href = 'https://ilearn.th-deg.de';
+        } else {
+          actionBtn.innerText = translations[currentLanguage].email_detail_reply;
+          actionBtn.setAttribute('data-translate', 'email_detail_reply');
+          actionBtn.onclick = () => closeModal(); 
+        }
         
         // Öffne das Modal
         document.getElementById('modal-overlay').classList.add('show');
@@ -1827,6 +2013,38 @@
     
     // Initiale Prüfung beim Start der App
     updateUnreadBadge();
+
+    // ECTS Gedrückthalten (Long-Press) Logik
+    function requestEctsDeleteConfirmation() {
+      itemToDelete = 'ects'; // Hier geht es um die ECTS Karte
+      document.getElementById('delete-confirm-text').innerText = currentLanguage === 'de' ? "Möchtest du deine ECTS wirklich auf 0 zurücksetzen?" : "Do you really want to reset your ECTS to 0?";
+      openDeleteModal();
+    }
+
+    // Hilfsfunktion: Macht jedes Element "gedrückt-haltbar"
+    function addLongPress(elementId, action) {
+      const el = document.getElementById(elementId);
+      if (!el) return;
+      let pressTimer;
+      const startPress = (e) => {
+        pressTimer = setTimeout(action, 600); // 600ms gedrückt halten
+      };
+      const cancelPress = () => {
+        clearTimeout(pressTimer);
+      };
+      
+      el.addEventListener('mousedown', startPress);
+      el.addEventListener('touchstart', startPress, { passive: true });
+      el.addEventListener('mouseup', cancelPress);
+      el.addEventListener('mouseleave', cancelPress);
+      el.addEventListener('touchend', cancelPress);
+      el.addEventListener('touchmove', cancelPress, { passive: true });
+    }
+
+    // Long-Press aktivieren
+    addLongPress('profile-ects-card', requestEctsDeleteConfirmation);
+    addLongPress('home-ects-card', requestEctsDeleteConfirmation);
+    addLongPress('widget-parking', openTowModal);
 
     // VPN Toggle Logik
     function toggleVPN() {
@@ -1851,6 +2069,86 @@
           console.log('ServiceWorker Registrierung fehlgeschlagen: ', err);
         });
       });
+    }
+    function sendMail() {
+      // 1. Text aus den Feldern holen
+      const to = document.getElementById('comp-to').value;
+      const subject = document.getElementById('comp-subject').value;
+      const body = document.getElementById('comp-body').value;
+
+      if (!to || !subject) return; // Nichts tun, wenn Felder leer sind
+
+      // 2. Das HTML-Element für die Liste bauen
+      const mailList = document.querySelector('#mails-view .mail-list');
+      const newMail = document.createElement('div');
+      newMail.className = 'mail-item'; // Ohne "unread", da selbst geschrieben
+      
+      newMail.innerHTML = `
+        <div class="selection-indicator">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        </div>
+        <div class="mail-top">
+          <span class="mail-sender">An: ${to}</span>
+          <span class="mail-time">Gerade eben</span>
+        </div>
+        <div class="mail-subject">${subject}</div>
+        <div class="mail-preview">${body}</div>
+      `;
+
+      // 3. Klick-Funktionen aktivieren und oben in die Liste einfügen
+      attachMailEventListeners(newMail);
+      mailList.prepend(newMail);
+      
+      // 4. Felder leeren und Fenster schließen
+      document.getElementById('comp-to').value = '';
+      document.getElementById('comp-subject').value = '';
+      document.getElementById('comp-body').value = '';
+      closeModal();
+    }
+    function openServicesPage() {
+      // Verlauf-Status setzen, damit die Android-Zurücktaste funktioniert
+      history.pushState({ page: 'services' }, "Dienste", "#services");
+      
+      document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+      document.getElementById('page-services').classList.add('active');
+      document.querySelector('.navbar').style.display = 'none';
+    }
+
+    // Überwacht die Zurücktaste (Android / Browser Back)
+    window.onpopstate = function(event) {
+      // Wenn wir zurückgehen und nicht mehr im Dienste-Status sind:
+      closeServicesPage();
+    };
+
+    // Die Schließen-Funktion muss jetzt auch den Verlauf bereinigen
+    function closeServicesPage() {
+      // Falls wir noch das "#services" in der URL haben, gehen wir einen Schritt zurück
+      if (window.location.hash === "#services") {
+        history.back();
+        return; // Die Funktion wird durch onpopstate erneut aufgerufen
+      }
+      
+      document.getElementById('page-services').classList.remove('active');
+      document.getElementById('page-home').classList.add('active');
+      document.querySelector('.navbar').style.display = 'flex';
+    }
+    // Überwacht die Zurücktaste (Android / Browser Back)
+    window.onpopstate = function(event) {
+      // Wenn wir zurückgehen und nicht mehr im Dienste-Status sind:
+      closeServicesPage();
+    };
+
+    // Die Schließen-Funktion muss jetzt auch den Verlauf bereinigen
+    function closeServicesPage() {
+      // Falls wir noch das "#services" in der URL haben, gehen wir einen Schritt zurück
+      if (window.location.hash === "#services") {
+        history.back();
+        return; // Die Funktion wird durch onpopstate erneut aufgerufen
+      }
+      
+      document.getElementById('page-services').classList.remove('active');
+      document.getElementById('page-home').classList.add('active');
+      document.querySelector('.navbar').style.display = 'flex';
     }
   </script>
 </body>
