@@ -2256,7 +2256,7 @@
         about_title: "About THD App",
         about_desc: "A modern THD APP for students, developed during Media Technology studies.",
         about_github: "Go to GitHub repository",
-        settings_close: "Finish",
+        settings_close: "Finnish",
         schedule_no_lectures_on: "No lectures on {day}",
         schedule_done_today: "Done for today! 🎉",
         schedule_done_desc: "All lectures have ended.",
