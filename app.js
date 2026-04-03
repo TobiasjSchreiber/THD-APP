@@ -241,13 +241,13 @@
 
         let meals = null;
 
-        const emptyText = currentLanguage === 'de' ? 'Heute kein Speiseplan' : 'No menu today';
-        const btnText = currentLanguage === 'de' ? 'Zum Speiseplan' : 'To the menu';
+        const emptyText = translations[currentLanguage].mensa_no_menu;
+        const btnText = translations[currentLanguage].mensa_to_menu;
         const emptyHtml = `
-            <div style="display: flex; justify-content: center; padding: 12px; font-size: 13px; font-weight: 500; color: var(--text-sub); pointer-events: none;">${emptyText}</div>
+            <div data-translate="mensa_no_menu" style="display: flex; justify-content: center; padding: 12px; font-size: 13px; font-weight: 500; color: var(--text-sub); pointer-events: none;">${emptyText}</div>
             <div class="list-item" onclick="openMensaMenuModal(true)" style="background-color: rgba(58, 130, 247, 0.15); box-shadow: inset 0 0 0 1.5px rgba(58, 130, 247, 0.3); justify-content: center; cursor: pointer; color: var(--accent-blue);">
                 <span style="font-weight: 600; display: flex; align-items: center; gap: 6px;">
-                    ${btnText}
+                    <span data-translate="mensa_to_menu">${btnText}</span>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
                 </span>
             </div>
@@ -309,13 +309,13 @@
 
       } catch (error) {
         console.error("Fehler beim Laden der Mensa-Daten:", error);
-        const errorText = currentLanguage === 'de' ? 'Fehler beim Laden' : 'Error loading';
-        const btnText = currentLanguage === 'de' ? 'Zum Speiseplan' : 'To the menu';
+        const errorText = translations[currentLanguage].mensa_error;
+        const btnText = translations[currentLanguage].mensa_to_menu;
         document.querySelector('#widget-mensa .scroll-list').innerHTML = `
-            <div style="display: flex; justify-content: center; padding: 12px; font-size: 13px; font-weight: 500; color: #FF3B30; pointer-events: none;">${errorText}</div>
+            <div data-translate="mensa_error" style="display: flex; justify-content: center; padding: 12px; font-size: 13px; font-weight: 500; color: #FF3B30; pointer-events: none;">${errorText}</div>
             <div class="list-item" onclick="openMensaMenuModal(true)" style="background-color: rgba(58, 130, 247, 0.15); box-shadow: inset 0 0 0 1.5px rgba(58, 130, 247, 0.3); justify-content: center; cursor: pointer; color: var(--accent-blue);">
                 <span style="font-weight: 600; display: flex; align-items: center; gap: 6px;">
-                    ${btnText}
+                    <span data-translate="mensa_to_menu">${btnText}</span>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
                 </span>
             </div>
@@ -1044,7 +1044,8 @@
         list.innerHTML = '';
 
         if (!meals || meals.length === 0) {
-            list.innerHTML = `<div style="text-align: center; color: var(--text-sub); padding: 30px 10px;">${currentLanguage === 'de' ? 'An diesem Tag keine Gerichte verfügbar' : 'No meals available on this day'}</div>`;
+            list.innerHTML = `<div data-translate="mensa_no_meals" style="text-align: center; color: var(--text-sub); padding: 30px 10px;">${translations[currentLanguage].mensa_no_meals}</div>`;
+            list.innerHTML = `<div data-translate="mensa_no_meals" style="text-align: center; color: var(--text-sub); padding: 30px 10px;">${translations[currentLanguage].mensa_no_meals}</div>`;
         } else {
             const categories = {};
             meals.forEach(meal => {
@@ -2066,7 +2067,31 @@
         about_title: "Über die THD App",
         about_desc: "Eine moderne THD APP für Studierende, entwickelt im Medientechnik-Studium.",
         about_github: "Zum GitHub Repository",
-        settings_close: "Schließen"
+        settings_close: "Schließen",
+        schedule_no_lectures_on: "Keine Vorlesungen am {day}",
+        schedule_done_today: "Für heute geschafft! 🎉",
+        schedule_done_desc: "Alle Vorlesungen sind beendet.",
+        schedule_no_lectures: "Heute keine Vorlesungen",
+        schedule_no_lectures_day: "Keine Vorlesungen an diesem Tag",
+        schedule_tap_for_plan: "Tippe für den Plan",
+        schedule_next_day: "Nächster Tag ({day}, {date})",
+        mensa_no_menu: "Heute kein Speiseplan",
+        mensa_to_menu: "Zum Speiseplan",
+        mensa_error: "Fehler beim Laden",
+        mensa_no_meals: "An diesem Tag keine Gerichte verfügbar",
+        vpn_speed_title: "VPN Geschwindigkeit",
+        service_tech: "Technik",
+        service_schedule: "Stundenplan",
+        service_requests: "Anträge",
+        service_ilearn: "iLearn",
+        service_library: "Bibliothek",
+        service_faq: "Hilfe & FAQ",
+        search_sugg_prof: "Dozierende",
+        search_sugg_mensa: "Mensa",
+        search_sugg_vpn: "VPN",
+        search_sugg_grades: "Noten",
+        chart_grades_tooltip: "{n} Noten",
+        chart_cars_tooltip: "{n} Autos"
       },
       en: {
         // Navbar
@@ -2231,7 +2256,31 @@
         about_title: "About THD App",
         about_desc: "A modern THD APP for students, developed during Media Technology studies.",
         about_github: "Go to GitHub repository",
-        settings_close: "Finish"
+        settings_close: "Finish",
+        schedule_no_lectures_on: "No lectures on {day}",
+        schedule_done_today: "Done for today! 🎉",
+        schedule_done_desc: "All lectures have ended.",
+        schedule_no_lectures: "No lectures today",
+        schedule_no_lectures_day: "No lectures on this day",
+        schedule_tap_for_plan: "Tap for schedule",
+        schedule_next_day: "Next Day ({day}, {date})",
+        mensa_no_menu: "No menu today",
+        mensa_to_menu: "To the menu",
+        mensa_error: "Error loading",
+        mensa_no_meals: "No meals available on this day",
+        vpn_speed_title: "VPN Speed",
+        service_tech: "Tech",
+        service_schedule: "Schedule",
+        service_requests: "Requests",
+        service_ilearn: "iLearn",
+        service_library: "Library",
+        service_faq: "Help & FAQ",
+        search_sugg_prof: "Professors",
+        search_sugg_mensa: "Cafeteria",
+        search_sugg_vpn: "VPN",
+        search_sugg_grades: "Grades",
+        chart_grades_tooltip: "{n} Grades",
+        chart_cars_tooltip: "{n} Cars"
       },
       fi: {
         // Navbar
@@ -2396,7 +2445,31 @@
         about_title: "Tietoja THD App",
         about_desc: "Moderni THD-SOVELLUS opiskelijoille, kehitetty mediatekniikan opintojen aikana.",
         about_github: "Siirry GitHub-arkistoon",
-        settings_close: "Sulje"
+        settings_close: "Sulje",
+        schedule_no_lectures_on: "Ei luentoja {day}",
+        schedule_done_today: "Valmis tältä päivältä! 🎉",
+        schedule_done_desc: "Kaikki luennot ovat päättyneet.",
+        schedule_no_lectures: "Ei luentoja tänään",
+        schedule_no_lectures_day: "Ei luentoja tänä päivänä",
+        schedule_tap_for_plan: "Napauta aikataulua",
+        schedule_next_day: "Seuraava päivä ({day}, {date})",
+        mensa_no_menu: "Ei ruokalistaa tänään",
+        mensa_to_menu: "Ruokalistaan",
+        mensa_error: "Virhe ladattaessa",
+        mensa_no_meals: "Ei aterioita saatavilla tänä päivänä",
+        vpn_speed_title: "VPN Nopeus",
+        service_tech: "Tekniikka",
+        service_schedule: "Lukujärjestys",
+        service_requests: "Pyynnöt",
+        service_ilearn: "iLearn",
+        service_library: "Kirjasto",
+        service_faq: "Apua & FAQ",
+        search_sugg_prof: "Professorit",
+        search_sugg_mensa: "Ruokala",
+        search_sugg_vpn: "VPN",
+        search_sugg_grades: "Arvosanat",
+        chart_grades_tooltip: "{n} Arvosanaa",
+        chart_cars_tooltip: "{n} Autoa"
       }
     };
 
@@ -2567,7 +2640,7 @@
             const courses = demoSchedule[currentScheduleDay] || [];
 
             if (courses.length === 0) {
-                list.innerHTML = `<div style="text-align: center; color: var(--text-sub); padding: 30px 10px;">${currentLanguage === 'de' ? 'Keine Vorlesungen an diesem Tag' : 'No lectures on this day'}</div>`;
+                list.innerHTML = `<div data-translate="schedule_no_lectures_day" style="text-align: center; color: var(--text-sub); padding: 30px 10px;">${translations[currentLanguage].schedule_no_lectures_day}</div>`;
             } else {
                 courses.forEach(course => {
                     const item = document.createElement('div');
@@ -2621,7 +2694,7 @@
         courses.sort((a, b) => a.dateObj - b.dateObj);
 
         if (courses.length === 0) {
-            list.innerHTML = `<div style="text-align: center; color: var(--text-sub); padding: 30px 10px;">${currentLanguage === 'de' ? 'Keine Vorlesungen an diesem Tag' : 'No lectures on this day'}</div>`;
+            list.innerHTML = `<div data-translate="schedule_no_lectures_day" style="text-align: center; color: var(--text-sub); padding: 30px 10px;">${translations[currentLanguage].schedule_no_lectures_day}</div>`;
         } else {
             courses.forEach(course => {
                 const item = document.createElement('div');
@@ -2764,43 +2837,55 @@
 
             let emptyHtml = '';
             // Den Hinweis "Tippe für den Plan" nur anzeigen, wenn es keinen Button für den nächsten Tag gibt
-            const subTextDe = nextEvent ? '' : '<div class="schedule-time" style="color: var(--accent-blue); margin-top: 4px;">Tippe für den Plan</div>';
-            const subTextEn = nextEvent ? '' : '<div class="schedule-time" style="color: var(--accent-blue); margin-top: 4px;">Tap for schedule</div>';
-            const subTextHtml = currentLanguage === 'de' ? subTextDe : subTextEn;
+            const subTextHtml = nextEvent ? '' : `<div data-translate="schedule_tap_for_plan" class="schedule-time" style="color: var(--accent-blue); margin-top: 4px;">${translations[currentLanguage].schedule_tap_for_plan}</div>`;
 
             if (widgetSelectedDay !== -1) {
                 const daysDe = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'];
                 const daysEn = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
-                const dayName = currentLanguage === 'de' ? daysDe[widgetSelectedDay] : daysEn[widgetSelectedDay];
-                const titleText = currentLanguage === 'de' ? `Keine Vorlesungen am ${dayName}` : `No lectures on ${dayName}`;
-                emptyHtml = `<div class="schedule-item"><div class="schedule-title">${titleText}</div>${subTextHtml}</div>`;
+                const daysFi = ['Maanantai', 'Tiistai', 'Keskiviikko', 'Torstai', 'Perjantai'];
+                
+                ['de', 'en', 'fi'].forEach(lang => {
+                    let dName = daysDe[widgetSelectedDay];
+                    if (lang === 'en') dName = daysEn[widgetSelectedDay];
+                    else if (lang === 'fi') dName = daysFi[widgetSelectedDay];
+                    translations[lang].schedule_no_lectures_on_dyn = translations[lang].schedule_no_lectures_on.replace('{day}', dName);
+                });
+                const titleText = translations[currentLanguage].schedule_no_lectures_on_dyn;
+                emptyHtml = `<div class="schedule-item"><div data-translate="schedule_no_lectures_on_dyn" class="schedule-title">${titleText}</div>${subTextHtml}</div>`;
             } else {
                 const startOfToday = new Date(); startOfToday.setHours(0,0,0,0);
                 const endOfToday = new Date(); endOfToday.setHours(23,59,59,999);
                 const todayEvents = events.filter(e => e.dateObj >= startOfToday && e.dateObj <= endOfToday);
                 
                 if (todayEvents.length > 0) {
-                    const titleText = currentLanguage === 'de' ? 'Für heute geschafft! 🎉' : 'Done for today! 🎉';
-                    const descText = currentLanguage === 'de' ? 'Alle Vorlesungen sind beendet.' : 'All lectures have ended.';
-                    emptyHtml = `<div class="schedule-item"><div class="schedule-title">${titleText}</div><div class="schedule-time">${descText}</div>${subTextHtml}</div>`;
+                    const titleText = translations[currentLanguage].schedule_done_today;
+                    const descText = translations[currentLanguage].schedule_done_desc;
+                    emptyHtml = `<div class="schedule-item"><div data-translate="schedule_done_today" class="schedule-title">${titleText}</div><div data-translate="schedule_done_desc" class="schedule-time">${descText}</div>${subTextHtml}</div>`;
                 } else {
-                    const titleText = currentLanguage === 'de' ? 'Heute keine Vorlesungen' : 'No lectures today';
-                    emptyHtml = `<div class="schedule-item"><div class="schedule-title">${titleText}</div>${subTextHtml}</div>`;
+                    const titleText = translations[currentLanguage].schedule_no_lectures;
+                    emptyHtml = `<div class="schedule-item"><div data-translate="schedule_no_lectures" class="schedule-title">${titleText}</div>${subTextHtml}</div>`;
                 }
             }
             
             if (nextEvent) {
                 const daysDeShort = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
                 const daysEnShort = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                const daysFiShort = ['Ma', 'Ti', 'Ke', 'To', 'Pe', 'La', 'Su'];
                 const nextDayIndex = nextEvent.dateObj.getDay() === 0 ? 6 : nextEvent.dateObj.getDay() - 1;
-                const nextDayStr = currentLanguage === 'de' ? daysDeShort[nextDayIndex] : daysEnShort[nextDayIndex];
                 const nextDateStr = String(nextEvent.dateObj.getDate()).padStart(2, '0') + '.' + String(nextEvent.dateObj.getMonth() + 1).padStart(2, '0') + '.';
-                const btnText = currentLanguage === 'de' ? `Nächster Tag (${nextDayStr}, ${nextDateStr})` : `Next Day (${nextDayStr}, ${nextDateStr})`;
+                
+                ['de', 'en', 'fi'].forEach(lang => {
+                    let nDayStr = daysDeShort[nextDayIndex];
+                    if (lang === 'en') nDayStr = daysEnShort[nextDayIndex];
+                    else if (lang === 'fi') nDayStr = daysFiShort[nextDayIndex];
+                    translations[lang].schedule_next_day_dyn = translations[lang].schedule_next_day.replace('{day}', nDayStr).replace('{date}', nextDateStr);
+                });
+                const btnText = translations[currentLanguage].schedule_next_day_dyn;
                 
                 emptyHtml += `
                 <div class="schedule-item" onclick="event.stopPropagation(); this.style.transform='scale(0.95)'; setTimeout(() => jumpToNextLectureDay(), 250)" style="background-color: rgba(58, 130, 247, 0.15); box-shadow: inset 0 0 0 1.5px rgba(58, 130, 247, 0.3); align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s ease;">
                     <div class="schedule-title" style="color: var(--accent-blue); display: flex; align-items: center; gap: 6px;">
-                        ${btnText}
+                        <span data-translate="schedule_next_day_dyn">${btnText}</span>
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
                     </div>
                 </div>`;
@@ -3021,7 +3106,7 @@
           const heightPercent = parseInt(bar.style.height);
           const cars = Math.round((heightPercent / 100) * 200); // 200 ist die maximale Auslastung
           
-          tooltip.innerText = cars + (currentLanguage === 'de' ? ' Autos' : ' Cars');
+          tooltip.innerText = translations[currentLanguage].chart_cars_tooltip.replace('{n}', cars);
           
           const wRect = closestWrapper.getBoundingClientRect();
           const cRect = chartContainer.getBoundingClientRect();
@@ -3088,7 +3173,7 @@
           const heightPercent = parseInt(bar.style.height);
           const count = closestWrapper.dataset.value;
           
-          tooltip.innerText = count + (currentLanguage === 'de' ? ' Noten' : ' Grades');
+          tooltip.innerText = translations[currentLanguage].chart_grades_tooltip.replace('{n}', count);
           
           const wRect = closestWrapper.getBoundingClientRect();
           const cRect = chartContainer.getBoundingClientRect();
@@ -3203,6 +3288,19 @@
       if (targetBtn2) targetBtn2.classList.add('active');
       const highlight2 = document.getElementById('setup-language-segment-highlight');
       if (highlight2) highlight2.style.transform = `translateX(${lang === 'de' ? 0 : 100}%)`;
+
+      // Widgets VOR der Scramble-Animation aktualisieren, damit sie die neuen data-translate Attribute ins DOM einfügen
+      updateScheduleWidget(false);
+      if (isRealModeEnabled) {
+          loadRealMensaData();
+      }
+      if (document.getElementById('schedule-modal').classList.contains('show')) {
+          updateScheduleModalView();
+      }
+      if (document.getElementById('mensa-menu-modal').classList.contains('show')) {
+          updateMensaModalView();
+          updateMensaWeekLabel();
+      }
 
       // 1. Zuerst temporär den finalen Text setzen, um die exakte Zielhöhe zu messen
       document.querySelectorAll('[data-translate]').forEach(el => {

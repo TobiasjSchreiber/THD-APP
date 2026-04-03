@@ -627,7 +627,7 @@
 
     <div id="vpn-stats-modal" class="modal">
       <div class="modal-header">
-        <h3 class="modal-title">VPN Geschwindigkeit</h3>
+        <h3 class="modal-title" data-translate="vpn_speed_title">VPN Geschwindigkeit</h3>
       </div>
       <div class="modal-info" style="text-align: center;">
         <div style="display: flex; justify-content: space-around; margin-bottom: 15px; font-weight: 600;">
@@ -642,7 +642,7 @@
         </div>
       </div>
       <div class="modal-buttons" style="margin-top: 20px;">
-        <button class="btn btn-primary" onclick="closeModal()" style="width: 100%;">Schließen</button>
+        <button class="btn btn-primary" onclick="closeModal()" data-translate="close_button" style="width: 100%;">Schließen</button>
       </div>
     </div>
 
@@ -654,27 +654,27 @@
         <div class="services-page-grid" style="padding: 0 12px; overflow-y: visible;">
           <a href="https://elearning.th-deg.de" class="service-card color-tech">
             <div class="service-icon-wrapper"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg></div>
-            <span class="service-name">Technik</span>
+            <span class="service-name" data-translate="service_tech">Technik</span>
           </a>
           <a href="#" class="service-card color-schedule">
             <div class="service-icon-wrapper"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div>
-            <span class="service-name">Stundenplan</span>
+            <span class="service-name" data-translate="service_schedule">Stundenplan</span>
           </a>
           <a href="#" class="service-card color-requests">
             <div class="service-icon-wrapper"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg></div>
-            <span class="service-name">Anträge</span>
+            <span class="service-name" data-translate="service_requests">Anträge</span>
           </a>
           <a href="https://ilearn.th-deg.de" class="service-card color-ilearn">
             <div class="service-icon-wrapper"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg></div>
-            <span class="service-name">iLearn</span>
+            <span class="service-name" data-translate="service_ilearn">iLearn</span>
           </a>
           <a href="#" class="service-card color-library">
             <div class="service-icon-wrapper"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg></div>
-            <span class="service-name">Bibliothek</span>
+            <span class="service-name" data-translate="service_library">Bibliothek</span>
           </a>
           <a href="#" class="service-card color-faq">
             <div class="service-icon-wrapper"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></div>
-            <span class="service-name">Hilfe & FAQ</span>
+            <span class="service-name" data-translate="service_faq">Hilfe & FAQ</span>
           </a>
         </div>
       </div>
@@ -1112,7 +1112,7 @@
 
         <div class="services-card" id="widget-services" onclick="openServicesModal()">
           <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"></rect><rect x="14" y="3" width="7" height="7" rx="2"></rect><rect x="14" y="14" width="7" height="7" rx="2"></rect><rect x="3" y="14" width="7" height="7" rx="2"></rect></svg>
-          <span style="font-weight: 600; font-size: 15px;">Dienste</span>
+          <span data-translate="widget_services" style="font-weight: 600; font-size: 15px;">Dienste</span>
         </div>
       </div> 
       
@@ -1215,19 +1215,19 @@
             <div class="suggestions-grid">
               <div class="suggestion-tile" onclick="document.getElementById('search-input').value='Prof.'; performSearch();">
                 <svg viewBox="0 0 24 24" width="20" height="20" stroke="var(--accent-blue)" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                <span>Dozierende</span>
+                <span data-translate="search_sugg_prof">Dozierende</span>
               </div>
               <div class="suggestion-tile" onclick="addToHistory({id: 'widget-mensa', title: 'Mensa & Guthaben', page: 'page-home', loc: 'Home'}); jumpToElement('page-home', 'widget-mensa')">
                 <svg viewBox="0 0 24 24" width="20" height="20" stroke="var(--accent-orange)" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"></path><path d="M7 2v20"></path><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"></path></svg>
-                <span>Mensa</span>
+                <span data-translate="search_sugg_mensa">Mensa</span>
               </div>
               <div class="suggestion-tile" onclick="addToHistory({id: 'widget-vpn', title: 'VPN', page: 'page-home', loc: 'Home'}); jumpToElement('page-home', 'widget-vpn')">
                 <svg viewBox="0 0 24 24" width="20" height="20" stroke="var(--accent-blue)" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                <span>VPN</span>
+                <span data-translate="search_sugg_vpn">VPN</span>
               </div>
             <div class="suggestion-tile" onclick="addToHistory({id: 'profile-ects-card', title: 'Notenschnitt', page: 'page-profil', loc: 'Profil'}); jumpToElement('page-profil', 'profile-ects-card')">
                 <svg viewBox="0 0 24 24" width="20" height="20" stroke="#34C759" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-                <span>Noten</span>
+                <span data-translate="search_sugg_grades">Noten</span>
               </div>
             </div>
           </div>
