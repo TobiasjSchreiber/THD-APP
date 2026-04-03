@@ -1,20 +1,26 @@
 # THD App – UI Redesign
 
-Dieses Projekt ist ein Redesign der THD App, entwickelt im Rahmen meines Medientechnik-Studiums. Der Fokus liegt auf einer modernen, intuitiven und flüssigen Benutzeroberfläche.
+Eine moderne Progressive Web App (PWA) für Studierende, entwickelt im Medientechnik-Studium. Die App bietet eine native User Experience und kommt komplett ohne schwere Frameworks aus.
 
-## 📱 Über das Projekt
-Die App orientiert sich an aktuellen Smartphone-Standards, um die Bedienung im Alltag so einfach und schnell wie möglich zu machen. 
+## 🌐 Live-Demo
+👉 **[THD App hier öffnen](https://tobiasjschreiber.github.io/THD-APP/)**
 
-## ✨ Kern-Features
-* **Modernes Design:** Klar strukturiert für ein optimales Nutzererlebnis (UX).
-* **Dynamische Widgets:** Direkter Zugriff auf wichtige Funktionen wie den Stundenplan und den Speiseplan.
-* **Flexible API-Anbindung:** Die App nutzt sowohl echte Live-Daten über eine API als auch lokale Demo-Dateien für reibungsloses Testen.
+## ✨ Top-Features
+* **Personalisiertes Dashboard:** Widgets einfach per echtem Drag & Drop anordnen.
+* **Live-Daten:** Automatischer iCal-Stundenplan und Mensa-Speiseplan (OpenMensa API).
+* **Native UX:** Wischgesten, Dark/OLED-Mode und flüssige Animationen.
+* **Zweisprachig:** Nahtloser Wechsel zwischen Deutsch und Englisch.
+* **Studien-Tracker:** Übersicht über ECTS und Notenschnitt.
 
-## 🚀 Installation & Start
-1. Repository klonen:
-   `git clone [DEINE_REPO_URL]`
-2. Projekt in deiner Entwicklungsumgebung öffnen.
-3. Abhängigkeiten installieren und die App starten.
+## 🛠 Tech Stack
+* **Frontend:** Vanilla HTML, CSS & JavaScript
+* **Architektur:** PWA (Offline-fähig, Service Worker, Installierbar)
+* **Speicher:** LocalStorage für Einstellungen & Layouts
+
+## 🚀 Empfohlene Nutzung
+Für das beste App-Gefühl direkt am Gerät einrichten:
+* **Android:** Im Browser auf "App installieren" tippen.
+* **iOS:** Im Safari über das Teilen-Symbol "Zum Startbildschirm hinzufügen" wählen.
 
 ## 👨‍💻 Autor
 **Tobias**
