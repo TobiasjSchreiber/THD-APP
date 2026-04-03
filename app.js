@@ -711,7 +711,7 @@
       }
       
       // Original-Texte dynamisch überschreiben, damit setLanguage(lang) auch nach Sprachwechsel die Werte weiß
-      ['de', 'en'].forEach(lang => {
+      ['de', 'en', 'fi'].forEach(lang => {
         translations[lang].study_time_studied = translations[lang].study_time_studied_dyn.replace('{days}', studiedDays);
         translations[lang].study_time_remaining = translations[lang].study_time_remaining_dyn.replace('{days}', remainingDays);
         translations[lang].study_time_extra = translations[lang].study_time_extra_dyn.replace('{days}', extraDays).replace('{n}', studyExtra);
@@ -2066,6 +2066,7 @@
         about_title: "Über die THD App",
         about_desc: "Eine moderne THD APP für Studierende, entwickelt im Medientechnik-Studium.",
         about_github: "Zum GitHub Repository",
+        settings_close: "Schließen"
       },
       en: {
         // Navbar
@@ -2230,6 +2231,172 @@
         about_title: "About THD App",
         about_desc: "A modern THD APP for students, developed during Media Technology studies.",
         about_github: "Go to GitHub repository",
+        settings_close: "Finish"
+      },
+      fi: {
+        // Navbar
+        mails_nav: "Sähköpostit",
+        home_nav: "Koti",
+        search_nav: "Haku",
+        search_header: "Haku",
+        search_placeholder: "Etsi widgettejä...",
+        search_suggestions: "Ehdotukset",
+        search_history: "Viimeisimmät haut",
+        search_history_empty: "Ei äskettäisiä hakuja",
+        profile_nav: "Profiili",
+        clear_search_title: "Tyhjennä historia",
+        clear_search_confirm: "Haluatko tyhjentää koko hakuhistoriasi?",
+        // Mails Page
+        mails_header: "Posti",
+        ilearn_header: "iLearn",
+        // Compose Modal
+        compose_title: "Uusi sähköposti",
+        compose_to: "Vastaanottaja:",
+        compose_subject: "Aihe:",
+        compose_body: "Viesti...",
+        compose_cancel: "Peruuta",
+        compose_send: "Lähetä",
+        // Email Detail Modal
+        email_detail_reply: "Vastaa",
+        // Home Page
+        dashboard_header: "Kojelauta",
+        ects_label: "OP",
+        mensa_balance_label: "Kortin saldo",
+        parking_title: "Opiskelijoiden pysäköinti",
+        parking_status_full: "Melkein täynnä",
+        parking_status_medium: "Varattu",
+        parking_status_low: "Paljon vapaita",
+        parking_text: "Noin {spots}/200 paikkaa varattu",
+        parking_modal_title: "Käyttöaste",
+        parking_modal_subtitle: "Tänään",
+        parking_forecast: "Ennuste",
+        vpn_title: "Yliopiston VPN",
+        vpn_status_disconnected: "Katkaistu",
+        vpn_status_connected: "Yhdistetty",
+        vpn_notif_title: "VPN yhdistetty",
+        vpn_notif_body: "Yhteys yliopiston verkkoon on muodostettu.",
+        widget_settings_title: "Muokkaa widgettejä",
+        widget_ects: "Tilastot",
+        widget_schedule: "Lukujärjestys",
+        widget_mensa: "Ruokala",
+        widget_parking: "Pysäköinti",
+        widget_rental: "Vuokraus",
+        widget_vpn: "VPN",
+        services_modal_title: "Palvelut",
+        widget_services: "Palvelut",
+        schedule_modal_title: "Koko lukujärjestys",
+        schedule_settings_title: "Opintoryhmä",
+        mensa_menu_title: "Ruokalista",
+        back_button: "Takaisin",
+        food_desc: "Kuvaus",
+        schedule_week_this: "Tällä viikolla",
+        schedule_week_next: "Ensi viikolla",
+        schedule_week_last: "Viime viikolla",
+        schedule_week_in: "{n} viikon kuluttua",
+        schedule_week_ago: "{n} viikkoa sitten",
+        food_allergens: "Allergeenit",
+        food_prices: "Hinnat",
+        rental_title: "Vuokraus",
+        rental_books: "Kirjat",
+        rental_tech: "Tekniikka",
+        rental_books_empty: "Ei lainattuja kirjoja.",
+        rental_tech_due: "2 päivän kuluttua",
+        rental_tech_due_today: "Tänään",
+        rental_modal_location: "Palautuspaikka",
+        rental_modal_person: "Yhteyshenkilö",
+        rental_modal_notes: "Tarvikkeet / Huomautukset",
+        // Profile Page
+        profile_header: "Profiili",
+        profile_major: "Mediatekniikka",
+        profile_semester: "4. lukukausi",
+        stats_ects_total: "OP yhteensä",
+        stats_gpa: "Keskiarvo",
+        home_studied_label: "Opiskellut päivät",
+        home_remaining_label: "Jäljellä olevat päivät",
+        study_time_title: "Opiskeluaika",
+        study_time_studied: "460 päivää opiskeltu",
+        study_time_remaining: "635 päivää jäljellä",
+        study_time_extra: "+180 päivää (1 lisälukukausi)",
+        all_grades_title: "Kaikki arvosanat",
+        // Course Modal
+        course_modal_room: "Huone",
+        edit_name_title: "Muokkaa nimeä",
+        course_modal_tasks: "Tehtävät",
+        course_modal_to_ilearn: "Siirry iLearniin",
+        // Study Time Modal
+        study_time_modal_title: "Säädä opiskeluaikaa",
+        study_time_current: "Nykyinen lukukausi",
+        study_time_total: "Normaali kesto",
+        study_time_extra_input: "Lisälukukaudet",
+        study_time_studied_dyn: "{days} päivää opiskeltu",
+        study_time_remaining_dyn: "{days} päivää jäljellä",
+        study_time_extra_dyn: "+{days} päivää ({n} lisälukukautta)",
+        save_button: "Tallenna",
+        grade_modal_date: "Tenttipäivä",
+        grade_modal_examiner: "Tarkastaja",
+        grade_modal_participants: "Ilm. / Osall.",
+        grade_modal_average: "Arvosanojen keskiarvo",
+        grade_modal_distribution: "Arvosanajakauma",
+        // Generic
+        close_button: "Sulje",
+        cancel_button: "Peruuta",
+        select_day_button: "Valitse",
+        continue_button: "Jatka",
+        // GPA Modal
+        gpa_modal_title: "Keskiarvo",
+        gpa_modal_question: "Oletko tyytyväinen arvosanaasi?",
+        gpa_modal_yes: "Kyllä",
+        // Topup Modal
+        topup_modal_title: "Lataa saldoa",
+        topup_modal_question: "Haluatko ladata ruokalan saldoa?",
+        topup_confirm_title: "Ostovahvistus",
+        topup_confirm_amount: "Määrä:",
+        topup_confirm_method: "Maksutapa:",
+        topup_confirm_fee: "Maksut:",
+        topup_confirm_total: "Yhteensä:",
+        topup_confirm_buy: "Vahvista osto",
+        // Tow Modal
+        tow_modal_title: "Tyhjennä pysäköintipaikka",
+        tow_modal_question: "Haluatko saada auton katoamaan?",
+        tow_mail_sender: "Vihainen opiskelukaveri",
+        tow_mail_subject: "MINUN GOLF!!!",
+        tow_mail_body: "Oletko aivan hullu?! Hinautitko todella autoni pois?! Tämä maksaa minulle yli 200€! Selvitän, kuka olet!!",
+        just_now: "Juuri nyt",
+        // Delete Modal
+        delete_title: "Poista sähköposti",
+        delete_ects_title: "Nollaa OP",
+        delete_confirm_single: "Haluatko varmasti poistaa tämän sähköpostin?",
+        delete_confirm_multiple: "Haluatko varmasti poistaa {count} valittua sähköpostia?",
+        delete_button: "Poista",
+        empty_mails: "Ei viestejä",
+        // Settings Modal
+        settings_title: "Asetukset",
+        settings_theme: "Teema",
+        theme_light: "Vaalea",
+        theme_dark: "Tumma",
+        theme_oled: "Anti-Ghosting",
+        language_label: "Kieli",
+        settings_storage: "Tallenna tiedot paikallisesti",
+        settings_real_mode: "Oikeat tiedot\n(Ruokala, Lukujärjestys)",
+        ok_button: "OK",
+        settings_privacy: "Yksityisyystila",
+        info_privacy_title: "Yksityisyystila",
+        info_privacy_desc: "Sumentaa arkaluontoiset tiedot, kuten arvosanat, opintopisteet, saldon ja nimesi, yksityisyytesi suojaamiseksi.",
+        setup_title: "Tervetuloa",
+        setup_subtitle: "Valitse haluamasi asetukset.",
+        info_storage_title: "Tallenna tiedot paikallisesti",
+        info_storage_desc: "Tallentaa asetuksesi, kojelaudan muokkaukset ja muut tiedot paikallisesti laitteellesi. Jos tämä on pois päältä, kaikki nollautuu, kun suljet sovelluksen.",
+        info_real_mode_title: "Oikeat tiedot",
+        info_real_mode_desc: "Lataa Deggendorfin todellisen ruokalistan ja nykyisen iCal-lukujärjestyksen. Jos pois päältä, näytetään demotietoja esittelytarkoituksessa.",
+        setup_show_again: "Näytä käynnistettäessä",
+        info_show_again_title: "Näytä valintaikkuna",
+        info_show_again_desc: "Jos otettu käyttöön, tämä tervetulonäyttö tulee näkyviin joka kerta, kun sovellus käynnistetään. Hyödyllinen vaihdettaessa offline- ja live-tilojen välillä.",
+        setup_install_hint: "Parhaan kokemuksen saamiseksi suosittelemme asentamaan sovelluksen Androidilla tai lisäämään sen aloitusnäyttöön iOS:ssä.",
+        settings_about: "Tietoja tästä sovelluksesta",
+        about_title: "Tietoja THD App",
+        about_desc: "Moderni THD-SOVELLUS opiskelijoille, kehitetty mediatekniikan opintojen aikana.",
+        about_github: "Siirry GitHub-arkistoon",
+        settings_close: "Sulje"
       }
     };
 
@@ -3262,6 +3429,13 @@
       }, 10);
     }
 
+    function closeSettingsModal() {
+      if (currentLanguage === 'en') {
+        setLanguage('fi');
+      }
+      closeModal();
+    }
+
     function openAboutModal() {
       closeModal();
       setTimeout(() => {
@@ -3273,6 +3447,7 @@
     let pressTimer;
     let isLongPress = false;
     let isDraggingSelection = false;
+    let dragSelectionAction = 'select'; // Speichert, ob beim Wischen markiert oder abgewählt werden soll
 
     // Scrollen blockieren und Mails beim Wischen markieren
     document.addEventListener('touchmove', (e) => {
@@ -3282,14 +3457,22 @@
         const el = document.elementFromPoint(touch.clientX, touch.clientY);
         if (el) {
           const mail = el.closest('.mail-item');
-          if (mail && !mail.classList.contains('selected')) {
-            const mailId = mail.getAttribute('data-mail-id');
-            if (mailId) {
-                document.querySelectorAll(`.mail-item[data-mail-id="${mailId}"]`).forEach(m => m.classList.add('selected'));
-            } else {
-                mail.classList.add('selected');
+          if (mail) {
+            const isSelected = mail.classList.contains('selected');
+            // Nur die Aktion ausführen, die der Wisch-Geste entspricht (Markieren ODER Abwählen)
+            if ((dragSelectionAction === 'select' && !isSelected) || (dragSelectionAction === 'deselect' && isSelected)) {
+              const mailId = mail.getAttribute('data-mail-id');
+              if (mailId) {
+                  document.querySelectorAll(`.mail-item[data-mail-id="${mailId}"]`).forEach(m => {
+                      if (dragSelectionAction === 'select') m.classList.add('selected');
+                      else m.classList.remove('selected');
+                  });
+              } else {
+                  if (dragSelectionAction === 'select') mail.classList.add('selected');
+                  else mail.classList.remove('selected');
+              }
+              updateSelectionCount();
             }
-            updateSelectionCount();
           }
         }
       }
@@ -3312,11 +3495,20 @@
         const startDrag = (e) => {
             if (mailPage.classList.contains('selection-mode')) {
                 isDraggingSelection = true;
+                
+                // Wenn das Element bereits markiert ist, schalten wir für diesen Wischvorgang auf "Abwählen"
+                const isSelected = item.classList.contains('selected');
+                dragSelectionAction = isSelected ? 'deselect' : 'select';
+
                 const mailId = item.getAttribute('data-mail-id');
                 if (mailId) {
-                    document.querySelectorAll(`.mail-item[data-mail-id="${mailId}"]`).forEach(el => el.classList.add('selected'));
+                    document.querySelectorAll(`.mail-item[data-mail-id="${mailId}"]`).forEach(el => {
+                        if (dragSelectionAction === 'select') el.classList.add('selected');
+                        else el.classList.remove('selected');
+                    });
                 } else {
-                    item.classList.add('selected');
+                    if (dragSelectionAction === 'select') item.classList.add('selected');
+                    else item.classList.remove('selected');
                 }
                 updateSelectionCount();
             }
