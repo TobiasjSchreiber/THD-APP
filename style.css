@@ -334,6 +334,7 @@ body.theme-oled {
       gap: 8px;
       padding-right: 4px;
       border-radius: 12px;
+  scroll-snap-type: y mandatory;
     }
 
     .scroll-list::-webkit-scrollbar { width: 3px; }
@@ -348,6 +349,17 @@ body.theme-oled {
       flex-shrink: 0;
       display: flex;
       justify-content: space-between;
+  scroll-snap-align: start;
+  overflow: hidden;
+}
+
+.list-item > span:first-child {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 10px;
+  min-width: 0;
+  flex: 1;
     }
 
     .item-value { color: var(--text-sub); }
@@ -412,8 +424,8 @@ body.theme-oled {
       position: relative;
     }
     .chart-bar {
-      width: 16px;
-      border-radius: 4px 4px 0 0;
+      width: 12px;
+      border-radius: 3px 3px 0 0;
       transform-origin: bottom;
       transform: scaleY(0);
       transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.2s, filter 0.2s;
@@ -441,7 +453,7 @@ body.theme-oled {
     .chart-label {
       position: absolute;
       bottom: -22px;
-      font-size: 12px;
+      font-size: 10px;
       color: var(--text-sub);
     }
     .chart-grid-line {
@@ -712,7 +724,7 @@ body.theme-oled {
 .progress-bar-fill { position: absolute; left: 0; top: 0; height: 100%; background: var(--accent-blue); width: 42%; border-radius: 5px 0 0 5px; z-index: 1; }
 .progress-bar-extra { position: absolute; right: 0; top: 0; height: 100%; background: repeating-linear-gradient(-45deg, transparent, transparent 4px, var(--accent-orange) 4px, var(--accent-orange) 8px); width: 15%; box-sizing: border-box; z-index: 2; transition: opacity 0.3s ease; }
     .progress-labels { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-sub); }
-    .grades-list { display: flex; flex-direction: column; gap: 8px; max-height: 180px; overflow-y: auto; padding-right: 4px; border-radius: 12px; }
+.grades-list { display: flex; flex-direction: column; gap: 8px; max-height: 180px; overflow-y: auto; padding-right: 4px; border-radius: 12px; scroll-snap-type: y mandatory; }
     .grades-list::-webkit-scrollbar { width: 3px; }
     .grades-list::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
     body.theme-light .grades-list .list-item { background-color: var(--card-bg); }

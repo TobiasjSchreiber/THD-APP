@@ -197,7 +197,7 @@
         </div>
         
         <div id="schedule-viewport" style="overflow: hidden;">
-          <div id="schedule-modal-list" style="display: flex; flex-direction: column; gap: 8px; overflow-y: auto; padding-right: 4px; height: 100%; box-sizing: border-box;">
+          <div id="schedule-modal-list" style="display: flex; flex-direction: column; gap: 8px; overflow-y: auto; padding-right: 4px; height: 100%; box-sizing: border-box; scroll-snap-type: y mandatory;">
           </div>
         </div>
       </div>
@@ -245,7 +245,7 @@
         </div>
         
         <div id="mensa-viewport" style="overflow: hidden;">
-          <div id="mensa-modal-list" style="display: flex; flex-direction: column; gap: 8px; overflow-y: auto; padding-right: 4px; height: 100%; box-sizing: border-box;">
+          <div id="mensa-modal-list" style="display: flex; flex-direction: column; gap: 8px; overflow-y: auto; padding-right: 4px; height: 100%; box-sizing: border-box; scroll-snap-type: y mandatory;">
           </div>
         </div>
       </div>
@@ -1099,8 +1099,8 @@
           </div>
         <label class="toggle-switch" style="transform: scale(0.8); transform-origin: right;" 
                onclick="event.stopPropagation();"
-               onmousedown="this.parentElement.classList.add('no-squish'); event.stopPropagation();"
-               ontouchstart="this.parentElement.classList.add('no-squish'); event.stopPropagation();"
+               onmousedown="this.parentElement.classList.add('no-squish');"
+               ontouchstart="this.parentElement.classList.add('no-squish');"
                onmouseup="this.parentElement.classList.remove('no-squish');"
                ontouchend="this.parentElement.classList.remove('no-squish');"
                onmouseleave="this.parentElement.classList.remove('no-squish');"

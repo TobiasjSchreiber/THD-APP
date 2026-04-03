@@ -995,7 +995,7 @@
                     <div style="display: flex; flex-direction: column; gap: 8px;">`;
                 catMeals.forEach(meal => {
                     html += `<div class="list-item" style="cursor: pointer; background-color: var(--item-bg); display: flex; justify-content: space-between; align-items: center; padding: 12px; border-radius: 12px; position: relative; isolation: isolate; width: 100%; box-sizing: border-box;" onclick="openFoodModalFromMenu('${meal.name}', '${meal.price}', '${meal.desc}', '${meal.allergens}', '${meal.pricesAll}')">
-                            <span style="font-weight: 600; color: var(--text-main); font-size: 14px; flex: 1; padding-right: 10px; word-break: break-word;">${meal.name}</span>
+                        <span style="font-weight: 600; color: var(--text-main); font-size: 14px; flex: 1; min-width: 0; padding-right: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${meal.name}</span>
                             <span class="item-value" style="color: var(--accent-blue); font-size: 14px; font-weight: 600; white-space: nowrap;">${meal.price}</span>
                         </div>`;
                 });
@@ -1078,7 +1078,7 @@
                     itemDiv.style.cssText = 'cursor: pointer; background-color: var(--item-bg); margin: 0; position: relative; isolation: isolate; display: flex; justify-content: space-between; align-items: center; width: 100%; box-sizing: border-box;';
                     
                     itemDiv.onclick = () => openFoodModalFromMenu(meal.name, priceStud, categoryName, notes, allPricesHTML);
-                    itemDiv.innerHTML = `<span style="font-weight: 600; color: var(--text-main); font-size: 14px; flex: 1; min-width: 0; word-break: break-word; padding-right: 10px;">${meal.name}</span><span class="item-value" style="color: var(--accent-blue); font-size: 14px; font-weight: 600; white-space: nowrap;">${priceStud}</span>`;
+                itemDiv.innerHTML = `<span style="font-weight: 600; color: var(--text-main); font-size: 14px; flex: 1; min-width: 0; padding-right: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${meal.name}</span><span class="item-value" style="color: var(--accent-blue); font-size: 14px; font-weight: 600; white-space: nowrap;">${priceStud}</span>`;
                     
                     itemsContainer.appendChild(itemDiv);
                 });
@@ -2409,7 +2409,7 @@
                     
                     item.innerHTML = `
                         <div style="display: flex; justify-content: space-between; width: 100%; align-items: flex-start; gap: 8px;">
-                            <span style="font-weight: 600; color: var(--text-main); font-size: 14px; flex: 1; min-width: 0; word-break: break-word;">${course.title}</span>
+                    <span style="font-weight: 600; color: var(--text-main); font-size: 14px; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${course.title}</span>
                             <span style="color: var(--accent-blue); font-size: 12px; font-weight: 600; white-space: nowrap;">${course.room || '?'}</span>
                         </div>
                         <div style="font-size: 12px; color: var(--text-sub);">${course.time}</div>
@@ -2463,7 +2463,7 @@
                 
                 item.innerHTML = `
                     <div style="display: flex; justify-content: space-between; width: 100%; align-items: flex-start; gap: 8px;">
-                        <span style="font-weight: 600; color: var(--text-main); font-size: 14px; flex: 1; min-width: 0; word-break: break-word;">${course.title}</span>
+                        <span style="font-weight: 600; color: var(--text-main); font-size: 14px; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${course.title}</span>
                         <span style="color: var(--accent-blue); font-size: 12px; font-weight: 600; white-space: nowrap;">${course.room || '?'}</span>
                     </div>
                     <div style="font-size: 12px; color: var(--text-sub);">${course.start} - ${course.end}</div>
@@ -3160,29 +3160,42 @@
         
         const days = String((hash % 28) + 1).padStart(2, '0');
         const months = String((hash % 12) + 1).padStart(2, '0');
-        const date = `${days}.${months}.2023`;
+        const date = `${days}.${months}.2026`;
 
         const registered = 30 + (hash % 60);
         const participated = registered - (hash % 5);
         
         const avg = (1.5 + (hash % 15) / 10).toFixed(1).replace('.', ',');
 
-        // Notenverteilung (1.x, 2.x, 3.x, 4.x, 5.0)
+        // Notenverteilung detailliert (1,0 bis 5,0)
         const dist = [
-            Math.floor(participated * 0.15) + (hash % 3),
-            Math.floor(participated * 0.35) + (hash % 4),
-            Math.floor(participated * 0.30) + (hash % 2),
-            Math.floor(participated * 0.15) + (hash % 2),
-            Math.floor(participated * 0.05) + (hash % 2)
+            Math.floor(participated * 0.05) + (hash % 2), // 1,0
+            Math.floor(participated * 0.10) + (hash % 3), // 1,3
+            Math.floor(participated * 0.15) + (hash % 3), // 1,7
+            Math.floor(participated * 0.15) + (hash % 4), // 2,0
+            Math.floor(participated * 0.15) + (hash % 3), // 2,3
+            Math.floor(participated * 0.10) + (hash % 2), // 2,7
+            Math.floor(participated * 0.10) + (hash % 2), // 3,0
+            Math.floor(participated * 0.05) + (hash % 2), // 3,3
+            Math.floor(participated * 0.05) + (hash % 2), // 3,7
+            Math.floor(participated * 0.05) + (hash % 2), // 4,0
+            Math.floor(participated * 0.05) + (hash % 2)  // 5,0
         ];
         
         // Finde heraus, in welche Kategorie die eigene Note fällt
         const gradeNum = parseFloat(grade.replace(',', '.'));
         let userBucket = 0;
-        if (gradeNum >= 2.0 && gradeNum < 3.0) userBucket = 1;
-        else if (gradeNum >= 3.0 && gradeNum < 4.0) userBucket = 2;
-        else if (gradeNum >= 4.0 && gradeNum < 5.0) userBucket = 3;
-        else if (gradeNum >= 5.0) userBucket = 4;
+        if (gradeNum <= 1.0) userBucket = 0;
+        else if (gradeNum <= 1.3) userBucket = 1;
+        else if (gradeNum <= 1.7) userBucket = 2;
+        else if (gradeNum <= 2.0) userBucket = 3;
+        else if (gradeNum <= 2.3) userBucket = 4;
+        else if (gradeNum <= 2.7) userBucket = 5;
+        else if (gradeNum <= 3.0) userBucket = 6;
+        else if (gradeNum <= 3.3) userBucket = 7;
+        else if (gradeNum <= 3.7) userBucket = 8;
+        else if (gradeNum <= 4.0) userBucket = 9;
+        else userBucket = 10;
 
         document.getElementById('grade-popup-title').innerText = course;
         document.getElementById('grade-popup-grade').innerText = grade;
@@ -3201,8 +3214,8 @@
         `;
         
         const maxVal = Math.max(...dist, 1);
-        const labels = ['1,x', '2,x', '3,x', '4,x', '5,0'];
-        const barClasses = ['low', 'low', 'medium', 'medium', 'high'];
+        const labels = ['1,0', '1,3', '1,7', '2,0', '2,3', '2,7', '3,0', '3,3', '3,7', '4,0', '5,0'];
+        const barClasses = ['low', 'low', 'low', 'low', 'low', 'medium', 'medium', 'medium', 'medium', 'medium', 'high'];
 
         dist.forEach((val, index) => {
             const heightPct = (val / maxVal) * 100;
@@ -3710,8 +3723,8 @@
                 if (dragState.isDragging || dragState.longPressTimer) return;
                 if (e.touches && e.touches.length > 1) return;
 
-                // Ignoriere Klicks auf interaktive Bereiche wie Listen, Buttons & Schalter
-                if (e.target.closest('button, input, .scroll-list, .toggle-switch, .segmented-control, .rental-item')) return;
+                // Ignoriere Klicks auf interaktive Bereiche wie Textfelder (Schalter, Listen & Segment-Buttons sind greifbar)
+                if (e.target.closest('button:not(.segment-btn), input:not([type="checkbox"])')) return;
                 
                 // Nur Linksklick bei der Maus
                 if (e.type === 'mousedown' && e.button !== 0) return;
