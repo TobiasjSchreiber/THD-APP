@@ -1,26 +1,27 @@
-# THD App – UI Redesign
+# THD App – UI/UX Redesign (Studienprojekt)
 
-Eine moderne Progressive Web App (PWA) für Studierende, entwickelt im Medientechnik-Studium. Die App bietet eine native User Experience und kommt komplett ohne schwere Frameworks aus.
+[cite_start]Dieses Projekt entstand im Rahmen des Moduls **Branded Interaction**[cite: 1, 22]. [cite_start]Ziel war die Entwicklung eines interaktiven High-Fidelity-Prototyps basierend auf dem **Human-Centred-Design (HCD) Prozess**.
 
-## 🌐 Live-Demo
-👉 **[THD App hier öffnen](https://tobiasjschreiber.github.io/THD-APP/)**
+## 🌐 Live-Demo & Prototyp
+Die funktionale Web-App ist hier verfügbar:
+👉 **[THD App Live-Link](https://tobiasjschreiber.github.io/THD-APP/)**
 
-## ✨ Top-Features
-* **Personalisiertes Dashboard:** Widgets einfach per echtem Drag & Drop anordnen.
-* **Live-Daten:** Automatischer iCal-Stundenplan und Mensa-Speiseplan (OpenMensa API).
-* **Native UX:** Wischgesten, Dark/OLED-Mode und flüssige Animationen.
-* **Zweisprachig:** Nahtloser Wechsel zwischen Deutsch und Englisch.
-* **Studien-Tracker:** Übersicht über ECTS und Notenschnitt.
+## 🎯 Projektziel & Fokus
+[cite_start]Der Schwerpunkt liegt auf einer hochwertigen **User Experience (UX)** und einem begeisternden **Visual Design**[cite: 5, 28]. 
+* [cite_start]**HCD-Ansatz:** Die App wurde iterativ entwickelt, um die Bedürfnisse der Studierenden (User) in den Mittelpunkt zu stellen[cite: 5, 14].
+* [cite_start]**Design-Fokus:** Modernisierung der bestehenden THD-App durch ein intuitives, flüssiges Interface[cite: 6, 36].
 
-## 🛠 Tech Stack
-* **Frontend:** Vanilla HTML, CSS & JavaScript
-* **Architektur:** PWA (Offline-fähig, Service Worker, Installierbar)
-* **Speicher:** LocalStorage für Einstellungen & Layouts
+## ✨ Kern-Features (UX/UI)
+* **Personalisiertes Dashboard:** Echtes Drag & Drop der Widgets für maximale Flexibilität.
+* [cite_start]**Native App-Experience:** Nutzung von Wischgesten (Swiping), haptischem Feedback und Fullscreen-Modus[cite: 24].
+* [cite_start]**Responsive Design:** Optimierte Layouts für Smartphones und eine dedizierte Tablet-Ansicht (Multi-Column).
+* **Barrierefreiheit & Theming:** Unterstützung von Light-, Dark- und OLED-Mode sowie Zweisprachigkeit (DE/EN).
+* **Live-Schnittstellen:** Integration von realen iCal-Stundenplänen und der OpenMensa API.
 
-## 🚀 Empfohlene Nutzung
-Für das beste App-Gefühl direkt am Gerät einrichten:
-* **Android:** Im Browser auf "App installieren" tippen.
-* **iOS:** Im Safari über das Teilen-Symbol "Zum Startbildschirm hinzufügen" wählen.
+## 🛠 Technische Umsetzung
+* [cite_start]**Methodik:** Agiles Prototyping in Design-Sprints[cite: 16, 56].
+* **Tools:** Umgesetzt mit Vanilla HTML, CSS und JavaScript für maximale Performance (ohne schwere Frameworks).
+* [cite_start]**Assets:** Konsequente Anwendung eines eigenen UI-Styleguides (Farben, Typografie, Komponenten)[cite: 26, 31].
 
 ## 👨‍💻 Autor
-**Tobias**
+[cite_start]**Tobias** – Medientechnik-Student an der THD[cite: 2].
