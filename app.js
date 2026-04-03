@@ -244,8 +244,8 @@
         const emptyText = currentLanguage === 'de' ? 'Heute kein Speiseplan' : 'No menu today';
         const btnText = currentLanguage === 'de' ? 'Zum Speiseplan' : 'To the menu';
         const emptyHtml = `
-            <div class="list-item" style="justify-content: center; color: var(--text-sub); background-color: transparent; pointer-events: none; box-shadow: none;">${emptyText}</div>
-            <div class="list-item" onclick="openMensaMenuModal()" style="background-color: rgba(58, 130, 247, 0.15); box-shadow: inset 0 0 0 1.5px rgba(58, 130, 247, 0.3); justify-content: center; cursor: pointer; color: var(--accent-blue);">
+            <div style="display: flex; justify-content: center; padding: 12px; font-size: 13px; font-weight: 500; color: var(--text-sub); pointer-events: none;">${emptyText}</div>
+            <div class="list-item" onclick="openMensaMenuModal(true)" style="background-color: rgba(58, 130, 247, 0.15); box-shadow: inset 0 0 0 1.5px rgba(58, 130, 247, 0.3); justify-content: center; cursor: pointer; color: var(--accent-blue);">
                 <span style="font-weight: 600; display: flex; align-items: center; gap: 6px;">
                     ${btnText}
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
@@ -312,8 +312,8 @@
         const errorText = currentLanguage === 'de' ? 'Fehler beim Laden' : 'Error loading';
         const btnText = currentLanguage === 'de' ? 'Zum Speiseplan' : 'To the menu';
         document.querySelector('#widget-mensa .scroll-list').innerHTML = `
-            <div class="list-item" style="justify-content: center; color: #FF3B30; background-color: transparent; pointer-events: none; box-shadow: none;">${errorText}</div>
-            <div class="list-item" onclick="openMensaMenuModal()" style="background-color: rgba(58, 130, 247, 0.15); box-shadow: inset 0 0 0 1.5px rgba(58, 130, 247, 0.3); justify-content: center; cursor: pointer; color: var(--accent-blue);">
+            <div style="display: flex; justify-content: center; padding: 12px; font-size: 13px; font-weight: 500; color: #FF3B30; pointer-events: none;">${errorText}</div>
+            <div class="list-item" onclick="openMensaMenuModal(true)" style="background-color: rgba(58, 130, 247, 0.15); box-shadow: inset 0 0 0 1.5px rgba(58, 130, 247, 0.3); justify-content: center; cursor: pointer; color: var(--accent-blue);">
                 <span style="font-weight: 600; display: flex; align-items: center; gap: 6px;">
                     ${btnText}
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
@@ -331,7 +331,7 @@
       scheduleBox.innerHTML = '<div class="schedule-item"><div class="schedule-title" style="color: var(--accent-blue);">Lade Stundenplan...</div></div>';
 
       // CACHE BUSTER: Zwingt den Proxy dazu, immer die allerneueste Datei von der Hochschule zu holen
-      const iCalLink = 'https://thabella.th-deg.de/thabella/opn/event/calendarStudentSubscribe?group=MT-MP4&cb=' + Date.now();
+      const iCalLink = 'https://thabella.th-deg.de/thabella/opn/event/calendarStudentSubscribe?group=' + currentStudyGroup + '&cb=' + Date.now();
       
       // WICHTIG: Die URL codieren, sonst schneidet der Proxy alles nach dem ? oder & ab
       const proxyUrl = 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(iCalLink);
@@ -343,7 +343,7 @@
         if (cachedSchedule) {
             try {
                 const parsed = JSON.parse(cachedSchedule);
-                if (Date.now() - parsed.timestamp < 3600000) { // 1 Stunde Cache
+                if (Date.now() - parsed.timestamp < 3600000 && parsed.group === currentStudyGroup) { // 1 Stunde Cache + Gruppe check
                     text = parsed.text;
                 }
             } catch(e) {}
@@ -356,7 +356,7 @@
             }
             text = await res.text();
             if (isStorageEnabled() && text && text.includes('BEGIN:VCALENDAR')) {
-                localStorage.setItem('thd_schedule_cache', JSON.stringify({ timestamp: Date.now(), text: text }));
+                localStorage.setItem('thd_schedule_cache', JSON.stringify({ timestamp: Date.now(), text: text, group: currentStudyGroup }));
             }
         }
 
@@ -528,6 +528,7 @@
       ensureMailIds();
       initWidgetDragAndDrop();
       initParkingChartInteraction();
+      initGradeChartInteraction();
       setupTabletLayout();
       checkEmptyMailLists();
       updateParkingDisplay();
@@ -689,6 +690,11 @@
       const txtRemaining = translations[currentLanguage].study_time_remaining_dyn.replace('{days}', remainingDays);
       const txtExtra = translations[currentLanguage].study_time_extra_dyn.replace('{days}', extraDays).replace('{n}', studyExtra);
       
+      const homeStudiedEl = document.getElementById('home-studied-number');
+      const homeRemainingEl = document.getElementById('home-remaining-number');
+      if (homeStudiedEl) homeStudiedEl.innerText = studiedDays;
+      if (homeRemainingEl) homeRemainingEl.innerText = remainingDays;
+      
       const studiedEl = document.querySelector('[data-translate="study_time_studied"]');
       const remainingEl = document.querySelector('[data-translate="study_time_remaining"]');
       const extraEl = document.querySelector('[data-translate="study_time_extra"]');
@@ -838,7 +844,7 @@
                 setTimeout(() => {
                     mail.click();
                     mail.classList.add('highlight-anim');
-                    setTimeout(() => mail.classList.remove('highlight-anim'), 1200);
+                            setTimeout(() => mail.classList.remove('highlight-anim'), 1400);
                 }, 400); // Kurz warten, bis die Ansicht und Animationen fertig sind
                 break;
             }
@@ -863,10 +869,25 @@
       }, 10);
     }
 
-    function openMensaMenuModal() {
+    function openMensaMenuModal(jumpToNext = false) {
       mensaWeekOffset = 0;
       let day = new Date().getDay() - 1;
-      currentMensaDay = day < 0 || day > 4 ? 0 : day;
+      
+      if (jumpToNext === true) {
+          if (day >= 0 && day < 4) {
+              currentMensaDay = day + 1;
+          } else {
+              currentMensaDay = 0;
+              mensaWeekOffset = 1;
+          }
+      } else {
+          if (day < 0 || day > 4) {
+              currentMensaDay = 0;
+              mensaWeekOffset = 1;
+          } else {
+              currentMensaDay = day;
+          }
+      }
       
       updateMensaWeekLabel();
       
@@ -1231,6 +1252,11 @@
         descEl.innerText = translations[currentLanguage].info_real_mode_desc;
         titleEl.setAttribute('data-translate', 'info_real_mode_title');
         descEl.setAttribute('data-translate', 'info_real_mode_desc');
+      } else if (type === 'privacy') {
+        titleEl.innerText = translations[currentLanguage].info_privacy_title;
+        descEl.innerText = translations[currentLanguage].info_privacy_desc;
+        titleEl.setAttribute('data-translate', 'info_privacy_title');
+        descEl.setAttribute('data-translate', 'info_privacy_desc');
       } else if (type === 'show_again') {
         titleEl.innerText = translations[currentLanguage].info_show_again_title;
         descEl.innerText = translations[currentLanguage].info_show_again_desc;
@@ -1706,7 +1732,7 @@
     // --- Such-Logik Start ---
     const searchData = [
       { id: 'widget-schedule', title: 'Stundenplan', page: 'page-home', loc: 'Home' },
-      { id: 'widget-ects', title: 'ECTS', page: 'page-home', loc: 'Home' },
+      { id: 'widget-ects', title: 'Statistiken', page: 'page-home', loc: 'Home' },
       { id: 'widget-mensa', title: 'Mensa & Guthaben', page: 'page-home', loc: 'Home' },
       { id: 'widget-parking', title: 'Parkplatz', page: 'page-home', loc: 'Home' },
       { id: 'widget-rental', title: 'Verleih', page: 'page-home', loc: 'Home' },
@@ -1861,7 +1887,7 @@
         if (el) {
           el.scrollIntoView({ behavior: 'smooth', block: 'center' });
           el.classList.add('highlight-anim');
-          setTimeout(() => el.classList.remove('highlight-anim'), 1200);
+                  setTimeout(() => el.classList.remove('highlight-anim'), 1400);
         }
       }, 300);
     }
@@ -1920,7 +1946,7 @@
         vpn_notif_title: "VPN Verbunden",
         vpn_notif_body: "Die Verbindung zum Hochschulnetzwerk wurde hergestellt.",
         widget_settings_title: "Widgets anpassen",
-        widget_ects: "ECTS",
+        widget_ects: "Statistiken",
         widget_schedule: "Stundenplan",
         widget_mensa: "Mensa",
         widget_parking: "Parkplatz",
@@ -1929,6 +1955,7 @@
         services_modal_title: "Dienste",
         widget_services: "Dienste",
         schedule_modal_title: "Gesamter Stundenplan",
+        schedule_settings_title: "Studiengang",
         mensa_menu_title: "Speiseplan",
         back_button: "Zurück",
         food_desc: "Beschreibung",
@@ -1954,6 +1981,8 @@
         profile_semester: "4. Semester",
         stats_ects_total: "ECTS Gesamt",
         stats_gpa: "Notenschnitt",
+        home_studied_label: "Tage studiert",
+        home_remaining_label: "Tage übrig",
         study_time_title: "Studienzeit",
         study_time_studied: "460 Tage studiert",
         study_time_remaining: "635 Tage übrig",
@@ -1973,6 +2002,11 @@
         study_time_remaining_dyn: "{days} Tage übrig",
         study_time_extra_dyn: "+{days} Tage ({n} Extra-Semester)",
         save_button: "Speichern",
+        grade_modal_date: "Prüfungsdatum",
+        grade_modal_examiner: "Prüfer/in",
+        grade_modal_participants: "Angem. / Teilg.",
+        grade_modal_average: "Notendurchschnitt",
+        grade_modal_distribution: "Notenverteilung",
         // Generic
         close_button: "Schließen",
         cancel_button: "Abbrechen",
@@ -2013,11 +2047,11 @@
         theme_oled: "Anti-Ghosting",
         language_label: "Sprache",
         settings_storage: "Daten lokal speichern",
-        settings_clear_cache: "Cache leeren",
         settings_real_mode: "Echte Daten\n(Mensa, Stundenplan)",
-        cache_cleared_msg: "Cache erfolgreich geleert! App wird neu geladen.",
-        cache_cleared_title: "Erfolg",
         ok_button: "OK",
+        settings_privacy: "Privatmodus",
+        info_privacy_title: "Privatmodus",
+        info_privacy_desc: "Verbirgt sensible Daten wie Noten, ECTS, Guthaben und deinen Namen durch einen Unschärfe-Effekt.",
         setup_title: "Willkommen",
         setup_subtitle: "Bitte wähle deine bevorzugten Einstellungen.",
         info_storage_title: "Daten lokal speichern",
@@ -2028,6 +2062,10 @@
         info_show_again_title: "Dialog anzeigen",
         info_show_again_desc: "Wenn aktiviert, erscheint dieser Willkommensbildschirm bei jedem App-Start erneut. So kannst du schnell zwischen dem Offline- und Live-Modus wechseln.",
         setup_install_hint: "Für das beste Erlebnis empfehlen wir, die App unter Android zu installieren oder unter iOS zum Startbildschirm hinzuzufügen.",
+        settings_about: "Über diese App",
+        about_title: "Über die THD App",
+        about_desc: "Eine moderne THD APP für Studierende, entwickelt im Medientechnik-Studium.",
+        about_github: "Zum GitHub Repository",
       },
       en: {
         // Navbar
@@ -2072,7 +2110,7 @@
         vpn_notif_title: "VPN Connected",
         vpn_notif_body: "Connection to the university network has been established.",
         widget_settings_title: "Edit Widgets",
-        widget_ects: "ECTS",
+        widget_ects: "Statistics",
         widget_schedule: "Schedule",
         widget_mensa: "Cafeteria",
         widget_parking: "Parking",
@@ -2081,6 +2119,7 @@
         services_modal_title: "Services",
         widget_services: "Services",
         schedule_modal_title: "Full Schedule",
+        schedule_settings_title: "Study Group",
         mensa_menu_title: "Menu",
         back_button: "Back",
         food_desc: "Description",
@@ -2106,6 +2145,8 @@
         profile_semester: "4th Semester",
         stats_ects_total: "Total ECTS",
         stats_gpa: "GPA",
+        home_studied_label: "Days studied",
+        home_remaining_label: "Days remaining",
         study_time_title: "Study Time",
         study_time_studied: "460 days studied",
         study_time_remaining: "635 days remaining",
@@ -2125,6 +2166,11 @@
         study_time_remaining_dyn: "{days} days remaining",
         study_time_extra_dyn: "+{days} days ({n} extra semesters)",
         save_button: "Save",
+        grade_modal_date: "Exam Date",
+        grade_modal_examiner: "Examiner",
+        grade_modal_participants: "Reg. / Part.",
+        grade_modal_average: "Average Grade",
+        grade_modal_distribution: "Grade Distribution",
         // Generic
         close_button: "Close",
         cancel_button: "Cancel",
@@ -2165,11 +2211,11 @@
         theme_oled: "Anti-Ghosting",
         language_label: "Language",
         settings_storage: "Save data locally",
-        settings_clear_cache: "Clear Cache",
         settings_real_mode: "Real Data\n(Mensa, Schedule)",
-        cache_cleared_msg: "Cache cleared successfully! App will reload.",
-        cache_cleared_title: "Success",
         ok_button: "OK",
+        settings_privacy: "Privacy Mode",
+        info_privacy_title: "Privacy Mode",
+        info_privacy_desc: "Blurs sensitive data such as grades, ECTS, balance, and your name to protect your privacy.",
         setup_title: "Welcome",
         setup_subtitle: "Please choose your preferred settings.",
         info_storage_title: "Save data locally",
@@ -2180,6 +2226,10 @@
         info_show_again_title: "Show dialog",
         info_show_again_desc: "If enabled, this welcome screen will appear on every app startup. Useful to quickly switch between offline and live modes.",
         setup_install_hint: "For the best experience, we recommend installing the app on Android or adding it to your home screen on iOS.",
+        settings_about: "About this App",
+        about_title: "About THD App",
+        about_desc: "A modern THD APP for students, developed during Media Technology studies.",
+        about_github: "Go to GitHub repository",
       }
     };
 
@@ -2189,7 +2239,9 @@
     let mensaBalance = 12.00;
     let displayedMensaBalance = 12.00;
     let currentGPA = 2.1;
+    let isPrivacyModeEnabled = false;
     let isRealModeEnabled = false;
+    let currentStudyGroup = 'MT-MP4';
     
     // --- Globale Variable für den echten Stundenplan ---
     window.allScheduleEvents = [];
@@ -2233,6 +2285,45 @@
         } else {
             label.innerText = translations[currentLanguage].schedule_week_ago.replace('{n}', Math.abs(scheduleWeekOffset));
         }
+    }
+
+    function openScheduleSettingsModal() {
+        const gear = document.getElementById('schedule-settings-gear-icon');
+        if (gear) {
+            gear.classList.add('rotate-gear-anim');
+            setTimeout(() => gear.classList.remove('rotate-gear-anim'), 400);
+        }
+        
+        closeModal();
+        setTimeout(() => {
+            const inputEl = document.getElementById('schedule-group-input');
+            if (inputEl) inputEl.value = currentStudyGroup;
+            
+            document.getElementById('modal-overlay').classList.add('show');
+            document.getElementById('schedule-settings-modal').classList.add('show');
+            if (inputEl) inputEl.focus();
+        }, 300);
+    }
+
+    function saveStudyGroup() {
+        const inputEl = document.getElementById('schedule-group-input');
+        if (!inputEl) return;
+        const newGroup = inputEl.value.trim().toUpperCase(); // Großschreibung für Standard-Kürzel erzwingen
+        
+        if (newGroup !== '' && currentStudyGroup !== newGroup) {
+            currentStudyGroup = newGroup;
+            if (isStorageEnabled()) saveAllData();
+            
+            if (isRealModeEnabled) {
+                localStorage.removeItem('thd_schedule_cache');
+                loadSchedule();
+            }
+        }
+        
+        closeModal();
+        setTimeout(() => {
+            openScheduleModal();
+        }, 300);
     }
 
     function openScheduleModal() {
@@ -2640,6 +2731,10 @@
       if (gpaEl) {
         gpaEl.innerText = currentGPA.toFixed(1).replace('.', ',');
       }
+      const homeGpaEl = document.getElementById('home-gpa-number');
+      if (homeGpaEl) {
+        homeGpaEl.innerText = currentGPA.toFixed(1).replace('.', ',');
+      }
       closeModal();
       if (isStorageEnabled()) saveAllData();
     }
@@ -2778,6 +2873,81 @@
         chartContainer.classList.remove('has-active');
         chartContainer.querySelectorAll('.chart-bar-wrapper').forEach(w => w.classList.remove('active'));
         tooltip.style.opacity = '0';
+      };
+
+      chartContainer.addEventListener('touchstart', handleInteraction, { passive: false });
+      chartContainer.addEventListener('touchmove', handleInteraction, { passive: false });
+      chartContainer.addEventListener('touchend', stopInteraction);
+      chartContainer.addEventListener('touchcancel', stopInteraction);
+      
+      chartContainer.addEventListener('mousedown', (e) => { if (e.button === 0) handleInteraction(e); });
+      chartContainer.addEventListener('mousemove', (e) => { if (isInteracting) handleInteraction(e); });
+      document.addEventListener('mouseup', () => { if (isInteracting) stopInteraction(); });
+    }
+
+    function initGradeChartInteraction() {
+      const chartContainer = document.getElementById('grade-chart-container');
+      if (!chartContainer) return;
+
+      let isInteracting = false;
+
+      const handleInteraction = (e) => {
+        if (e.cancelable) e.preventDefault(); // Verhindert Scrollen beim Wischen über das Diagramm
+        
+        isInteracting = true;
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        
+        const wrappers = chartContainer.querySelectorAll('.chart-bar-wrapper');
+        let closestWrapper = null;
+        let minDistance = Infinity;
+        
+        wrappers.forEach(wrapper => {
+          const rect = wrapper.getBoundingClientRect();
+          const center = rect.left + rect.width / 2;
+          const distance = Math.abs(clientX - center);
+          if (distance < minDistance) {
+            minDistance = distance;
+            closestWrapper = wrapper;
+          }
+        });
+        
+        const tooltip = document.getElementById('grade-chart-tooltip');
+        if (closestWrapper && minDistance < 40 && tooltip) {
+          wrappers.forEach(w => w.classList.remove('active'));
+          closestWrapper.classList.add('active');
+          chartContainer.classList.add('has-active');
+          
+          const bar = closestWrapper.querySelector('.chart-bar');
+          const heightPercent = parseInt(bar.style.height);
+          const count = closestWrapper.dataset.value;
+          
+          tooltip.innerText = count + (currentLanguage === 'de' ? ' Noten' : ' Grades');
+          
+          const wRect = closestWrapper.getBoundingClientRect();
+          const cRect = chartContainer.getBoundingClientRect();
+          
+          const leftPos = (wRect.left - cRect.left) + (wRect.width / 2);
+          const topPos = cRect.height - 25 - ((heightPercent / 100) * (cRect.height - 25)) - 8;
+          
+          tooltip.style.left = leftPos + 'px';
+          tooltip.style.top = topPos + 'px';
+          tooltip.style.opacity = '1';
+        }
+      };
+
+      const stopInteraction = () => {
+        isInteracting = false;
+        
+        chartContainer.querySelectorAll('.chart-bar-wrapper').forEach(w => {
+          w.classList.remove('active');
+          if (w.dataset.isUserGrade === 'true') {
+              w.classList.add('active');
+          }
+        });
+        chartContainer.classList.add('has-active');
+
+        const tooltip = document.getElementById('grade-chart-tooltip');
+        if (tooltip) tooltip.style.opacity = '0';
       };
 
       chartContainer.addEventListener('touchstart', handleInteraction, { passive: false });
@@ -2977,6 +3147,96 @@
       }
     }
 
+    function openGradeModal(course, grade) {
+        // Generiere konsistente Mock-Daten basierend auf dem Kursnamen
+        let hash = 0;
+        for (let i = 0; i < course.length; i++) {
+            hash = course.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        hash = Math.abs(hash);
+
+        const examiners = ['Prof. Dr. Schmidt', 'Prof. Weber', 'Prof. Dr. Meier', 'Prof. Dr. Bauer', 'Prof. Dr. Fuchs', 'Prof. Dr. Wagner', 'Prof. Dr. Müller'];
+        const examiner = examiners[hash % examiners.length];
+        
+        const days = String((hash % 28) + 1).padStart(2, '0');
+        const months = String((hash % 12) + 1).padStart(2, '0');
+        const date = `${days}.${months}.2023`;
+
+        const registered = 30 + (hash % 60);
+        const participated = registered - (hash % 5);
+        
+        const avg = (1.5 + (hash % 15) / 10).toFixed(1).replace('.', ',');
+
+        // Notenverteilung (1.x, 2.x, 3.x, 4.x, 5.0)
+        const dist = [
+            Math.floor(participated * 0.15) + (hash % 3),
+            Math.floor(participated * 0.35) + (hash % 4),
+            Math.floor(participated * 0.30) + (hash % 2),
+            Math.floor(participated * 0.15) + (hash % 2),
+            Math.floor(participated * 0.05) + (hash % 2)
+        ];
+        
+        // Finde heraus, in welche Kategorie die eigene Note fällt
+        const gradeNum = parseFloat(grade.replace(',', '.'));
+        let userBucket = 0;
+        if (gradeNum >= 2.0 && gradeNum < 3.0) userBucket = 1;
+        else if (gradeNum >= 3.0 && gradeNum < 4.0) userBucket = 2;
+        else if (gradeNum >= 4.0 && gradeNum < 5.0) userBucket = 3;
+        else if (gradeNum >= 5.0) userBucket = 4;
+
+        document.getElementById('grade-popup-title').innerText = course;
+        document.getElementById('grade-popup-grade').innerText = grade;
+        document.getElementById('grade-popup-date').innerText = date;
+        document.getElementById('grade-popup-examiner').innerText = examiner;
+        document.getElementById('grade-popup-participants').innerText = `${registered} / ${participated}`;
+        document.getElementById('grade-popup-average').innerText = avg;
+
+        const chartContainer = document.getElementById('grade-chart-container');
+        chartContainer.className = 'chart-container has-active';
+        chartContainer.innerHTML = `
+            <div class="chart-tooltip" id="grade-chart-tooltip"></div>
+            <div class="chart-grid-line" style="bottom: 20%;"></div>
+            <div class="chart-grid-line" style="bottom: 50%;"></div>
+            <div class="chart-grid-line" style="bottom: 80%;"></div>
+        `;
+        
+        const maxVal = Math.max(...dist, 1);
+        const labels = ['1,x', '2,x', '3,x', '4,x', '5,0'];
+        const barClasses = ['low', 'low', 'medium', 'medium', 'high'];
+
+        dist.forEach((val, index) => {
+            const heightPct = (val / maxVal) * 100;
+            const isUserGrade = index === userBucket;
+            
+            const wrapper = document.createElement('div');
+            wrapper.className = 'chart-bar-wrapper' + (isUserGrade ? ' active' : '');
+            wrapper.dataset.value = val;
+            wrapper.dataset.isUserGrade = isUserGrade;
+            
+            const bar = document.createElement('div');
+            bar.className = 'chart-bar ' + barClasses[index];
+            bar.style.height = `${heightPct}%`;
+            
+
+            const label = document.createElement('span');
+            label.className = 'chart-label';
+            label.innerText = labels[index];
+            if (isUserGrade) {
+                label.style.color = 'var(--text-main)';
+                label.style.fontWeight = 'bold';
+            }
+
+            wrapper.appendChild(bar);
+            wrapper.appendChild(label);
+            chartContainer.appendChild(wrapper);
+        });
+
+        document.getElementById('modal-overlay').classList.add('show');
+        setTimeout(() => {
+            document.getElementById('grade-modal').classList.add('show');
+        }, 10);
+    }
+
     function openSettingsModal() {
       const gear = document.getElementById('settings-gear-icon');
       if (gear) {
@@ -2989,45 +3249,12 @@
       }, 10);
     }
 
-    async function clearAppCache() {
-      try {
-        // Lokale Daten und Caches leeren
-        localStorage.removeItem('thd_mensa_cache');
-        localStorage.removeItem('thd_schedule_cache');
-        mensaDataCache = {};
-      } catch(e) {}
-      
-      try {
-        if ('caches' in window) {
-          const cacheNames = await caches.keys();
-          await Promise.all(cacheNames.map(name => caches.delete(name)));
-        }
-      } catch (e) {
-        console.error("Fehler beim Löschen des Service Worker Caches:", e);
-      }
-      
-      try {
-        if ('serviceWorker' in navigator) {
-          const registrations = await navigator.serviceWorker.getRegistrations();
-          for (const registration of registrations) {
-            await registration.unregister();
-          }
-        }
-      } catch (e) {
-        console.error("Fehler beim Deregistrieren des Service Workers:", e);
-      }
-      
-      closeModal(); // Schließt das Einstellungs-Fenster
+    function openAboutModal() {
+      closeModal();
       setTimeout(() => {
-        const overlay = document.getElementById('modal-overlay');
-        const cacheClearedModal = document.getElementById('cache-cleared-modal');
-        if (overlay) overlay.classList.add('show');
-        if (cacheClearedModal) cacheClearedModal.classList.add('show');
+        document.getElementById('modal-overlay').classList.add('show');
+        document.getElementById('about-modal').classList.add('show');
       }, 300);
-    }
-
-    function reloadApp() {
-        window.location.reload();
     }
 
     let pressTimer;
@@ -3354,12 +3581,24 @@
           const title = translations[currentLanguage].vpn_notif_title;
           const options = { body: translations[currentLanguage].vpn_notif_body, icon: 'icon-192.png' };
           
+          const triggerNotification = () => {
+            if ('serviceWorker' in navigator) {
+              navigator.serviceWorker.ready.then(registration => {
+                registration.showNotification(title, options);
+              }).catch(() => {
+                new Notification(title, options);
+              });
+            } else {
+              new Notification(title, options);
+            }
+          };
+
           if (Notification.permission === "granted") {
-            new Notification(title, options);
+            triggerNotification();
           } else if (Notification.permission !== "denied") {
             Notification.requestPermission().then(permission => {
               if (permission === "granted") {
-                new Notification(title, options);
+                triggerNotification();
               }
             });
           }
@@ -3588,39 +3827,83 @@
                 const isTargetTopHalf = targetWidget.id === 'widget-ects' || targetWidget.id === 'widget-schedule';
 
                 if ((isDraggingBottomHalf && isTargetBottomHalf) || (isDraggingTopHalf && isTargetTopHalf)) {
-                    const isLeft = x < rect.left + rect.width / 2;
-                    let row = targetWidget.parentNode.classList.contains('preview-row') ? targetWidget.parentNode : null;
+                    const rect = targetWidget.getBoundingClientRect();
+                    const relY = y - rect.top;
                     
-                    if (!row) {
+                    // Befindet sich der Finger im oberen 25% oder unteren 25% Rand? => Stapeln (Vertikal)
+                    const isVerticalPlacement = relY < rect.height * 0.25 || relY > rect.height * 0.75;
+                    
+                    if (isVerticalPlacement) {
                         unwrapPreviewRow();
-                        row = document.createElement('div');
-                        row.className = isDraggingBottomHalf ? 'bottom-widgets-row preview-row' : 'top-widgets-row preview-row';
-                        targetWidget.parentNode.insertBefore(row, targetWidget);
-                        row.appendChild(targetWidget);
-                    }
-                    
-                    if (isLeft) {
-                        row.insertBefore(dragState.placeholder, targetWidget);
+                        let targetParent = targetWidget.parentNode;
+                        let insertReference = targetWidget;
+                        
+                        if (targetParent.classList.contains('top-widgets-row') || targetParent.classList.contains('bottom-widgets-row')) {
+                            insertReference = targetParent;
+                            targetParent = targetParent.parentNode;
+                        }
+                        
+                        if (relY < rect.height * 0.5) {
+                            targetParent.insertBefore(dragState.placeholder, insertReference);
+                        } else {
+                            targetParent.insertBefore(dragState.placeholder, insertReference.nextSibling);
+                        }
+                        dragState.placeholder.style.flex = '';
+                        dragState.placeholder.style.margin = '0 15px 15px';
                     } else {
-                        row.insertBefore(dragState.placeholder, targetWidget.nextSibling);
+                        // Mitte 50% => Nebeneinander platzieren (Row)
+                        const isLeft = x < rect.left + rect.width / 2;
+                        let row = targetWidget.parentNode.classList.contains('preview-row') ? targetWidget.parentNode : null;
+                        
+                        if (!row && targetWidget.parentNode && (targetWidget.parentNode.classList.contains('top-widgets-row') || targetWidget.parentNode.classList.contains('bottom-widgets-row'))) {
+                            row = targetWidget.parentNode;
+                        }
+                        
+                        if (!row) {
+                            unwrapPreviewRow();
+                            row = document.createElement('div');
+                            row.className = isDraggingBottomHalf ? 'bottom-widgets-row preview-row' : 'top-widgets-row preview-row';
+                            targetWidget.parentNode.insertBefore(row, targetWidget);
+                            row.appendChild(targetWidget);
+                        }
+                        
+                        if (isLeft) {
+                            row.insertBefore(dragState.placeholder, targetWidget);
+                        } else {
+                            row.insertBefore(dragState.placeholder, targetWidget.nextSibling);
+                        }
+                        
+                        if (isDraggingTopHalf) {
+                            dragState.placeholder.style.flex = dragState.element.id === 'widget-ects' ? '1' : '1.2';
+                            targetWidget.style.flex = targetWidget.id === 'widget-ects' ? '1' : '1.2';
+                        } else {
+                            dragState.placeholder.style.flex = '1 1 0';
+                            targetWidget.style.flex = '1 1 0';
+                        }
+                        dragState.placeholder.style.margin = '0';
+                        targetWidget.style.margin = '0';
                     }
-                    
-                    if (isDraggingTopHalf) {
-                        dragState.placeholder.style.flex = dragState.element.id === 'widget-ects' ? '1' : '1.2';
-                        targetWidget.style.flex = targetWidget.id === 'widget-ects' ? '1' : '1.2';
-                    } else {
-                        dragState.placeholder.style.flex = '1 1 0';
-                        targetWidget.style.flex = '1 1 0';
-                    }
-                    dragState.placeholder.style.margin = '0';
-                    targetWidget.style.margin = '0';
                 } else {
                     unwrapPreviewRow();
                     const targetMiddle = rect.top + rect.height / 2;
-                    if (y < targetMiddle) {
-                        targetWidget.parentNode.insertBefore(dragState.placeholder, targetWidget);
+                    let targetParent = targetWidget.parentNode;
+                    let insertReference = targetWidget;
+                    
+                    if (targetParent.classList.contains('top-widgets-row') || targetParent.classList.contains('bottom-widgets-row')) {
+                        insertReference = targetParent;
+                        targetParent = targetParent.parentNode;
+                        const rowRect = insertReference.getBoundingClientRect();
+                        if (y < rowRect.top + rowRect.height / 2) {
+                            targetParent.insertBefore(dragState.placeholder, insertReference);
+                        } else {
+                            targetParent.insertBefore(dragState.placeholder, insertReference.nextSibling);
+                        }
                     } else {
-                        targetWidget.parentNode.insertBefore(dragState.placeholder, targetWidget.nextSibling);
+                        if (y < targetMiddle) {
+                            targetParent.insertBefore(dragState.placeholder, insertReference);
+                        } else {
+                            targetParent.insertBefore(dragState.placeholder, insertReference.nextSibling);
+                        }
                     }
                     dragState.placeholder.style.flex = '';
                     dragState.placeholder.style.margin = '0 15px 15px';
@@ -3688,8 +3971,25 @@
                 }
             });
 
+            // Aufräumen: Wenn eine echte Reihe nur noch 1 oder 0 Kinder hat, auflösen!
+            ['widget-top-row', 'widget-bottom-row'].forEach(id => {
+                const row = document.getElementById(id);
+                if (row) {
+                    const widgetsInRow = Array.from(row.children).filter(c => c.id && c.id.startsWith('widget-'));
+                    if (widgetsInRow.length <= 1) {
+                        while(row.firstChild) {
+                            if (row.firstChild.nodeType === 1) {
+                                row.firstChild.style.margin = '';
+                                row.firstChild.style.flex = '';
+                            }
+                            row.parentNode.insertBefore(row.firstChild, row);
+                        }
+                        row.remove();
+                    }
+                }
+            });
+
             unwrapPreviewRow();
-            wrapAdjacentHalfWidgets(); // Verbindet VPN und Dienste wieder, wenn sie nebeneinander liegen
             saveWidgetOrder(); // Reihenfolge permanent speichern
         };
 
@@ -3844,8 +4144,15 @@
         const container = document.querySelector('.widget-column') || document.getElementById('page-home');
         const order = [];
         Array.from(container.children).forEach(child => {
-            if (child.id === 'widget-bottom-row' || child.id === 'widget-top-row') {
-                Array.from(child.children).forEach(c => { if(c.id) order.push(c.id); });
+            if (child.classList.contains('top-widgets-row') || child.classList.contains('bottom-widgets-row')) {
+                const rowChildren = [];
+                Array.from(child.children).forEach(c => { if(c.id) rowChildren.push(c.id); });
+                if (rowChildren.length > 0) {
+                    order.push({ 
+                        row: child.classList.contains('top-widgets-row') ? 'widget-top-row' : 'widget-bottom-row', 
+                        children: rowChildren 
+                    });
+                }
             } else if (child.id && child.id.startsWith('widget-')) {
                 order.push(child.id);
             }
@@ -3860,32 +4167,71 @@
             return;
         }
         
-        // Migration alter Speicherstände (Falls sie noch als Gruppe gespeichert waren)
-        if (savedOrder.includes('widget-bottom-row')) {
-            const idx = savedOrder.indexOf('widget-bottom-row');
-            savedOrder.splice(idx, 1, 'widget-vpn', 'widget-services');
-        }
-        // Migration für das alte widget-schedule (Gruppierung aus ECTS und Stundenplan)
-        if (savedOrder.includes('widget-schedule') && !savedOrder.includes('widget-ects')) {
-            const idx = savedOrder.indexOf('widget-schedule');
-            savedOrder.splice(idx, 1, 'widget-ects', 'widget-schedule');
+        // Migration alter Speicherstände (1D Array)
+        if (savedOrder.length > 0 && typeof savedOrder[0] === 'string') {
+            if (savedOrder.includes('widget-bottom-row')) {
+                const idx = savedOrder.indexOf('widget-bottom-row');
+                savedOrder.splice(idx, 1, 'widget-vpn', 'widget-services');
+            }
+            if (savedOrder.includes('widget-schedule') && !savedOrder.includes('widget-ects')) {
+                const idx = savedOrder.indexOf('widget-schedule');
+                savedOrder.splice(idx, 1, 'widget-ects', 'widget-schedule');
+            }
+            savedOrder = savedOrder.filter(id => id !== 'widget-bottom-row' && id !== 'widget-top-row');
+            
+            const newOrder = [];
+            for (let i = 0; i < savedOrder.length; i++) {
+                const id = savedOrder[i];
+                if (id === 'widget-ects' || id === 'widget-schedule') {
+                    if (i + 1 < savedOrder.length && ((id === 'widget-ects' && savedOrder[i+1] === 'widget-schedule') || (id === 'widget-schedule' && savedOrder[i+1] === 'widget-ects'))) {
+                        newOrder.push({ row: 'widget-top-row', children: [id, savedOrder[i+1]] });
+                        i++;
+                    } else {
+                        newOrder.push(id);
+                    }
+                } else if (id === 'widget-vpn' || id === 'widget-services') {
+                    if (i + 1 < savedOrder.length && ((id === 'widget-vpn' && savedOrder[i+1] === 'widget-services') || (id === 'widget-services' && savedOrder[i+1] === 'widget-vpn'))) {
+                        newOrder.push({ row: 'widget-bottom-row', children: [id, savedOrder[i+1]] });
+                        i++;
+                    } else {
+                        newOrder.push(id);
+                    }
+                } else {
+                    newOrder.push(id);
+                }
+            }
+            savedOrder = newOrder;
         }
         
-        savedOrder = savedOrder.filter(id => id !== 'widget-bottom-row' && id !== 'widget-top-row');
-        
-        const homePage = document.getElementById('page-home');
+        const homePage = document.querySelector('.widget-column') || document.getElementById('page-home');
         const topSpacer = document.getElementById('dashboard-top-spacer');
         let insertAfter = topSpacer;
         
-        savedOrder.forEach(id => {
-            const el = document.getElementById(id);
-            if (el) {
-                homePage.insertBefore(el, insertAfter.nextSibling);
-                insertAfter = el;
+        savedOrder.forEach(item => {
+            if (typeof item === 'string') {
+                const el = document.getElementById(item);
+                if (el) {
+                    homePage.insertBefore(el, insertAfter.nextSibling);
+                    insertAfter = el;
+                }
+            } else if (item.row && item.children) {
+                let rowEl = document.getElementById(item.row);
+                if (!rowEl) {
+                    rowEl = document.createElement('div');
+                    rowEl.id = item.row;
+                    rowEl.className = item.row === 'widget-top-row' ? 'top-widgets-row' : 'bottom-widgets-row';
+                }
+                homePage.insertBefore(rowEl, insertAfter.nextSibling);
+                insertAfter = rowEl;
+                
+                item.children.forEach(childId => {
+                    const childEl = document.getElementById(childId);
+                    if (childEl) {
+                        rowEl.appendChild(childEl);
+                    }
+                });
             }
         });
-                
-        wrapAdjacentHalfWidgets();
     }
    
     // --- Profilbild Logik ---
@@ -3949,6 +4295,18 @@
         return localStorage.getItem('thd_storage_enabled') !== 'false';
     }
 
+    function togglePrivacyMode(enabled) {
+        isPrivacyModeEnabled = enabled;
+        if (enabled) {
+            document.body.classList.add('privacy-mode');
+        } else {
+            document.body.classList.remove('privacy-mode');
+        }
+        if (isStorageEnabled()) {
+            localStorage.setItem('thd_privacy_mode', enabled ? 'true' : 'false');
+        }
+    }
+
     function toggleStorage(enabled) {
         if (enabled) {
             localStorage.setItem('thd_storage_enabled', 'true');
@@ -3956,7 +4314,7 @@
         } else {
             localStorage.setItem('thd_storage_enabled', 'false');
             // Alle Daten löschen, außer der Einstellung selbst
-            const keysToRemove = ['thd_widget_order', 'thd_mensa_balance', 'thd_gpa', 'thd_parking_spots', 'thd_ects', 'thd_study_current', 'thd_study_total', 'thd_study_extra', 'thd_mails_html', 'thd_ilearn_html', 'thd_search_history', 'thd_profile_pic', 'thd_profile_name', 'thd_schedule_cache', 'thd_mensa_cache', 'thd_real_mode', 'thd_theme', 'thd_language', 'thd_widget_visibility', 'thd_vpn_state', 'thd_setup_completed'];
+            const keysToRemove = ['thd_widget_order', 'thd_mensa_balance', 'thd_gpa', 'thd_parking_spots', 'thd_ects', 'thd_study_current', 'thd_study_total', 'thd_study_extra', 'thd_mails_html', 'thd_ilearn_html', 'thd_search_history', 'thd_profile_pic', 'thd_profile_name', 'thd_schedule_cache', 'thd_mensa_cache', 'thd_real_mode', 'thd_privacy_mode', 'thd_theme', 'thd_language', 'thd_widget_visibility', 'thd_vpn_state', 'thd_setup_completed', 'thd_study_group'];
             keysToRemove.forEach(k => localStorage.removeItem(k));
         }
     }
@@ -3996,6 +4354,7 @@
         localStorage.setItem('thd_study_current', studyCurrent);
         localStorage.setItem('thd_study_total', studyTotal);
         localStorage.setItem('thd_study_extra', studyExtra);
+        localStorage.setItem('thd_study_group', currentStudyGroup);
         
         const homeEctsValue = document.querySelector('.ects-number');
         if (homeEctsValue) localStorage.setItem('thd_ects', homeEctsValue.innerText);
@@ -4042,6 +4401,19 @@
         const realToggle = document.getElementById('real-mode-toggle');
         if (realToggle) realToggle.checked = isRealModeEnabled;
 
+        const savedPrivacyMode = localStorage.getItem('thd_privacy_mode');
+        if (savedPrivacyMode !== null) {
+            isPrivacyModeEnabled = savedPrivacyMode === 'true';
+        }
+        const privacyToggle = document.getElementById('privacy-mode-toggle');
+        if (privacyToggle) privacyToggle.checked = isPrivacyModeEnabled;
+        if (isPrivacyModeEnabled) document.body.classList.add('privacy-mode');
+
+        const savedStudyGroup = localStorage.getItem('thd_study_group');
+        if (savedStudyGroup !== null) {
+            currentStudyGroup = savedStudyGroup;
+        }
+
         if (!isStorageEnabled()) return;
 
         const savedBalance = localStorage.getItem('thd_mensa_balance');
@@ -4052,6 +4424,8 @@
             currentGPA = parseFloat(savedGPA);
             const gpaEl = document.getElementById('profile-gpa-value');
             if (gpaEl) gpaEl.innerText = currentGPA.toFixed(1).replace('.', ',');
+            const homeGpaEl = document.getElementById('home-gpa-number');
+            if (homeGpaEl) homeGpaEl.innerText = currentGPA.toFixed(1).replace('.', ',');
         }
 
         const savedParking = localStorage.getItem('thd_parking_spots');

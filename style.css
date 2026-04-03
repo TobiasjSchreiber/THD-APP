@@ -116,6 +116,16 @@ body.theme-oled {
       -webkit-touch-callout: none; /* Verhindert das Kontextmenü auf iOS beim Gedrückthalten */
     }
 
+    /* --- Privacy Mode --- */
+    body.privacy-mode .sensitive-data {
+      filter: blur(6px);
+      opacity: 0.7;
+      transition: filter 0.3s ease, opacity 0.3s ease;
+    }
+    .sensitive-data {
+      transition: filter 0.3s ease, opacity 0.3s ease;
+    }
+
     .app-container {
       width: 100%;
       height: 100%;
@@ -215,21 +225,39 @@ body.theme-oled {
       flex: 1;
       display: flex;
       flex-direction: column;
-      align-items: flex-end; 
-      justify-content: center;
-      padding-right: 5px;
       border-radius: 24px;
       transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+      height: 150px;
+      overflow-y: auto !important;
+      scroll-snap-type: y mandatory;
+      overscroll-behavior-y: contain;
+      touch-action: pan-y;
     }
 
     #page-home > .ects-free, #page-home .widget-column > .ects-free {
       align-items: center;
-      padding: 20px;
+      padding: 0 !important;
   background-color: transparent;
       border-radius: 24px;
     }
 
+    .ects-free::-webkit-scrollbar {
+      display: none;
+    }
+
+    .ects-item {
+      height: 150px;
+      width: 100%;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      scroll-snap-align: start;
+    }
+
     .ects-number { font-size: 72px; font-weight: 300; line-height: 1; }
+    .ects-number-medium { font-size: 56px; font-weight: 300; line-height: 1; }
     .ects-label { font-size: 16px; color: var(--text-sub); margin-top: 5px; }
 
     .schedule-box {
@@ -644,16 +672,24 @@ body.theme-oled {
       stroke-linejoin: round; 
     }
     
+    .nav-icon-wrapper {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
     .nav-badge {
       position: absolute;
-      top: 5px;
-      right: calc(50% - 16px);
+      top: -3px;
+      right: -4px;
       width: 8px;
       height: 8px;
       background-color: var(--accent-blue);
       border-radius: 50%;
       display: none;
       border: 2px solid var(--bg-color); /* Grenzt den Punkt schön vom Icon ab */
+      z-index: 2;
     }
 
     .nav-badge.show {
@@ -1073,15 +1109,23 @@ body.theme-light .modal .btn-secondary {
     .search-result-loc { font-size: 12px; color: var(--accent-blue); }
     
     @keyframes highlightPulse {
-      0% { box-shadow: inset 0 0 0 0 rgba(58, 130, 247, 0); }
-      30% { box-shadow: inset 0 0 0 3px rgba(58, 130, 247, 0.8), inset 0 0 20px rgba(58, 130, 247, 0.4); background-color: rgba(58, 130, 247, 0.3); }
-      100% { box-shadow: inset 0 0 0 0 rgba(58, 130, 247, 0); }
+  0% { box-shadow: inset 0 0 0 0 rgba(58, 130, 247, 0), inset 0 0 0 0 rgba(58, 130, 247, 0), inset 0 0 0 0 rgba(58, 130, 247, 0); }
+  30% { box-shadow: inset 0 0 0 3px rgba(58, 130, 247, 0.8), inset 0 0 20px rgba(58, 130, 247, 0.4), inset 0 0 0 1000px rgba(58, 130, 247, 0.3); }
+  100% { box-shadow: inset 0 0 0 0 rgba(58, 130, 247, 0), inset 0 0 0 0 rgba(58, 130, 247, 0), inset 0 0 0 0 rgba(58, 130, 247, 0); }
     }
-    .highlight-anim { animation: highlightPulse 1.2s ease-out !important; }
+.highlight-anim { 
+  animation: highlightPulse 1.2s ease-out !important; 
+  will-change: box-shadow;
+  backface-visibility: hidden;
+}
 
     /* Stundenplan Fix: Container hat keinen Hintergrund, also animieren wir die Kacheln darin */
     #widget-schedule.highlight-anim { animation: none !important; }
-    #widget-schedule.highlight-anim .schedule-item { animation: highlightPulse 1.2s ease-out !important; }
+#widget-schedule.highlight-anim .schedule-item { 
+  animation: highlightPulse 1.2s ease-out !important; 
+  will-change: box-shadow;
+  backface-visibility: hidden;
+}
 
     /* Damit auch der Fortschrittsbalken im Stundenplan passend blau aufleuchtet */
     @keyframes highlightPulseFill {
@@ -1339,7 +1383,7 @@ body.theme-light .modal .btn-secondary {
       50% { transform: scale(1.25); }
       100% { transform: scale(1); }
     }
-    .nav-item.active .nav-icon { 
+.nav-item.active .nav-icon-wrapper { 
       animation: navBounce 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; 
     }
 
@@ -1564,11 +1608,6 @@ body.theme-light .modal .btn-secondary {
         width: 28px;
         height: 28px;
       }
-      
-      .nav-badge {
-        right: calc(50% - 22px);
-        top: 6px;
-      }
 
       /* Zentriertes Single-Column Layout für Tablets */
       .content-area {
@@ -1698,11 +1737,6 @@ body.theme-light .modal .btn-secondary {
   
   .nav-item span {
     font-size: 10px;
-  }
-  
-  .nav-badge {
-    right: calc(50% - 18px);
-    top: 6px;
   }
   
   .header {
