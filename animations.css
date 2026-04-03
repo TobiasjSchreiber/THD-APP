@@ -24,50 +24,11 @@
 /* --- Page Sliding Animation --- */
 
 .page {
-  /*
-  The user wants to replace the default fade animation with a slide animation.
-  The original animation was: `animation: fadeIn 0.3s ease;`
-  I'm removing it so it can be replaced with slide animations.
-  */
-  animation: none;
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
   display: none; /* Moved from index.html */
   flex-direction: column; /* Moved from index.html */
   flex: 1; /* Moved from index.html */
-  transition: transform 0.4s cubic-bezier(0.1, 0.8, 0.2, 1);
 }
 
 .page.active {
-    transform: translateX(0);
     display: flex; /* Moved from index.html */
-    z-index: 1;
-}
-
-.page.exiting-left {
-    transform: translateX(-100%);
-    z-index: 0;
-}
-
-.page.exiting-right {
-    transform: translateX(100%);
-    z-index: 0;
-}
-
-.page.entering-left {
-    transform: translateX(-100%);
-    z-index: 2;
-}
-
-.page.entering-right {
-    transform: translateX(100%);
-    z-index: 2;
-}
-
-/* Make sure only the active page is visible and intractable */
-.page:not(.active) {
-    pointer-events: none;
 }
