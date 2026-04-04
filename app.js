@@ -174,6 +174,44 @@
       });
     }
 
+    function initMailTimestamps() {
+      const now = Date.now();
+      document.querySelectorAll('.mail-time').forEach(el => {
+        if (!el.hasAttribute('data-timestamp')) {
+          const text = el.innerText.trim();
+          if (text === 'Gerade eben' || text === 'Just now' || text === 'Juuri nyt') {
+            el.setAttribute('data-timestamp', now);
+          } else if (text === 'Vor 5 Min' || text.includes('5 min')) {
+            el.setAttribute('data-timestamp', now - 5 * 60000);
+          } else if (text === 'Gestern' || text === 'Yesterday' || text === 'Eilen') {
+            el.setAttribute('data-timestamp', now - 24 * 3600000);
+          }
+        }
+      });
+    }
+
+    function updateRelativeTimes() {
+      const now = Date.now();
+      document.querySelectorAll('.mail-time[data-timestamp]').forEach(el => {
+        const timestamp = parseInt(el.getAttribute('data-timestamp'), 10);
+        if (isNaN(timestamp)) return;
+        
+        const diffMs = now - timestamp;
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMins / 60);
+        const diffDays = Math.floor(diffHours / 24);
+        
+        let text = "";
+        if (diffMins < 1) text = translations[currentLanguage].just_now;
+        else if (diffMins < 60) text = (translations[currentLanguage].time_mins_ago || "Vor {n} Min").replace('{n}', diffMins);
+        else if (diffHours < 24) text = (translations[currentLanguage].time_hours_ago || "Vor {n} Std").replace('{n}', diffHours);
+        else if (diffDays === 1) text = translations[currentLanguage].time_yesterday || "Gestern";
+        else text = (translations[currentLanguage].time_days_ago || "Vor {n} Tagen").replace('{n}', diffDays);
+        
+        el.innerText = text;
+      });
+    }
+
     function initHeaderEasterEgg() {
       document.querySelectorAll('.header > span[data-translate]').forEach(headerSpan => {
         headerSpan.addEventListener('click', () => {
@@ -527,8 +565,24 @@
         }
       }, 50);
 
+    const widgetEcts = document.getElementById('widget-ects');
+    if (widgetEcts) {
+      widgetEcts.addEventListener('scroll', () => {
+        clearTimeout(window.ectsScrollTimeout);
+        window.ectsScrollTimeout = setTimeout(() => {
+          if (isStorageEnabled()) {
+            const index = Math.round(widgetEcts.scrollTop / 150);
+            localStorage.setItem('thd_ects_scroll_index', index);
+          }
+        }, 150);
+      });
+    }
+
       loadAllData();
       ensureMailIds();
+      initMailTimestamps();
+      updateRelativeTimes();
+      setInterval(updateRelativeTimes, 60000); // Aktualisiert die E-Mail-Zeiten jede Minute
       initWidgetDragAndDrop();
       initParkingChartInteraction();
       initGradeChartInteraction();
@@ -1754,7 +1808,7 @@
         </div>
         <div class="mail-top">
           <span class="mail-sender" data-translate="tow_mail_sender">${translations[currentLanguage].tow_mail_sender}</span>
-          <span class="mail-time" data-translate="just_now">${translations[currentLanguage].just_now}</span>
+          <span class="mail-time" data-timestamp="${Date.now()}">${translations[currentLanguage].just_now}</span>
         </div>
         <div class="mail-subject" data-translate="tow_mail_subject">${translations[currentLanguage].tow_mail_subject}</div>
         <div class="mail-preview" data-translate="tow_mail_body">${translations[currentLanguage].tow_mail_body}</div>
@@ -2133,6 +2187,10 @@
         tow_mail_subject: "MEIN GOLFFF!!!",
         tow_mail_body: "Sag mal spinnst du komplett?! Hast du ernsthaft mein Auto abschleppen lassen?! Das kostet mich über 200€! Ich finde heraus wer du bist!!",
         just_now: "Gerade eben",
+        time_mins_ago: "Vor {n} Min",
+        time_hours_ago: "Vor {n} Std",
+        time_yesterday: "Gestern",
+        time_days_ago: "Vor {n} Tagen",
         // Delete Modal
         delete_title: "E-Mail löschen",
         delete_ects_title: "ECTS zurücksetzen",
@@ -2328,6 +2386,10 @@
         tow_mail_subject: "MY GOLF!!!",
         tow_mail_body: "Are you completely out of your mind?! Did you seriously get my car towed?! This is costing me over 200€! I will find out who you are!!",
         just_now: "Just now",
+        time_mins_ago: "{n} mins ago",
+        time_hours_ago: "{n} hours ago",
+        time_yesterday: "Yesterday",
+        time_days_ago: "{n} days ago",
         // Delete Modal
         delete_title: "Delete Email",
         delete_ects_title: "Reset ECTS",
@@ -2523,6 +2585,10 @@
         tow_mail_subject: "MINUN GOLF!!!",
         tow_mail_body: "Oletko aivan hullu?! Hinautitko todella autoni pois?! Tämä maksaa minulle yli 200€! Selvitän, kuka olet!!",
         just_now: "Juuri nyt",
+        time_mins_ago: "{n} min sitten",
+        time_hours_ago: "{n} t sitten",
+        time_yesterday: "Eilen",
+        time_days_ago: "{n} päivää sitten",
         // Delete Modal
         delete_title: "Poista sähköposti",
         delete_ects_title: "Nollaa OP",
@@ -3575,6 +3641,7 @@
       }, 600);
 
       renderSearchHistory();
+      updateRelativeTimes();
       
       if (isStorageEnabled()) {
           localStorage.setItem('thd_language', lang);
@@ -4158,7 +4225,7 @@
         </div>
         <div class="mail-top">
           <span class="mail-sender">An: ${to}</span>
-          <span class="mail-time">Gerade eben</span>
+          <span class="mail-time" data-timestamp="${Date.now()}">${translations[currentLanguage].just_now}</span>
         </div>
         <div class="mail-subject">${subject}</div>
         <div class="mail-preview">${body}</div>
@@ -4251,7 +4318,7 @@ Antworte NUR mit dem E-Mail-Text. Kein Markdown, keine Platzhalter.`;
             </div>
             <div class="mail-top">
               <span class="mail-sender">${senderName}</span>
-              <span class="mail-time" data-translate="just_now">${translations[currentLanguage].just_now}</span>
+              <span class="mail-time" data-timestamp="${Date.now()}">${translations[currentLanguage].just_now}</span>
             </div>
             <div class="mail-subject">Re: ${originalSubject.replace(/^Re:\s*/i, '')}</div>
             <div class="mail-preview">${replyText}</div>
@@ -5157,7 +5224,7 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
         } else {
             localStorage.setItem('thd_storage_enabled', 'false');
             // Alle Daten löschen, außer der Einstellung selbst
-        const keysToRemove = ['thd_widget_order', 'thd_mensa_balance', 'thd_gpa', 'thd_parking_spots', 'thd_ects', 'thd_study_current', 'thd_study_total', 'thd_study_extra', 'thd_mails_html', 'thd_ilearn_html', 'thd_search_history', 'thd_profile_pic', 'thd_profile_name', 'thd_schedule_cache', 'thd_mensa_cache', 'thd_real_mode', 'thd_privacy_mode', 'thd_theme', 'thd_language', 'thd_widget_visibility', 'thd_vpn_state', 'thd_setup_completed', 'thd_study_group', 'thd_grades_html', 'thd_profile_semester', 'thd_rental_books_html', 'thd_rental_tech_html', 'thd_parking_history_html'];
+        const keysToRemove = ['thd_widget_order', 'thd_mensa_balance', 'thd_gpa', 'thd_parking_spots', 'thd_ects', 'thd_ects_scroll_index', 'thd_study_current', 'thd_study_total', 'thd_study_extra', 'thd_mails_html', 'thd_ilearn_html', 'thd_search_history', 'thd_profile_pic', 'thd_profile_name', 'thd_schedule_cache', 'thd_mensa_cache', 'thd_real_mode', 'thd_privacy_mode', 'thd_theme', 'thd_language', 'thd_widget_visibility', 'thd_vpn_state', 'thd_setup_completed', 'thd_study_group', 'thd_grades_html', 'thd_profile_semester', 'thd_rental_books_html', 'thd_rental_tech_html', 'thd_parking_history_html'];
             keysToRemove.forEach(k => localStorage.removeItem(k));
         }
     }
@@ -5201,6 +5268,12 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
         
         const homeEctsValue = document.querySelector('.ects-number');
         if (homeEctsValue) localStorage.setItem('thd_ects', homeEctsValue.innerText);
+
+        const widgetEcts = document.getElementById('widget-ects');
+        if (widgetEcts) {
+            const index = Math.round(widgetEcts.scrollTop / 150);
+            localStorage.setItem('thd_ects_scroll_index', index);
+        }
 
         const mailsViewList = document.querySelector('#mails-view .mail-list');
         if (mailsViewList) localStorage.setItem('thd_mails_html', mailsViewList.innerHTML);
@@ -5295,6 +5368,18 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
             if (profileEctsValue) profileEctsValue.innerText = savedEcts;
             const homeEctsValue = document.querySelector('.ects-number');
             if (homeEctsValue) homeEctsValue.innerText = savedEcts;
+        }
+
+        const savedEctsScrollIndex = localStorage.getItem('thd_ects_scroll_index');
+        if (savedEctsScrollIndex !== null) {
+            setTimeout(() => {
+                const widgetEcts = document.getElementById('widget-ects');
+                if (widgetEcts) {
+                    widgetEcts.style.scrollSnapType = 'none';
+                    widgetEcts.scrollTop = parseInt(savedEctsScrollIndex, 10) * 150;
+                    setTimeout(() => widgetEcts.style.scrollSnapType = 'y mandatory', 50);
+                }
+            }, 50);
         }
 
         const savedStudyCurrent = localStorage.getItem('thd_study_current');
