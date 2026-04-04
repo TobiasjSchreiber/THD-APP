@@ -3881,11 +3881,11 @@
       });
       input.addEventListener('blur', () => {
         setTimeout(() => {
-          if (!document.activeElement.classList.contains('compose-input')) {
+          if (!document.activeElement || !document.activeElement.classList.contains('compose-input')) {
             const parentModal = input.closest('.modal');
             if(parentModal) parentModal.classList.remove('keyboard-up');
           }
-        }, 50);
+        }, 250); // Erhöht von 50ms auf 250ms, damit der Button-Klick vor dem Layout-Shift registriert wird
       });
     });
 
@@ -4193,7 +4193,7 @@ Antworte NUR mit dem E-Mail-Text. Kein Markdown, keine Platzhalter.`;
         const data = await response.json();
         
         if (!response.ok) {
-          console.error("API hat die Anfrage blockiert/abgelehnt:", data);
+          console.error("Google/Backend hat die Anfrage abgelehnt:", JSON.stringify(data, null, 2));
           if (response.status === 429) {
             showDropdownNotification(currentLanguage === 'de' ? "KI Fehler: Limit erreicht. Bitte kurz warten." : "AI Error: Rate limit reached.", true);
           } else {
@@ -4314,7 +4314,10 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
         });
 
         const data = await response.json();
-        if (!response.ok) throw new Error("API Limit oder Fehler");
+        if (!response.ok) {
+            console.error("Google/Backend Fehler-Details:", data);
+            throw new Error(data.error?.message || "API Limit oder Fehler");
+        }
         
         let jsonStr = data.candidates[0].content.parts[0].text.trim();
         if(jsonStr.startsWith('```json')) jsonStr = jsonStr.replace(/^```json/, '').replace(/```$/, '').trim();
