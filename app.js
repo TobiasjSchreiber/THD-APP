@@ -516,6 +516,9 @@
       const scheduleBox = document.getElementById('widget-schedule');
       if (scheduleBox) dummyScheduleHTML = scheduleBox.innerHTML;
 
+      // Wecke das kostenlose Render-Backend lautlos im Hintergrund auf (Cold Start umgehen)
+      fetch('https://thd-app-backend.onrender.com/').catch(() => {});
+
       setTimeout(() => {
         const activeRental = document.querySelector('#rental-views-container .rental-view.active');
         const viewport = document.getElementById('rental-views-viewport');
@@ -4156,9 +4159,7 @@
     }
 
     async function generateAiReply(senderName, originalSubject, originalBody, mailContext = "") {
-      const apiKey = 'AIzaSyBbss9KCRMVYH4fBwVCR43OopMOAEfbdnk';
-      const model = 'gemini-2.5-flash'; // Brandneues Gemini 2.5 Modell
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+      const url = 'https://thd-app-backend.onrender.com/api/gemini';
 
       const userName = document.getElementById('profile-name-display')?.innerText || 'einem Studenten';
 
@@ -4265,9 +4266,7 @@ Antworte NUR mit dem E-Mail-Text. Kein Markdown, keine Platzhalter.`;
 
       showDropdownNotification(translations[currentLanguage].ai_generating || "KI generiert Daten...", false);
       
-      const apiKey = 'AIzaSyBbss9KCRMVYH4fBwVCR43OopMOAEfbdnk';
-      const model = 'gemini-2.5-flash';
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+      const url = 'https://thd-app-backend.onrender.com/api/gemini';
 
       const prompt = `Erstelle zufällige, aber realistische Studiendaten für einen Medientechnik-Studenten in Deutschland.
 Gib AUSSCHLIESSLICH ein valides JSON-Objekt zurück (kein Markdown, keine Backticks).
