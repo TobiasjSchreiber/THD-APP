@@ -1248,6 +1248,7 @@
 
       const titleEl = document.getElementById('info-modal-title');
       const descEl = document.getElementById('info-modal-desc');
+      descEl.style.wordBreak = '';
 
       if (type === 'storage') {
         titleEl.innerText = translations[currentLanguage].info_storage_title;
@@ -1275,6 +1276,31 @@
         titleEl.setAttribute('data-translate', 'info_ai_generate_title');
         descEl.setAttribute('data-translate', 'info_ai_generate_desc');
       }
+
+      document.getElementById('modal-overlay').classList.add('show');
+      setTimeout(() => {
+        document.getElementById('info-modal').classList.add('show');
+      }, 10);
+    }
+
+    function showErrorDetailsModal(errorText) {
+      const allModals = document.querySelectorAll('.modal.show');
+      allModals.forEach(m => {
+        if (m.id !== 'info-modal') {
+          previousModal = m.id;
+          m.classList.remove('show');
+        }
+      });
+
+      const titleEl = document.getElementById('info-modal-title');
+      const descEl = document.getElementById('info-modal-desc');
+
+      titleEl.innerText = currentLanguage === 'de' ? 'Fehler-Details' : 'Error Details';
+      titleEl.removeAttribute('data-translate');
+      
+      descEl.innerText = errorText;
+      descEl.removeAttribute('data-translate');
+      descEl.style.wordBreak = 'break-word'; // Verhindert, dass lange Fehler-Strings das Layout sprengen
 
       document.getElementById('modal-overlay').classList.add('show');
       setTimeout(() => {
@@ -4194,10 +4220,12 @@ Antworte NUR mit dem E-Mail-Text. Kein Markdown, keine Platzhalter.`;
         
         if (!response.ok) {
           console.error("Google/Backend hat die Anfrage abgelehnt:", JSON.stringify(data, null, 2));
+          const errorMsg = data.error?.message || JSON.stringify(data);
+          const hint = currentLanguage === 'de' ? " (Tippen für Details)" : " (Tap for details)";
           if (response.status === 429) {
-            showDropdownNotification(currentLanguage === 'de' ? "KI Fehler: Limit erreicht. Bitte kurz warten." : "AI Error: Rate limit reached.", true);
+            showDropdownNotification((currentLanguage === 'de' ? "KI Fehler: Limit erreicht." : "AI Error: Rate limit reached.") + hint, true, () => showErrorDetailsModal(errorMsg));
           } else {
-            showDropdownNotification("KI Fehler", true);
+            showDropdownNotification("KI Fehler" + hint, true, () => showErrorDetailsModal(errorMsg));
           }
           return;
         }
@@ -4243,6 +4271,9 @@ Antworte NUR mit dem E-Mail-Text. Kein Markdown, keine Platzhalter.`;
         }
       } catch (error) {
         console.error("Fehler bei der KI-Antwort:", error);
+        const errorMsg = error.message || error.toString();
+        const hint = currentLanguage === 'de' ? " (Tippen für Details)" : " (Tap for details)";
+        showDropdownNotification((currentLanguage === 'de' ? "Netzwerk/KI Fehler" : "Network/AI Error") + hint, true, () => showErrorDetailsModal(errorMsg));
       }
     }
 
@@ -4441,7 +4472,9 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
 
       } catch (error) {
         console.error("KI Generierungs-Fehler:", error);
-        showDropdownNotification(translations[currentLanguage].ai_error || "Fehler bei der KI-Generierung.", true);
+        const errorMsg = error.message || error.toString();
+        const hint = currentLanguage === 'de' ? " (Tippen für Details)" : " (Tap for details)";
+        showDropdownNotification((translations[currentLanguage].ai_error || "Fehler bei der KI-Generierung.") + hint, true, () => showErrorDetailsModal(errorMsg));
       }
     }
 
