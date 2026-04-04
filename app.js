@@ -4221,9 +4221,15 @@ Antworte NUR mit dem E-Mail-Text. Kein Markdown, keine Platzhalter.`;
         if (!response.ok) {
           console.error("Google/Backend hat die Anfrage abgelehnt:", JSON.stringify(data, null, 2));
           const errorMsg = data.error?.message || JSON.stringify(data);
+          let timeHint = "";
+          const retryMatch = errorMsg.match(/retry in ([\d\.]+)s/i);
+          if (retryMatch) {
+            const secs = Math.ceil(parseFloat(retryMatch[1]));
+            timeHint = currentLanguage === 'de' ? ` Warte ${secs}s.` : ` Wait ${secs}s.`;
+          }
           const hint = currentLanguage === 'de' ? " (Tippen für Details)" : " (Tap for details)";
-          if (response.status === 429) {
-            showDropdownNotification((currentLanguage === 'de' ? "KI Fehler: Limit erreicht." : "AI Error: Rate limit reached.") + hint, true, () => showErrorDetailsModal(errorMsg));
+          if (response.status === 429 || retryMatch) {
+            showDropdownNotification((currentLanguage === 'de' ? "KI Limit erreicht." : "AI Rate limit.") + timeHint + hint, true, () => showErrorDetailsModal(errorMsg));
           } else {
             showDropdownNotification("KI Fehler" + hint, true, () => showErrorDetailsModal(errorMsg));
           }
@@ -4272,8 +4278,18 @@ Antworte NUR mit dem E-Mail-Text. Kein Markdown, keine Platzhalter.`;
       } catch (error) {
         console.error("Fehler bei der KI-Antwort:", error);
         const errorMsg = error.message || error.toString();
+        let timeHint = "";
+        const retryMatch = errorMsg.match(/retry in ([\d\.]+)s/i);
+        if (retryMatch) {
+          const secs = Math.ceil(parseFloat(retryMatch[1]));
+          timeHint = currentLanguage === 'de' ? ` Warte ${secs}s.` : ` Wait ${secs}s.`;
+        }
         const hint = currentLanguage === 'de' ? " (Tippen für Details)" : " (Tap for details)";
-        showDropdownNotification((currentLanguage === 'de' ? "Netzwerk/KI Fehler" : "Network/AI Error") + hint, true, () => showErrorDetailsModal(errorMsg));
+        if (retryMatch) {
+          showDropdownNotification((currentLanguage === 'de' ? "KI Limit erreicht." : "AI Rate limit.") + timeHint + hint, true, () => showErrorDetailsModal(errorMsg));
+        } else {
+          showDropdownNotification((currentLanguage === 'de' ? "Netzwerk/KI Fehler" : "Network/AI Error") + hint, true, () => showErrorDetailsModal(errorMsg));
+        }
       }
     }
 
@@ -4473,8 +4489,18 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
       } catch (error) {
         console.error("KI Generierungs-Fehler:", error);
         const errorMsg = error.message || error.toString();
+        let timeHint = "";
+        const retryMatch = errorMsg.match(/retry in ([\d\.]+)s/i);
+        if (retryMatch) {
+          const secs = Math.ceil(parseFloat(retryMatch[1]));
+          timeHint = currentLanguage === 'de' ? ` Warte ${secs}s.` : ` Wait ${secs}s.`;
+        }
         const hint = currentLanguage === 'de' ? " (Tippen für Details)" : " (Tap for details)";
-        showDropdownNotification((translations[currentLanguage].ai_error || "Fehler bei der KI-Generierung.") + hint, true, () => showErrorDetailsModal(errorMsg));
+        if (retryMatch) {
+          showDropdownNotification((currentLanguage === 'de' ? "KI Limit erreicht." : "AI Rate limit.") + timeHint + hint, true, () => showErrorDetailsModal(errorMsg));
+        } else {
+          showDropdownNotification((translations[currentLanguage].ai_error || "Fehler bei der KI-Generierung.") + hint, true, () => showErrorDetailsModal(errorMsg));
+        }
       }
     }
 
