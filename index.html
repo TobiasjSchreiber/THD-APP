@@ -78,7 +78,7 @@
         <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 10px; margin-top: 15px;">
           <div style="display: flex; align-items: center; gap: 8px;">
             <span data-translate="settings_real_mode" style="font-size: 15px; font-weight: 500; white-space: pre-line; line-height: 1.2;">Echte Daten
-(Mensa, Stundenplan)</span>
+(Mensa, Stundenplan, KI-Mails)</span>
             <svg viewBox="0 0 24 24" width="16" height="16" stroke="var(--text-sub)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" onclick="showInfoModal('real_mode')" style="cursor: pointer;"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
           </div>
           <label class="toggle-switch" style="transform: scale(0.8); transform-origin: right;">
@@ -96,7 +96,7 @@
             <span class="toggle-slider"></span>
           </label>
         </div>
-        <div style="margin-top: 20px; padding: 12px; background-color: rgba(58, 130, 247, 0.1); border: 1px solid rgba(58, 130, 247, 0.2); border-radius: 12px; display: flex; gap: 10px; align-items: flex-start;">
+        <div style="margin-top: 20px; padding: 12px; background-color: rgba(58, 130, 247, 0.15); border: 1.5px solid rgba(58, 130, 247, 0.3); box-sizing: border-box; border-radius: 12px; display: flex; gap: 10px; align-items: flex-start;">
           <svg viewBox="0 0 24 24" width="20" height="20" stroke="var(--accent-blue)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
           <span data-translate="setup_install_hint" style="font-size: 13px; color: var(--text-sub); line-height: 1.4;">Für das beste Erlebnis empfehlen wir, die App unter Android zu installieren oder unter iOS zum Startbildschirm hinzuzufügen.</span>
         </div>
@@ -303,9 +303,10 @@
         <h3 class="modal-title" data-translate="compose_title">Neue E-Mail</h3>
       </div>
       <div class="modal-info" style="gap: 10px;">
-        <input type="text" name="to_dummy" id="comp-to" class="compose-input" placeholder="An:" data-translate="compose_to" autocomplete="nope" autocorrect="off" spellcheck="false">
-        <input type="text" name="subj_dummy" id="comp-subject" class="compose-input" placeholder="Betreff:" data-translate="compose_subject" autocomplete="nope" autocorrect="off" spellcheck="false">
-        <textarea id="comp-body" class="compose-input" placeholder="Nachricht..." rows="5" style="resize: none;" data-translate="compose_body"></textarea>
+      <input type="text" name="to_dummy" id="comp-to" class="compose-input" placeholder="An:" data-translate="compose_to" autocomplete="nope" autocorrect="off" spellcheck="false" maxlength="50">
+      <input type="text" name="subj_dummy" id="comp-subject" class="compose-input" placeholder="Betreff:" data-translate="compose_subject" autocomplete="nope" autocorrect="off" spellcheck="false" maxlength="100">
+        <textarea id="comp-body" class="compose-input" placeholder="Nachricht..." rows="5" style="resize: none;" data-translate="compose_body" maxlength="500" oninput="updateCharCount()"></textarea>
+        <div id="char-count" style="text-align: right; font-size: 12px; color: var(--text-sub); margin-top: -5px; padding-right: 5px;">0 / 500</div>
       </div>
       <div class="modal-buttons" style="margin-top: 20px;">
         <button class="btn btn-secondary" onclick="closeModal()" data-translate="compose_cancel">Abbrechen</button>
@@ -542,7 +543,7 @@
         <h3 class="modal-title" data-translate="edit_name_title">Name bearbeiten</h3>
       </div>
       <div class="modal-info">
-        <input type="text" id="edit-name-input" class="compose-input" placeholder="Name" autocomplete="off" spellcheck="false" style="text-align: center; font-size: 18px; font-weight: 600;" onkeypress="if(event.key === 'Enter') saveProfileName()">
+      <input type="text" id="edit-name-input" class="compose-input" placeholder="Name" autocomplete="off" spellcheck="false" maxlength="20" style="text-align: center; font-size: 18px; font-weight: 600;" onkeypress="if(event.key === 'Enter') saveProfileName()">
       </div>
       <div class="modal-buttons" style="margin-top: 20px;">
         <button class="btn btn-secondary" onclick="closeModal()" data-translate="cancel_button">Abbrechen</button>
@@ -583,7 +584,7 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding: 0 10px;">
           <div style="display: flex; align-items: center; gap: 8px;">
             <span data-translate="settings_real_mode" style="font-size: 15px; font-weight: 500; white-space: pre-line; line-height: 1.2;">Echte Daten
-(Mensa, Stundenplan)</span>
+(Mensa, Stundenplan, KI-Mails)</span>
             <svg viewBox="0 0 24 24" width="16" height="16" stroke="var(--text-sub)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" onclick="showInfoModal('real_mode')" style="cursor: pointer;"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
           </div>
           <label class="toggle-switch" style="transform: scale(0.8); transform-origin: right;">
@@ -600,6 +601,12 @@
             <input type="checkbox" class="toggle-input" id="privacy-mode-toggle" onchange="togglePrivacyMode(this.checked)">
             <span class="toggle-slider"></span>
           </label>
+        </div>
+        <div style="margin-top: 15px; padding: 0 10px;">
+          <button id="ai-generate-btn" class="btn btn-secondary" onclick="generateAiData()" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 0; background-color: rgba(58, 130, 247, 0.15); color: var(--accent-blue); border: 1.5px solid rgba(58, 130, 247, 0.3); box-sizing: border-box;">
+            <span data-translate="settings_ai_generate">KI Daten generieren</span>
+            <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" onclick="event.stopPropagation(); showInfoModal('ai_generate')" style="cursor: pointer; flex-shrink: 0;"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+          </button>
         </div>
         <button class="btn btn-secondary" onclick="openAboutModal()" data-translate="settings_about" style="width: 100%; margin-top: 20px;">Über diese App</button>
       </div>
@@ -1080,11 +1087,11 @@
               <div id="rental-tech-view" class="rental-view active" style="flex: 1 0 50%; width: 50%; opacity: 1; transition: opacity 0.3s;">
                 <div class="rental-item" style="cursor: pointer;" onclick="openRentalModal('Sony Alpha 7 IV', this.querySelector('.rental-item-due').innerText, 'J Gebäude (Grafiklabor)', 'Herr Bauer', 'Inkl. Tasche, 2 Akkus, 64GB SD', this)">
                   <span class="rental-item-title">Sony Alpha 7 IV</span>
-                  <span class="rental-item-due" data-translate="rental_tech_due">In 2 Tagen</span>
+                  <span class="rental-item-due soon" data-translate="rental_tech_due">In 2 Tagen</span>
                 </div>
                 <div class="rental-item" style="cursor: pointer;" onclick="openRentalModal('XLR Kabel (5m)', this.querySelector('.rental-item-due').innerText, 'J Gebäude (Audiolabor)', 'Frau Weber', 'Bitte ordentlich aufwickeln', this)">
                   <span class="rental-item-title">XLR Kabel (5m)</span>
-                  <span class="rental-item-due today" data-translate="rental_tech_due_today">Heute</span>
+                  <span class="rental-item-due urgent" data-translate="rental_tech_due_today">Heute</span>
                 </div>
               </div>
             </div>

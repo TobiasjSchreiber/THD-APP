@@ -245,7 +245,7 @@
         const btnText = translations[currentLanguage].mensa_to_menu;
         const emptyHtml = `
             <div data-translate="mensa_no_menu" style="display: flex; justify-content: center; padding: 12px; font-size: 13px; font-weight: 500; color: var(--text-sub); pointer-events: none;">${emptyText}</div>
-            <div class="list-item" onclick="openMensaMenuModal(true)" style="background-color: rgba(58, 130, 247, 0.15); box-shadow: inset 0 0 0 1.5px rgba(58, 130, 247, 0.3); justify-content: center; cursor: pointer; color: var(--accent-blue);">
+            <div class="list-item" onclick="openMensaMenuModal(true)" style="background-color: rgba(58, 130, 247, 0.15); border: 1.5px solid rgba(58, 130, 247, 0.3); box-sizing: border-box; justify-content: center; cursor: pointer; color: var(--accent-blue);">
                 <span style="font-weight: 600; display: flex; align-items: center; gap: 6px;">
                     <span data-translate="mensa_to_menu">${btnText}</span>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
@@ -313,7 +313,7 @@
         const btnText = translations[currentLanguage].mensa_to_menu;
         document.querySelector('#widget-mensa .scroll-list').innerHTML = `
             <div data-translate="mensa_error" style="display: flex; justify-content: center; padding: 12px; font-size: 13px; font-weight: 500; color: #FF3B30; pointer-events: none;">${errorText}</div>
-            <div class="list-item" onclick="openMensaMenuModal(true)" style="background-color: rgba(58, 130, 247, 0.15); box-shadow: inset 0 0 0 1.5px rgba(58, 130, 247, 0.3); justify-content: center; cursor: pointer; color: var(--accent-blue);">
+            <div class="list-item" onclick="openMensaMenuModal(true)" style="background-color: rgba(58, 130, 247, 0.15); border: 1.5px solid rgba(58, 130, 247, 0.3); box-sizing: border-box; justify-content: center; cursor: pointer; color: var(--accent-blue);">
                 <span style="font-weight: 600; display: flex; align-items: center; gap: 6px;">
                     <span data-translate="mensa_to_menu">${btnText}</span>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
@@ -788,17 +788,20 @@
       document.getElementById('popup-tasks').innerText = tasks;
       
       const buildings = document.querySelectorAll('.building');
-      buildings.forEach(b => b.style.fill = 'var(--building-fill)');
+      buildings.forEach(b => b.classList.remove('active'));
       
       const buildingLetter = room.charAt(0).toUpperCase();
       const targetBuilding = document.getElementById('bldg-' + buildingLetter);
       
-      if (buildingLetter === 'I' || title.includes("ITC")) {
+      if (room.toLowerCase().includes('bibliothek') || room.toLowerCase().includes('library')) {
+        const bldgG = document.getElementById('bldg-G');
+        if(bldgG) bldgG.classList.add('active');
+      } else if (buildingLetter === 'I' || title.includes("ITC")) {
         const itc = document.getElementById('bldg-ITC');
-        if(itc) itc.style.fill = 'var(--accent-blue)';
+        if(itc) itc.classList.add('active');
       } 
       else if (targetBuilding) {
-        targetBuilding.style.fill = 'var(--accent-blue)';
+        targetBuilding.classList.add('active');
       }
       
       document.getElementById('modal-overlay').classList.add('show');
@@ -1263,6 +1266,11 @@
         descEl.innerText = translations[currentLanguage].info_show_again_desc;
         titleEl.setAttribute('data-translate', 'info_show_again_title');
         descEl.setAttribute('data-translate', 'info_show_again_desc');
+      } else if (type === 'ai_generate') {
+        titleEl.innerText = translations[currentLanguage].info_ai_generate_title;
+        descEl.innerText = translations[currentLanguage].info_ai_generate_desc;
+        titleEl.setAttribute('data-translate', 'info_ai_generate_title');
+        descEl.setAttribute('data-translate', 'info_ai_generate_desc');
       }
 
       document.getElementById('modal-overlay').classList.add('show');
@@ -1317,21 +1325,46 @@
       document.getElementById('search-trash-icon')?.classList.remove('lid-stay-open');
     }
 
-    function openComposeModal() {
+    function updateCharCount() {
+      const body = document.getElementById('comp-body');
+      const counter = document.getElementById('char-count');
+      
+      if (body && counter) {
+        const len = body.value.length;
+        counter.innerText = len + ' / 500';
+        
+        if (len >= 500) {
+          counter.style.color = '#FF3B30'; // Rot bei Limit
+        } else if (len >= 450) {
+          counter.style.color = 'var(--accent-orange)'; // Orange als Warnung
+        } else {
+          counter.style.color = 'var(--text-sub)'; // Normalgrau
+        }
+      }
+    }
+
+    function openComposeModal(isReply = false) {
+      if (isReply !== true) {
+        const bodyEl = document.getElementById('comp-body');
+        if (bodyEl) bodyEl.dataset.context = '';
+      }
+      updateCharCount(); // Zähler beim Öffnen aktualisieren/zurücksetzen
       document.getElementById('modal-overlay').classList.add('show');
       setTimeout(() => {
         document.getElementById('compose-modal').classList.add('show');
       }, 10);
     }
 
-    function replyToMail(sender, subject) {
+    function replyToMail(sender, subject, originalMessage = "") {
       closeModal(); // Erstes Fenster schließen
       setTimeout(() => {
         // Felder automatisch ausfüllen
         document.getElementById('comp-to').value = sender;
-        document.getElementById('comp-subject').value = "Re: " + subject;
+        document.getElementById('comp-subject').value = "Re: " + subject.replace(/^Re:\s*/i, '');
         document.getElementById('comp-body').value = ""; 
-        openComposeModal(); // Neues Fenster öffnen
+        const bodyEl = document.getElementById('comp-body');
+        if (bodyEl) bodyEl.dataset.context = originalMessage;
+        openComposeModal(true); // Neues Fenster öffnen
       }, 300); // Kurz warten, bis das erste Fenster zu ist
     }
 
@@ -1641,6 +1674,27 @@
           tabletLists[0].prepend(clone);
         }
       }
+
+      const mailsNavBtn = document.querySelectorAll('.nav-item')[2];
+      if (mailsNavBtn) {
+        const iconWrapper = mailsNavBtn.querySelector('.nav-icon-wrapper');
+        if (iconWrapper) {
+          // Laufenden Timer stoppen, falls direkt hintereinander E-Mails eintreffen
+          if (iconWrapper.wiggleTimeout) {
+            clearTimeout(iconWrapper.wiggleTimeout);
+          }
+          
+          iconWrapper.classList.remove('new-mail-wiggle');
+          void iconWrapper.offsetWidth; // Reflow erzwingen, um Animation neu zu starten
+          iconWrapper.classList.add('new-mail-wiggle');
+
+          // Klasse nach der Animation (0.6s) wieder entfernen, um Re-Trigger beim Tab-Wechsel zu verhindern
+          iconWrapper.wiggleTimeout = setTimeout(() => {
+            iconWrapper.classList.remove('new-mail-wiggle');
+          }, 600);
+        }
+      }
+
       updateUnreadBadge();
       checkEmptyMailLists();
     }
@@ -1678,6 +1732,20 @@
       `;
 
       addMailToDOM(newMail, false);
+
+      // Benachrichtigung anzeigen, wenn man sich nicht im Mail-Tab befindet
+      const mailsPage = document.getElementById('page-mails');
+      if (mailsPage && !mailsPage.classList.contains('active')) {
+        const senderName = translations[currentLanguage].tow_mail_sender;
+        showDropdownNotification(
+          currentLanguage === 'de' ? `Neue E-Mail von ${senderName}` : `New email from ${senderName}`,
+          false,
+          () => {
+            switchTab('page-mails', document.querySelectorAll('.nav-item')[2]);
+            setTimeout(() => newMail.click(), 300); // Wartet kurz auf die Tab-Animation, öffnet dann die E-Mail
+          }
+        );
+      }
     }
 
     function openRentalModal(title, due, loc, person, notes, element) {
@@ -1689,16 +1757,19 @@
       
       const modal = document.getElementById('rental-modal');
       const buildings = modal.querySelectorAll('.building');
-      buildings.forEach(b => b.style.fill = 'var(--building-fill)');
+      buildings.forEach(b => b.classList.remove('active'));
       
       const buildingLetter = loc.charAt(0).toUpperCase();
       const targetBuilding = modal.querySelector('.rental-bldg-' + buildingLetter);
       
-      if (buildingLetter === 'I' || loc.includes("ITC")) {
+      if (loc.toLowerCase().includes('bibliothek') || loc.toLowerCase().includes('library')) {
+        const bldgG = modal.querySelector('.rental-bldg-G');
+        if(bldgG) bldgG.classList.add('active');
+      } else if (buildingLetter === 'I' || loc.includes("ITC")) {
         const itc = modal.querySelector('.rental-bldg-ITC');
-        if(itc) itc.style.fill = 'var(--accent-blue)';
+        if(itc) itc.classList.add('active');
       } else if (targetBuilding) {
-        targetBuilding.style.fill = 'var(--accent-blue)';
+        targetBuilding.classList.add('active');
       }
 
       document.getElementById('modal-overlay').classList.add('show');
@@ -1720,7 +1791,7 @@
           document.getElementById('comp-to').value = contact.email || contact.title;
           document.getElementById('comp-subject').value = '';
           document.getElementById('comp-body').value = ''; 
-          openComposeModal();
+          openComposeModal(false);
         }, 300);
       };
       
@@ -2048,7 +2119,7 @@
         theme_oled: "Anti-Ghosting",
         language_label: "Sprache",
         settings_storage: "Daten lokal speichern",
-        settings_real_mode: "Echte Daten\n(Mensa, Stundenplan)",
+        settings_real_mode: "Echte Daten\n(Mensa, Stundenplan, KI-Mails)",
         ok_button: "OK",
         settings_privacy: "Privatmodus",
         info_privacy_title: "Privatmodus",
@@ -2058,7 +2129,7 @@
         info_storage_title: "Daten lokal speichern",
         info_storage_desc: "Speichert deine Einstellungen, Änderungen am Dashboard und andere Daten lokal auf deinem Gerät. Wenn deaktiviert, wird alles beim Schließen der App zurückgesetzt.",
         info_real_mode_title: "Echte Daten",
-        info_real_mode_desc: "Lädt den echten Speiseplan der Mensa Deggendorf und den aktuellen iCal-Stundenplan. Wenn deaktiviert, werden Dummy-Daten zu Demonstrationszwecken angezeigt.",
+        info_real_mode_desc: "Lädt den echten Speiseplan der Mensa Deggendorf, den aktuellen iCal-Stundenplan und aktiviert die KI-Antworten bei E-Mails. Wenn deaktiviert, werden Dummy-Daten zu Demonstrationszwecken angezeigt.",
         setup_show_again: "Beim Start anzeigen",
         info_show_again_title: "Dialog anzeigen",
         info_show_again_desc: "Wenn aktiviert, erscheint dieser Willkommensbildschirm bei jedem App-Start erneut. So kannst du schnell zwischen dem Offline- und Live-Modus wechseln.",
@@ -2091,7 +2162,13 @@
         search_sugg_vpn: "VPN",
         search_sugg_grades: "Noten",
         chart_grades_tooltip: "{n} Noten",
-        chart_cars_tooltip: "{n} Autos"
+        chart_cars_tooltip: "{n} Autos",
+        settings_ai_generate: "KI Daten generieren",
+        ai_generating: "KI generiert Daten...",
+        ai_generated: "Daten erfolgreich generiert!",
+        ai_error: "Fehler bei der KI-Generierung.",
+        info_ai_generate_title: "KI Daten generieren",
+        info_ai_generate_desc: "Erstellt mithilfe von künstlicher Intelligenz (Gemini) zufällige, realistische Studiendaten (Noten, ECTS, Mensa-Guthaben etc.) zu Demonstrationszwecken. Kann nur einmal pro Minute genutzt werden."
       },
       en: {
         // Navbar
@@ -2237,7 +2314,7 @@
         theme_oled: "Anti-Ghosting",
         language_label: "Language",
         settings_storage: "Save data locally",
-        settings_real_mode: "Real Data\n(Mensa, Schedule)",
+        settings_real_mode: "Real Data\n(Mensa, Schedule, AI Mails)",
         ok_button: "OK",
         settings_privacy: "Privacy Mode",
         info_privacy_title: "Privacy Mode",
@@ -2247,7 +2324,7 @@
         info_storage_title: "Save data locally",
         info_storage_desc: "Saves your settings, dashboard modifications, and other data locally on your device. If disabled, everything resets when you close the app.",
         info_real_mode_title: "Real Data",
-        info_real_mode_desc: "Loads the real cafeteria menu for Deggendorf and the current iCal schedule. If disabled, dummy data is shown for demonstration purposes.",
+        info_real_mode_desc: "Loads the real cafeteria menu for Deggendorf, the current iCal schedule, and enables AI email replies. If disabled, dummy data is shown for demonstration purposes.",
         setup_show_again: "Show on startup",
         info_show_again_title: "Show dialog",
         info_show_again_desc: "If enabled, this welcome screen will appear on every app startup. Useful to quickly switch between offline and live modes.",
@@ -2280,7 +2357,13 @@
         search_sugg_vpn: "VPN",
         search_sugg_grades: "Grades",
         chart_grades_tooltip: "{n} Grades",
-        chart_cars_tooltip: "{n} Cars"
+        chart_cars_tooltip: "{n} Cars",
+        settings_ai_generate: "Generate AI Data",
+        ai_generating: "AI is generating data...",
+        ai_generated: "Data successfully generated!",
+        ai_error: "Error during AI generation.",
+        info_ai_generate_title: "Generate AI Data",
+        info_ai_generate_desc: "Uses Artificial Intelligence (Gemini) to generate random, realistic study data (grades, ECTS, cafeteria balance, etc.) for demonstration purposes. Can only be used once per minute."
       },
       fi: {
         // Navbar
@@ -2426,7 +2509,7 @@
         theme_oled: "Anti-Ghosting",
         language_label: "Kieli",
         settings_storage: "Tallenna tiedot paikallisesti",
-        settings_real_mode: "Oikeat tiedot\n(Ruokala, Lukujärjestys)",
+        settings_real_mode: "Oikeat tiedot\n(Ruokala, Lukujärjestys, AI-postit)",
         ok_button: "OK",
         settings_privacy: "Yksityisyystila",
         info_privacy_title: "Yksityisyystila",
@@ -2436,7 +2519,7 @@
         info_storage_title: "Tallenna tiedot paikallisesti",
         info_storage_desc: "Tallentaa asetuksesi, kojelaudan muokkaukset ja muut tiedot paikallisesti laitteellesi. Jos tämä on pois päältä, kaikki nollautuu, kun suljet sovelluksen.",
         info_real_mode_title: "Oikeat tiedot",
-        info_real_mode_desc: "Lataa Deggendorfin todellisen ruokalistan ja nykyisen iCal-lukujärjestyksen. Jos pois päältä, näytetään demotietoja esittelytarkoituksessa.",
+        info_real_mode_desc: "Lataa Deggendorfin todellisen ruokalistan, nykyisen iCal-lukujärjestyksen ja ottaa käyttöön tekoälyn sähköpostivastaukset. Jos pois päältä, näytetään demotietoja esittelytarkoituksessa.",
         setup_show_again: "Näytä käynnistettäessä",
         info_show_again_title: "Näytä valintaikkuna",
         info_show_again_desc: "Jos otettu käyttöön, tämä tervetulonäyttö tulee näkyviin joka kerta, kun sovellus käynnistetään. Hyödyllinen vaihdettaessa offline- ja live-tilojen välillä.",
@@ -2469,7 +2552,13 @@
         search_sugg_vpn: "VPN",
         search_sugg_grades: "Arvosanat",
         chart_grades_tooltip: "{n} Arvosanaa",
-        chart_cars_tooltip: "{n} Autoa"
+        chart_cars_tooltip: "{n} Autoa",
+        settings_ai_generate: "Luo tekoälytiedot",
+        ai_generating: "Tekoäly luo tietoja...",
+        ai_generated: "Tiedot luotu onnistuneesti!",
+        ai_error: "Virhe tekoälyn luonnissa.",
+        info_ai_generate_title: "Luo tekoälytiedot",
+        info_ai_generate_desc: "Käyttää tekoälyä (Gemini) satunnaisten, realististen opiskelutietojen (arvosanat, OP, ruokalan saldo jne.) luomiseen esittelytarkoituksessa. Voidaan käyttää vain kerran minuutissa."
       }
     };
 
@@ -2787,6 +2876,7 @@
     }
 
     function updateScheduleWidget(isInitialLoad = false) {
+        if (!isRealModeEnabled) return;
         const scheduleBox = document.getElementById('widget-schedule');
         if (!scheduleBox || !window.allScheduleEvents) return;
 
@@ -2883,7 +2973,7 @@
                 const btnText = translations[currentLanguage].schedule_next_day_dyn;
                 
                 emptyHtml += `
-                <div class="schedule-item" onclick="event.stopPropagation(); this.style.transform='scale(0.95)'; setTimeout(() => jumpToNextLectureDay(), 250)" style="background-color: rgba(58, 130, 247, 0.15); box-shadow: inset 0 0 0 1.5px rgba(58, 130, 247, 0.3); align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s ease;">
+                <div class="schedule-item" onclick="event.stopPropagation(); this.style.transform='scale(0.95)'; setTimeout(() => jumpToNextLectureDay(), 250)" style="background-color: rgba(58, 130, 247, 0.15); border: 1.5px solid rgba(58, 130, 247, 0.3); box-sizing: border-box; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s ease;">
                     <div class="schedule-title" style="color: var(--accent-blue); display: flex; align-items: center; gap: 6px;">
                         <span data-translate="schedule_next_day_dyn">${btnText}</span>
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
@@ -2957,6 +3047,33 @@
       requestAnimationFrame(animateBalance);
     }
 
+    function calculateGPAFromList() {
+      const gradeElements = document.querySelectorAll('.grades-list .grade-value');
+      let total = 0;
+      let count = 0;
+      
+      gradeElements.forEach(el => {
+        const val = parseFloat(el.innerText.replace(',', '.'));
+        if (!isNaN(val) && val > 0) {
+          total += val;
+          count++;
+        }
+      });
+      
+      if (count > 0) {
+        currentGPA = total / count;
+      } else {
+        currentGPA = 0.0;
+      }
+      
+      const gpaStr = currentGPA.toFixed(1).replace('.', ',');
+      
+      const gpaEl = document.getElementById('profile-gpa-value');
+      if (gpaEl) gpaEl.innerText = gpaStr;
+      const homeGpaEl = document.getElementById('home-gpa-number');
+      if (homeGpaEl) homeGpaEl.innerText = gpaStr;
+    }
+
     function executeTopup() {
       mensaBalance += selectedTopupAmount;
       updateMensaBalance();
@@ -2970,7 +3087,21 @@
         setTimeout(openInsufficientFundsModal, 300);
         return;
       }
-      if (currentGPA <= 1.0) {
+      
+      const gradeElements = Array.from(document.querySelectorAll('.grades-list .grade-value'));
+      if (gradeElements.length === 0) return;
+      
+      let worstEl = null;
+      let worstVal = 0;
+      gradeElements.forEach(el => {
+        const val = parseFloat(el.innerText.replace(',', '.'));
+        if (!isNaN(val) && val > worstVal) {
+            worstVal = val;
+            worstEl = el;
+        }
+      });
+      
+      if (!worstEl || worstVal <= 1.0) {
         alert(currentLanguage === 'de' ? "Besser geht's nicht!" : "Can't get any better!");
         return;
       }
@@ -2978,15 +3109,24 @@
       mensaBalance -= 50.00;
       updateMensaBalance();
       
-      currentGPA = Math.max(1.0, currentGPA - 0.1);
-      const gpaEl = document.getElementById('profile-gpa-value');
-      if (gpaEl) {
-        gpaEl.innerText = currentGPA.toFixed(1).replace('.', ',');
-      }
-      const homeGpaEl = document.getElementById('home-gpa-number');
-      if (homeGpaEl) {
-        homeGpaEl.innerText = currentGPA.toFixed(1).replace('.', ',');
-      }
+      // Die schlechteste Note in die nächstbessere offizielle Note verbessern
+      const w = Math.round(worstVal * 10);
+      let newVal;
+      if (w > 40) newVal = 4.0;
+      else if (w > 37) newVal = 3.7;
+      else if (w > 33) newVal = 3.3;
+      else if (w > 30) newVal = 3.0;
+      else if (w > 27) newVal = 2.7;
+      else if (w > 23) newVal = 2.3;
+      else if (w > 20) newVal = 2.0;
+      else if (w > 17) newVal = 1.7;
+      else if (w > 13) newVal = 1.3;
+      else newVal = 1.0;
+      
+      worstEl.innerText = newVal.toFixed(1).replace('.', ',');
+      
+      calculateGPAFromList(); // Durchschnitt anhand der neuen Note neu berechnen
+      
       closeModal();
       if (isStorageEnabled()) saveAllData();
     }
@@ -3290,8 +3430,8 @@
       if (highlight2) highlight2.style.transform = `translateX(${lang === 'de' ? 0 : 100}%)`;
 
       // Widgets VOR der Scramble-Animation aktualisieren, damit sie die neuen data-translate Attribute ins DOM einfügen
-      updateScheduleWidget(false);
       if (isRealModeEnabled) {
+          updateScheduleWidget(false);
           loadRealMensaData();
       }
       if (document.getElementById('schedule-modal').classList.contains('show')) {
@@ -3448,18 +3588,19 @@
         ];
         
         // Finde heraus, in welche Kategorie die eigene Note fällt
-        const gradeNum = parseFloat(grade.replace(',', '.'));
+        const gradeNum = parseFloat(String(grade).replace(',', '.'));
+        const g = Math.round(gradeNum * 10);
         let userBucket = 0;
-        if (gradeNum <= 1.0) userBucket = 0;
-        else if (gradeNum <= 1.3) userBucket = 1;
-        else if (gradeNum <= 1.7) userBucket = 2;
-        else if (gradeNum <= 2.0) userBucket = 3;
-        else if (gradeNum <= 2.3) userBucket = 4;
-        else if (gradeNum <= 2.7) userBucket = 5;
-        else if (gradeNum <= 3.0) userBucket = 6;
-        else if (gradeNum <= 3.3) userBucket = 7;
-        else if (gradeNum <= 3.7) userBucket = 8;
-        else if (gradeNum <= 4.0) userBucket = 9;
+        if (g <= 10) userBucket = 0;
+        else if (g <= 13) userBucket = 1;
+        else if (g <= 17) userBucket = 2;
+        else if (g <= 20) userBucket = 3;
+        else if (g <= 23) userBucket = 4;
+        else if (g <= 27) userBucket = 5;
+        else if (g <= 30) userBucket = 6;
+        else if (g <= 33) userBucket = 7;
+        else if (g <= 37) userBucket = 8;
+        else if (g <= 40) userBucket = 9;
         else userBucket = 10;
 
         document.getElementById('grade-popup-title').innerText = course;
@@ -3705,7 +3846,7 @@
         } else {
           actionBtn.innerText = translations[currentLanguage].email_detail_reply;
           actionBtn.setAttribute('data-translate', 'email_detail_reply');
-          actionBtn.onclick = () => replyToMail(sender, subject); 
+          actionBtn.onclick = () => replyToMail(sender, subject, preview); 
         }
         
         // Öffne das Modal
@@ -3931,11 +4072,50 @@
         });
       });
     }
+
+    function showDropdownNotification(message, isError = false, onClickCallback = null) {
+      const notif = document.createElement('div');
+      notif.className = 'dropdown-notification';
+      if (isError) notif.classList.add('error');
+      notif.innerText = message;
+
+      // Klick-Ereignis hinzufügen, falls definiert
+      if (onClickCallback) {
+        notif.style.cursor = 'pointer';
+        notif.style.pointerEvents = 'auto'; // Überschreibt die CSS-Sperre
+        notif.onclick = () => {
+          onClickCallback();
+          notif.classList.remove('show');
+        };
+      }
+      
+      document.body.appendChild(notif);
+      
+      void notif.offsetWidth; // Reflow erzwingen
+      notif.classList.add('show');
+      
+      setTimeout(() => {
+        notif.classList.remove('show');
+        setTimeout(() => notif.remove(), 400); // Element nach Animation löschen
+      }, 3500); // 3.5 Sekunden anzeigen
+    }
+
+    let lastMailSentTime = 0;
+
     function sendMail() {
+      const now = Date.now();
+      // Prüfen, ob seit der letzten Mail weniger als 10.000 Millisekunden (10 Sek) vergangen sind
+      if (now - lastMailSentTime < 10000) {
+        const remainingSeconds = Math.ceil((10000 - (now - lastMailSentTime)) / 1000);
+        showDropdownNotification(currentLanguage === 'de' ? `Bitte warte noch ${remainingSeconds} Sekunden.` : `Please wait ${remainingSeconds} seconds.`, true);
+        return;
+      }
+
       // 1. Text aus den Feldern holen
       const to = document.getElementById('comp-to').value;
       const subject = document.getElementById('comp-subject').value;
       const body = document.getElementById('comp-body').value;
+      const mailContext = document.getElementById('comp-body').dataset.context || "";
 
       if (!to || !subject) return; // Nichts tun, wenn Felder leer sind
 
@@ -3955,6 +4135,9 @@
         <div class="mail-preview">${body}</div>
       `;
 
+      // Aktuelle Zeit für die Sperre speichern
+      lastMailSentTime = now;
+
       // 3. Klick-Funktionen aktivieren und oben in die Liste einfügen
       addMailToDOM(newMail, false);
       
@@ -3962,7 +4145,302 @@
       document.getElementById('comp-to').value = '';
       document.getElementById('comp-subject').value = '';
       document.getElementById('comp-body').value = '';
+      document.getElementById('comp-body').dataset.context = '';
+      updateCharCount(); // Zähler zurücksetzen
       closeModal();
+
+      // KI-Antwort nur anfordern, wenn der echte Modus aktiviert ist
+      if (isRealModeEnabled) {
+        generateAiReply(to, subject, body, mailContext);
+      }
+    }
+
+    async function generateAiReply(senderName, originalSubject, originalBody, mailContext = "") {
+      const apiKey = 'AIzaSyBbss9KCRMVYH4fBwVCR43OopMOAEfbdnk';
+      const model = 'gemini-2.5-flash'; // Brandneues Gemini 2.5 Modell
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+
+      const userName = document.getElementById('profile-name-display')?.innerText || 'einem Studenten';
+
+      let contextText = "";
+      if (mailContext) {
+        contextText = `\nDarauf bezieht sich ${userName} (deine vorherige Nachricht):\n"${mailContext}"\n`;
+      }
+
+      // System-Prompt für die KI formulieren (kurz und präzise)
+      const prompt = `Du antwortest als "${senderName}" auf eine E-Mail von ${userName} (Student der THD).
+
+WICHTIGER SCHREIBSTIL:
+- Als Dozent/Einrichtung: professionell, formell (Sie-Form).
+- Als Kommilitone: locker (Du-Form), sprich ${userName} mit Namen an. Kurz & menschlich. Keine KI-Phrasen!
+
+${contextText}
+E-Mail von ${userName}:
+Betreff: ${originalSubject}
+Nachricht: ${originalBody}
+
+Antworte NUR mit dem E-Mail-Text. Kein Markdown, keine Platzhalter.`;
+
+      try {
+        console.log("Sende E-Mail an die KI...");
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+        });
+
+        const data = await response.json();
+        
+        if (!response.ok) {
+          console.error("API hat die Anfrage blockiert/abgelehnt:", data);
+          if (response.status === 429) {
+            showDropdownNotification(currentLanguage === 'de' ? "KI Fehler: Limit erreicht. Bitte kurz warten." : "AI Error: Rate limit reached.", true);
+          } else {
+            showDropdownNotification("KI Fehler", true);
+          }
+          return;
+        }
+        
+        console.log("Antwort der KI erfolgreich empfangen:", data);
+
+        if (data.candidates && data.candidates.length > 0) {
+          const replyText = data.candidates[0].content.parts[0].text.trim();
+
+          const replyMail = document.createElement('div');
+          replyMail.className = 'mail-item unread';
+          
+          replyMail.innerHTML = `
+            <div class="swipe-zone"></div>
+            <div class="selection-indicator">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </div>
+            <div class="mail-top">
+              <span class="mail-sender">${senderName}</span>
+              <span class="mail-time" data-translate="just_now">${translations[currentLanguage].just_now}</span>
+            </div>
+            <div class="mail-subject">Re: ${originalSubject.replace(/^Re:\s*/i, '')}</div>
+            <div class="mail-preview">${replyText}</div>
+          `;
+
+          // Mit einer kleinen Verzögerung einfügen, damit es realistischer wirkt
+          setTimeout(() => {
+            addMailToDOM(replyMail, false);
+            
+            // Benachrichtigung anzeigen, wenn man sich nicht im Mail-Tab befindet
+            const mailsPage = document.getElementById('page-mails');
+            if (mailsPage && !mailsPage.classList.contains('active')) {
+              showDropdownNotification(
+                currentLanguage === 'de' ? `Neue E-Mail von ${senderName}` : `New email from ${senderName}`,
+                false,
+                () => {
+                  switchTab('page-mails', document.querySelectorAll('.nav-item')[2]);
+                  setTimeout(() => replyMail.click(), 300);
+                }
+              );
+            }
+          }, 1500);
+        }
+      } catch (error) {
+        console.error("Fehler bei der KI-Antwort:", error);
+      }
+    }
+
+    let lastAiGenerationTime = 0;
+
+    async function generateAiData() {
+      const now = Date.now();
+      // Spamschutz: 60 Sekunden (60.000 ms) Cooldown
+      if (now - lastAiGenerationTime < 60000) {
+        const remainingSeconds = Math.ceil((60000 - (now - lastAiGenerationTime)) / 1000);
+        const waitMsgDe = `Bitte warte noch ${remainingSeconds} Sekunden.`;
+        const waitMsgEn = `Please wait ${remainingSeconds} seconds.`;
+        const waitMsgFi = `Odota vielä ${remainingSeconds} sekuntia.`;
+        const waitMsg = currentLanguage === 'de' ? waitMsgDe : (currentLanguage === 'en' ? waitMsgEn : waitMsgFi);
+        
+        showDropdownNotification(waitMsg, true);
+        return;
+      }
+      
+      lastAiGenerationTime = now;
+
+      showDropdownNotification(translations[currentLanguage].ai_generating || "KI generiert Daten...", false);
+      
+      const apiKey = 'AIzaSyBbss9KCRMVYH4fBwVCR43OopMOAEfbdnk';
+      const model = 'gemini-2.5-flash';
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+
+      const prompt = `Erstelle zufällige, aber realistische Studiendaten für einen Medientechnik-Studenten in Deutschland.
+Gib AUSSCHLIESSLICH ein valides JSON-Objekt zurück (kein Markdown, keine Backticks).
+Nutze für Noten zwingend NUR die offiziellen Stufen (1,0; 1,3; 1,7; 2,0; 2,3; 2,7; 3,0; 3,3; 3,7; 4,0; 5,0) als String mit Komma.
+Struktur:
+{
+  "mensaBalance": 24.50,
+  "ects": 115,
+  "studyCurrent": 4,
+  "studyExtra": 0,
+  "parkingSpots": 142,
+  "parkingHistory": [15, 30, 50, 85, 95, 80, 60, 45, 30, 20, 10],
+  "grades": {
+    "Mediengestaltung": "1,3",
+    "Programmieren 1": "2,0",
+    "Audio- & Videotechnik": "1,7",
+    "Mathematik": "2,3",
+    "Medienrecht": "1,0",
+    "Webentwicklung": "1,3",
+    "Computergrafik": "2,7",
+    "Datenbanksysteme": "2,0",
+    "Projektmanagement": "1,3",
+    "Englisch B2": "1,7",
+    "Physik": "3,0",
+    "Algorithmen & Datenstrukturen": "2,3"
+  },
+  "rentals": {
+    "books": [
+      {"title": "Mathematik für Ingenieure", "due": "In 3 Tagen", "loc": "Bibliothek", "person": "Ausleihe", "notes": "Rückgabe nur vormittags"}
+    ],
+    "tech": [
+      {"title": "Sony Alpha 7 IV", "due": "Heute", "loc": "J Gebäude", "person": "Herr Bauer", "notes": "Inkl. 2 Akkus"}
+    ]
+  }
+}
+Variiere die Werte realistisch und zufällig!
+Regeln für rentals: Max 3 Items pro Array (können auch leer sein). Für 'loc' nutze NUR diese Orte: A, B, C, D, E, F, G, H, I, J, K, L, ITC, Bibliothek. WICHTIG: Alles was mit Medien, Kameras, Audio, Video oder Grafiklabor zu tun hat, MUSS zwingend als loc "J Gebäude" haben!
+parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
+
+      try {
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+        });
+
+        const data = await response.json();
+        if (!response.ok) throw new Error("API Limit oder Fehler");
+        
+        let jsonStr = data.candidates[0].content.parts[0].text.trim();
+        if(jsonStr.startsWith('```json')) jsonStr = jsonStr.replace(/^```json/, '').replace(/```$/, '').trim();
+        else if (jsonStr.startsWith('```')) jsonStr = jsonStr.replace(/^```/, '').replace(/```$/, '').trim();
+        
+        const aiData = JSON.parse(jsonStr);
+
+        mensaBalance = parseFloat(aiData.mensaBalance) || 0;
+        updateMensaBalance(true);
+
+        studyCurrent = parseInt(aiData.studyCurrent) || 1;
+        studyExtra = parseInt(aiData.studyExtra) || 0;
+        updateStudyTimeDisplay(true);
+
+        if (aiData.parkingSpots !== undefined) {
+            occupiedParkingSpots = Math.max(0, Math.min(200, parseInt(aiData.parkingSpots) || 0));
+            updateParkingDisplay(true);
+        }
+
+        if (aiData.parkingHistory && Array.isArray(aiData.parkingHistory)) {
+            const chartWrappers = document.querySelectorAll('#parking-chart-container .chart-bar-wrapper');
+            aiData.parkingHistory.slice(0, 11).forEach((val, idx) => {
+                if (chartWrappers[idx]) {
+                    const bar = chartWrappers[idx].querySelector('.chart-bar');
+                    if (bar) {
+                        const h = Math.max(0, Math.min(100, parseInt(val) || 0));
+                        bar.style.height = h + '%';
+                        // Die schraffierten Zukunfts-Balken behalten ihre Farbe, die anderen bekommen grün/orange/rot
+                        if (!bar.classList.contains('future')) {
+                            bar.className = 'chart-bar ' + (h >= 80 ? 'high' : h >= 50 ? 'medium' : 'low');
+                        }
+                    }
+                }
+            });
+        }
+
+        const newEcts = parseInt(aiData.ects) || 0;
+        const profileEctsValue = document.querySelector('#profile-ects-card .stat-value');
+        if (profileEctsValue) profileEctsValue.innerText = newEcts;
+        const homeEctsValue = document.querySelector('.ects-number');
+        if (homeEctsValue) homeEctsValue.innerText = newEcts;
+
+        if (aiData.grades) {
+            const gradesList = document.querySelector('.grades-list');
+            if (gradesList) {
+                gradesList.innerHTML = '';
+                for (const [course, grade] of Object.entries(aiData.grades)) {
+                    const item = document.createElement('div');
+                    item.className = 'list-item';
+                    item.style.cursor = 'pointer';
+                    item.setAttribute('onclick', `openGradeModal('${course}', '${grade}')`);
+                    item.innerHTML = `<span>${course}</span><span class="grade-value sensitive-data">${grade}</span>`;
+                    item.style.position = 'relative';
+                    item.style.isolation = 'isolate';
+                    gradesList.appendChild(item);
+                }
+            }
+            const semEl = document.querySelector('[data-translate="profile_semester"]');
+            if (semEl) {
+                const semText = studyCurrent + ". Semester";
+                semEl.innerText = semText;
+                ['de', 'en', 'fi'].forEach(lang => {
+                   let localizedSem = semText;
+                   if (lang === 'en') localizedSem = studyCurrent + "th Semester";
+                   if (lang === 'fi') localizedSem = studyCurrent + ". lukukausi";
+                   translations[lang].profile_semester = localizedSem;
+                });
+            }
+        }
+        
+        calculateGPAFromList(); // Nach dem Auffüllen der Noten automatisch ausrechnen
+
+        if (aiData.rentals) {
+            const updateRentalView = (viewId, items, emptyText, emptyKey) => {
+                const view = document.getElementById(viewId);
+                if (!view) return;
+                view.innerHTML = '';
+                if (!items || items.length === 0) {
+                    view.innerHTML = `<div class="rental-empty"${emptyKey ? ` data-translate="${emptyKey}"` : ''}>${emptyText}</div>`;
+                } else {
+                    items.forEach(item => {
+                        const div = document.createElement('div');
+                        div.className = 'rental-item';
+                        div.style.cursor = 'pointer';
+                        const dueStr = (item.due || '').toLowerCase();
+                        let dueClass = 'rental-item-due';
+                        if (dueStr.includes('heute') || dueStr.includes('today') || dueStr.includes('fällig') || dueStr.includes('overdue')) {
+                            dueClass += ' urgent';
+                        } else if (dueStr.includes('morgen') || dueStr.includes('tomorrow') || dueStr.includes('1') || dueStr.includes('2')) {
+                            dueClass += ' soon';
+                        }
+                        
+                        const escapeStr = str => (str || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                        
+                        div.setAttribute('onclick', `openRentalModal('${escapeStr(item.title)}', this.querySelector('.rental-item-due').innerText, '${escapeStr(item.loc)}', '${escapeStr(item.person)}', '${escapeStr(item.notes)}', this)`);
+                        div.innerHTML = `<span class="rental-item-title">${escapeStr(item.title)}</span><span class="${dueClass}">${escapeStr(item.due)}</span>`;
+                        
+                        div.style.position = 'relative';
+                        div.style.isolation = 'isolate';
+                        view.appendChild(div);
+                    });
+                }
+            };
+
+            const emptyBooks = translations[currentLanguage].rental_books_empty || "Keine Bücher ausgeliehen.";
+            const emptyTech = currentLanguage === 'de' ? 'Keine Technik ausgeliehen.' : (currentLanguage === 'en' ? 'No tech borrowed.' : 'Ei tekniikkaa lainassa.');
+            
+            updateRentalView('rental-books-view', aiData.rentals.books, emptyBooks, 'rental_books_empty');
+            updateRentalView('rental-tech-view', aiData.rentals.tech, emptyTech, null);
+            
+            const activeRental = document.querySelector('#rental-views-container .rental-view.active');
+            const viewport = document.getElementById('rental-views-viewport');
+            if (activeRental && viewport) {
+                viewport.style.height = activeRental.offsetHeight + 'px';
+            }
+        }
+
+        if (isStorageEnabled()) saveAllData();
+        showDropdownNotification(translations[currentLanguage].ai_generated || "Daten erfolgreich generiert!", false);
+        closeModal();
+
+      } catch (error) {
+        console.error("KI Generierungs-Fehler:", error);
+        showDropdownNotification(translations[currentLanguage].ai_error || "Fehler bei der KI-Generierung.", true);
+      }
     }
 
     function openServicesModal() {
@@ -4582,11 +5060,12 @@
         const inputEl = document.getElementById('edit-name-input');
         if (!nameEl || !inputEl) return;
         
-        const newName = inputEl.value;
-        if (newName !== null && newName.trim() !== '') {
-            nameEl.innerText = newName.trim();
+        let newName = inputEl.value.trim();
+        if (newName !== '') {
+            newName = newName.substring(0, 20); // Auf 20 Zeichen begrenzen, um KI Prompt kurz zu halten
+            nameEl.innerText = newName;
             if (isStorageEnabled()) {
-                localStorage.setItem('thd_profile_name', newName.trim());
+                localStorage.setItem('thd_profile_name', newName);
             }
         }
         closeModal();
@@ -4617,7 +5096,7 @@
         } else {
             localStorage.setItem('thd_storage_enabled', 'false');
             // Alle Daten löschen, außer der Einstellung selbst
-            const keysToRemove = ['thd_widget_order', 'thd_mensa_balance', 'thd_gpa', 'thd_parking_spots', 'thd_ects', 'thd_study_current', 'thd_study_total', 'thd_study_extra', 'thd_mails_html', 'thd_ilearn_html', 'thd_search_history', 'thd_profile_pic', 'thd_profile_name', 'thd_schedule_cache', 'thd_mensa_cache', 'thd_real_mode', 'thd_privacy_mode', 'thd_theme', 'thd_language', 'thd_widget_visibility', 'thd_vpn_state', 'thd_setup_completed', 'thd_study_group'];
+        const keysToRemove = ['thd_widget_order', 'thd_mensa_balance', 'thd_gpa', 'thd_parking_spots', 'thd_ects', 'thd_study_current', 'thd_study_total', 'thd_study_extra', 'thd_mails_html', 'thd_ilearn_html', 'thd_search_history', 'thd_profile_pic', 'thd_profile_name', 'thd_schedule_cache', 'thd_mensa_cache', 'thd_real_mode', 'thd_privacy_mode', 'thd_theme', 'thd_language', 'thd_widget_visibility', 'thd_vpn_state', 'thd_setup_completed', 'thd_study_group', 'thd_grades_html', 'thd_profile_semester', 'thd_rental_books_html', 'thd_rental_tech_html', 'thd_parking_history_html'];
             keysToRemove.forEach(k => localStorage.removeItem(k));
         }
     }
@@ -4667,6 +5146,21 @@
 
         const ilearnViewList = document.querySelector('#ilearn-view .mail-list');
         if (ilearnViewList) localStorage.setItem('thd_ilearn_html', ilearnViewList.innerHTML);
+
+        const gradesList = document.querySelector('.grades-list');
+        if (gradesList) localStorage.setItem('thd_grades_html', gradesList.innerHTML);
+        
+        const semEl = document.querySelector('[data-translate="profile_semester"]');
+        if (semEl) localStorage.setItem('thd_profile_semester', semEl.innerText);
+
+        const rentalBooksView = document.getElementById('rental-books-view');
+        if (rentalBooksView) localStorage.setItem('thd_rental_books_html', rentalBooksView.innerHTML);
+        
+        const rentalTechView = document.getElementById('rental-tech-view');
+        if (rentalTechView) localStorage.setItem('thd_rental_tech_html', rentalTechView.innerHTML);
+
+        const parkingChart = document.getElementById('parking-chart-container');
+        if (parkingChart) localStorage.setItem('thd_parking_history_html', parkingChart.innerHTML);
 
         const widgetVisibility = {};
         document.querySelectorAll('#widget-settings-modal .toggle-input').forEach(input => {
@@ -4765,6 +5259,40 @@
                 updateUnreadBadge();
             }
         }
+
+        const savedGradesHtml = localStorage.getItem('thd_grades_html');
+        if (savedGradesHtml !== null) {
+            const gradesList = document.querySelector('.grades-list');
+            if (gradesList) gradesList.innerHTML = savedGradesHtml;
+        }
+        
+        const savedSemester = localStorage.getItem('thd_profile_semester');
+        if (savedSemester !== null) {
+            const semEl = document.querySelector('[data-translate="profile_semester"]');
+            if (semEl) {
+                semEl.innerText = savedSemester;
+                // Sprache überschreiben, um den String für Sprache-Switches aufrechtzuerhalten
+                ['de', 'en', 'fi'].forEach(lang => translations[lang].profile_semester = savedSemester);
+            }
+        }
+        
+        const savedRentalBooks = localStorage.getItem('thd_rental_books_html');
+        if (savedRentalBooks !== null) {
+            const rentalBooksView = document.getElementById('rental-books-view');
+            if (rentalBooksView) rentalBooksView.innerHTML = savedRentalBooks;
+        }
+        
+        const savedRentalTech = localStorage.getItem('thd_rental_tech_html');
+        if (savedRentalTech !== null) {
+            const rentalTechView = document.getElementById('rental-tech-view');
+            if (rentalTechView) rentalTechView.innerHTML = savedRentalTech;
+        }
+        
+        const savedParkingChartHtml = localStorage.getItem('thd_parking_history_html');
+        if (savedParkingChartHtml !== null) {
+            const parkingChart = document.getElementById('parking-chart-container');
+            if (parkingChart) parkingChart.innerHTML = savedParkingChartHtml;
+        }
         
         const savedProfilePic = localStorage.getItem('thd_profile_pic');
         if (savedProfilePic !== null) {
@@ -4791,6 +5319,7 @@
 
         loadWidgetOrder();
         checkEmptyMailLists();
+        calculateGPAFromList(); // Den anfänglichen Notenschnitt ebenfalls korrekt aus der Liste laden
     }
 
     function setupTabletLayout() {
