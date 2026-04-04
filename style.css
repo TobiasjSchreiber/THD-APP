@@ -1565,6 +1565,12 @@ body.theme-light .modal .btn-secondary {
     }
 
     /* --- Drag & Drop Animationen --- */
+  body.is-dragging-widget .header,
+  body.is-dragging-widget .navbar,
+  body.is-dragging-widget .fab-button {
+    pointer-events: none !important;
+  }
+
     .widget-dragging {
       position: fixed !important;
       z-index: 40 !important;

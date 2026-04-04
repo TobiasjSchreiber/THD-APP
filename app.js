@@ -4648,6 +4648,7 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
                     
                     dragState.isDragging = true;
                     dragState.element = el;
+                    document.body.classList.add('is-dragging-widget');
                     
                     // Placeholder erstellen
                     dragState.placeholder = document.createElement('div');
@@ -4825,6 +4826,8 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
             dragState.longPressTimer = null;
             clearInterval(autoScrollInterval);
             
+            document.body.classList.remove('is-dragging-widget');
+            
             if (!dragState.isDragging) return;
             
             dragState.wasDragging = true;
@@ -4953,6 +4956,7 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
 
         document.addEventListener('mouseup', stopDrag);
         document.addEventListener('touchend', stopDrag);
+        document.addEventListener('touchcancel', stopDrag);
         
         document.addEventListener('mousemove', moveDrag, { passive: false });
         document.addEventListener('touchmove', moveDrag, { passive: false });
