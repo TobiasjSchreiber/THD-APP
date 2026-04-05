@@ -1678,7 +1678,7 @@ body.theme-light .modal .btn-secondary {
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
         flex-direction: column;
-        width: 90px;
+        width: 70px;
         height: max-content;
         margin: auto 20px;
         background-color: var(--card-bg);
@@ -1693,7 +1693,7 @@ body.theme-light .modal .btn-secondary {
       .nav-item {
         padding: 10px 0;
         flex: none;
-        height: auto;
+        height: 70px;
       }
       
       .nav-item span {
@@ -1820,7 +1820,7 @@ body.theme-light .modal .btn-secondary {
 @media (min-width: 768px) and (max-width: 1023px) and (orientation: landscape),
        (min-width: 768px) and (max-height: 500px) and (orientation: landscape) {
   .navbar {
-    width: 70px;
+    width: 50px;
     height: max-content;
     margin: auto 10px;
     gap: 15px;
@@ -1830,7 +1830,7 @@ body.theme-light .modal .btn-secondary {
   }
   
   .nav-item {
-    height: auto;
+    height: 60px;
   }
 
   .nav-icon {
