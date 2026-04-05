@@ -17,7 +17,7 @@
     }, { once: true });
 
     // Tab Logik
-    const pagesList = ['page-home', 'page-search', 'page-mails', 'page-profil'];
+    const pagesList = ['page-home', 'page-search', 'page-mails', 'page-news', 'page-profil'];
     let currentIndex = 0;
 
     function switchTab(pageId, navElement) {
@@ -50,6 +50,11 @@
         const viewport = document.getElementById('rental-views-viewport');
         if (activeRental && viewport && activeRental.offsetHeight > 0) {
           viewport.style.height = activeRental.offsetHeight + 'px';
+        }
+      } else if (pageId === 'page-news') {
+        if (!window.newsLoaded) {
+          loadNewsEvents();
+          window.newsLoaded = true;
         }
       } else if (pageId === 'page-profil') {
         if (typeof updateStudyTimeDisplay === 'function') updateStudyTimeDisplay(true);
@@ -172,6 +177,317 @@
           item.setAttribute('data-mail-id', 'mail-' + Date.now() + '-' + Math.floor(Math.random() * 10000) + '-' + index);
         }
       });
+    }
+
+    async function loadNewsEvents() {
+      const listContainer = document.getElementById('news-list');
+      if (!listContainer) return;
+      
+      listContainer.innerHTML = '<div style="color: var(--text-sub); text-align: center; padding: 20px;">Lade Termine...</div>';
+      
+      let eventsData = [];
+      let useCache = false;
+      
+      const now = new Date();
+      now.setHours(0, 0, 0, 0);
+      
+      if (!isRealModeEnabled) {
+        eventsData = [
+            { id: 'demo1', summary: 'Campusfest 2024', start: new Date(now.getTime() + 86400000 * 2 + 3600000*16), end: new Date(now.getTime() + 86400000 * 2 + 3600000*22), location: 'Campus Innenhof', description: 'Das jährliche Campusfest mit Live-Musik, Foodtrucks und kühlen Getränken. Alle Studierenden sind herzlich eingeladen!' },
+            { id: 'demo2', summary: 'Karrieremesse First Contact', start: new Date(now.getTime() + 86400000 * 5 + 3600000*10), end: new Date(now.getTime() + 86400000 * 5 + 3600000*15), location: 'Deggendorfer Stadthallen', description: 'Die Firmenkontaktmesse der THD. Lerne regionale und überregionale Unternehmen kennen und knüpfe Kontakte für Praktika und Berufseinstieg.' },
+            { id: 'demo3', summary: 'Gastvortrag: KI in der Medienproduktion', start: new Date(now.getTime() + 86400000 * 8 + 3600000*14), end: new Date(now.getTime() + 86400000 * 8 + 3600000*16), location: 'Glashaus (J-Gebäude)', description: 'Ein spannender Einblick in die Nutzung von künstlicher Intelligenz in modernen Film- und Audioproduktionen. Gastreferent: Max Mustermann (Pixar).' },
+            { id: 'demo4', summary: 'Wochenend-Workshop: Unity 3D', start: new Date(now.getTime() + 86400000 * 12 + 3600000*9), end: new Date(now.getTime() + 86400000 * 14 + 3600000*17), location: 'ITC2 Raum 1.05', description: 'Intensivkurs für Einsteiger in die Spieleentwicklung mit Unity. Anmeldung über iLearn erforderlich.' },
+            { id: 'demo5', summary: 'Kinoabend des AStA', start: new Date(now.getTime() + 86400000 * 15 + 3600000*19), end: new Date(now.getTime() + 86400000 * 15 + 3600000*22), location: 'Hörsaal B004', description: 'Wir zeigen den Klassiker "The Big Lebowski". Für Popcorn und Getränke ist gesorgt (gegen Spende).' }
+        ];
+      } else {
+        if (isStorageEnabled()) {
+          const cachedNews = localStorage.getItem('thd_news_cache');
+          if (cachedNews) {
+            try {
+              const parsed = JSON.parse(cachedNews);
+              if (Date.now() - parsed.timestamp < 3600000 && parsed.events.every(e => e.description !== undefined)) {
+                eventsData = parsed.events.map(e => ({
+                  ...e,
+                  start: new Date(e.start),
+                  end: e.end ? new Date(e.end) : null
+                }));
+                useCache = true;
+              }
+            } catch(e) {}
+          }
+        }
+        
+        if (!useCache) {
+          try {
+            const targetUrl = encodeURIComponent('https://th-deg.de/de/studierende/campusleben/veranstaltungskalender');
+          const proxyUrl = 'https://api.codetabs.com/v1/proxy?quest=' + targetUrl;
+          
+        const response = await fetch(proxyUrl);
+        if (!response.ok) throw new Error(`Netzwerkfehler: ${response.status}`);
+        
+        const htmlString = await response.text();
+        
+        // Nutze DOMParser anstelle von simplem Regex, um den echten Titel auslesen zu können
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(htmlString, 'text/html');
+        
+        const eventLinks = doc.querySelectorAll('a[href*="veranstaltung?id="]');
+        const seenIds = new Set();
+        
+        eventLinks.forEach(link => {
+          const href = link.getAttribute('href');
+          const match = href.match(/id=(\d+)/);
+          if (match) {
+            const id = match[1];
+            
+            // Textinhalt säubern (entfernt überflüssige Leerzeichen & HTML-Tags)
+            let title = link.textContent.trim().replace(/\s+/g, ' ');
+            
+            // Herausfiltern von Kalender-Tagen (die nur aus Zahlen bestehen) oder komplett leeren Links
+            if (title !== '' && !/^\d+$/.test(title) && !seenIds.has(id)) {
+              seenIds.add(id);
+            }
+          }
+        });
+        
+        // Wir nehmen alle gefundenen IDs, arbeiten sie aber in kleinen Schritten ab.
+        // So finden wir garantiert die zukünftigen Termine.
+        const idArray = Array.from(seenIds);
+        
+        if (idArray.length === 0) {
+          listContainer.innerHTML = '<div style="color: var(--text-sub); text-align: center; padding: 20px;">Keine Termine gefunden.</div>';
+          return;
+        }
+        
+        listContainer.innerHTML = '<div style="color: var(--text-sub); text-align: center; padding: 20px;">Lese Kalender-Daten...</div>';
+
+        let upcomingCount = 0;
+        
+        // In 6er-Schritten herunterladen, um den Proxy nicht zu überlasten
+        for (let i = 0; i < idArray.length; i += 6) {
+            const chunk = idArray.slice(i, i + 6);
+            const promises = chunk.map(async (id) => {
+                try {
+                    const iCalUrl = `https://th-deg.de/de/ical-export?eventid=${id}`;
+                    const iCalProxy = 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(iCalUrl);
+                    const res = await fetch(iCalProxy);
+                    if (!res.ok) return null;
+                    const text = await res.text();
+                    
+                    let start = null, end = null, location = "", summary = "", description = "";
+                    let currentKey = "";
+                    
+                    const foldedText = text.replace(/\r?\n[ \t]/g, '');
+                    const lines = foldedText.split('\n');
+                    
+                    lines.forEach(line => {
+                        line = line.trim();
+                        if (!line) return;
+                        
+                        const matchKey = line.match(/^([A-Z-]+)([:;])/);
+                        if (matchKey) {
+                            currentKey = matchKey[1];
+                            const value = line.substring(line.indexOf(':') + 1).replace(/\\,/g, ',');
+                            
+                            if (currentKey === 'SUMMARY') summary = value;
+                            else if (currentKey === 'LOCATION') location = value;
+                            else if (currentKey === 'DESCRIPTION') description = value;
+                            else if (currentKey === 'DTSTART') {
+                                const matchTime = line.match(/(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})/);
+                                if (matchTime) {
+                                    start = new Date(matchTime[1], matchTime[2]-1, matchTime[3], matchTime[4], matchTime[5]);
+                                    if(line.includes('Z')) start.setHours(start.getHours() + (start.getTimezoneOffset() / -60));
+                                } else {
+                                    const matchDate = line.match(/(\d{4})(\d{2})(\d{2})/);
+                                    if (matchDate) start = new Date(matchDate[1], matchDate[2]-1, matchDate[3]);
+                                }
+                            }
+                            else if (currentKey === 'DTEND') {
+                                const matchTime = line.match(/(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})/);
+                                if (matchTime) {
+                                    end = new Date(matchTime[1], matchTime[2]-1, matchTime[3], matchTime[4], matchTime[5]);
+                                    if(line.includes('Z')) end.setHours(end.getHours() + (end.getTimezoneOffset() / -60));
+                                } else {
+                                    const matchDate = line.match(/(\d{4})(\d{2})(\d{2})/);
+                                    if (matchDate) end = new Date(matchDate[1], matchDate[2]-1, matchDate[3]);
+                                }
+                            }
+                        } else {
+                            if (currentKey === 'DESCRIPTION') description += ' ' + line;
+                            else if (currentKey === 'SUMMARY') summary += ' ' + line;
+                        }
+                    });
+                    
+                    if (!start || !summary) return null;
+                     
+                    let cleanDesc = description
+                        .replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+                        .replace(/<br\s*\/?>/gi, ' ')
+                        .replace(/<\/p>/gi, ' ')
+                        .replace(/<[^>]*>?/gm, '')
+                        .replace(/\\n/g, ' ')
+                        .replace(/\s+/g, ' ')
+                        .trim();
+                    
+                    return { id, summary, start, end, location, description: cleanDesc };
+                } catch (e) {
+                    return null;
+                }
+            });
+            
+            const results = await Promise.all(promises);
+            const validEvents = results.filter(e => e !== null);
+            
+            validEvents.forEach(e => {
+                if (e.start >= now) upcomingCount++;
+                eventsData.push(e);
+            });
+            
+            // Aufhören, sobald wir mindestens 8 zukünftige Termine gefunden haben
+            if (upcomingCount >= 8) break;
+        }
+
+        if (isStorageEnabled() && eventsData.length > 0) {
+            localStorage.setItem('thd_news_cache', JSON.stringify({
+                timestamp: Date.now(),
+                events: eventsData
+            }));
+        }
+        
+        } catch (error) {
+          console.error('Fehler beim Laden der News:', error);
+          listContainer.innerHTML = '<div style="color: #FF3B30; text-align: center; padding: 20px;">Fehler beim Laden der Termine.</div>';
+          return;
+        }
+      }
+      }
+      
+        
+        listContainer.innerHTML = '';
+        
+        // Filtere alle Termine heraus, die in der Vergangenheit liegen
+        eventsData = eventsData.filter(e => e.start >= now);
+        
+        // Chronologisch aufsteigend sortieren
+        eventsData.sort((a, b) => a.start - b.start);
+        
+        if (eventsData.length === 0) {
+          listContainer.innerHTML = '<div style="color: var(--text-sub); text-align: center; padding: 20px;">Keine anstehenden Termine gefunden.</div>';
+          return;
+        }
+        
+        const monthsLoc = {
+            de: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'],
+            en: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+            fi: ['Tam', 'Hel', 'Maa', 'Huh', 'Tou', 'Kes', 'Hei', 'Elo', 'Syy', 'Lok', 'Mar', 'Jou']
+        };
+        
+        eventsData.forEach(event => {
+          const day = String(event.start.getDate()).padStart(2, '0');
+          const monthArr = monthsLoc[currentLanguage] || monthsLoc['de'];
+          const month = monthArr[event.start.getMonth()];
+          
+          let timeStr = "";
+          if (event.start.getHours() !== 0 || event.start.getMinutes() !== 0) {
+              const sh = String(event.start.getHours()).padStart(2, '0');
+              const sm = String(event.start.getMinutes()).padStart(2, '0');
+              let timeSuffix = currentLanguage === 'en' ? 'h' : (currentLanguage === 'fi' ? '' : ' Uhr');
+              timeStr = `${sh}:${sm} ${timeSuffix}`.trim();
+              
+              if (event.end && (event.end.getHours() !== 0 || event.end.getMinutes() !== 0)) {
+                  const eh = String(event.end.getHours()).padStart(2, '0');
+                  const em = String(event.end.getMinutes()).padStart(2, '0');
+                  timeStr = `${sh}:${sm} - ${eh}:${em} ${timeSuffix}`.trim();
+              }
+          } else {
+              timeStr = currentLanguage === 'en' ? 'All day' : (currentLanguage === 'fi' ? 'Koko päivä' : 'Ganztägig');
+          }
+          
+          const isFav = favoriteEvents.has(event.id);
+          const card = document.createElement('div');
+          card.className = 'list-item news-item' + (isFav ? ' is-favorite' : '');
+          card.style.cssText = 'flex-direction: column; align-items: flex-start; gap: 12px; padding: 16px; margin: 0; isolation: isolate; position: relative; background-color: var(--card-bg); border-radius: 16px; cursor: pointer;';
+          card.onclick = () => openEventModal(event.summary, timeStr, event.location, event.description, event.id);
+          
+          let locHtml = event.location ? `<div style="color: var(--text-sub); font-size: 13px; display: flex; align-items: center; gap: 6px; margin-top: 4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg><span style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${event.location}</span></div>` : '';
+          
+          let descHtml = event.description ? `<div style="color: var(--text-sub); font-size: 13px; margin-top: 6px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4;">${event.description}</div>` : '';
+          
+          card.innerHTML = `
+             <div style="display: flex; gap: 15px; width: 100%; align-items: flex-start;">
+                <div style="background: rgba(58, 130, 247, 0.15); color: var(--accent-blue); border: 1.5px solid rgba(58, 130, 247, 0.3); border-radius: 12px; padding: 10px 8px; text-align: center; min-width: 58px; box-sizing: border-box; flex-shrink: 0; margin-top: 2px;">
+                   <div style="font-size: 22px; font-weight: 700; line-height: 1;">${day}</div>
+                   <div style="font-size: 12px; font-weight: 600; text-transform: uppercase; margin-top: 4px;">${month}</div>
+                </div>
+                <div style="flex: 1; min-width: 0;">
+                   <div style="display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; width: 100%;">
+                       <div style="font-weight: 600; font-size: 15px; color: var(--text-main); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.3; flex: 1;">${event.summary}</div>
+                       <div class="event-star ${isFav ? 'active' : ''}" onclick="toggleEventFavorite('${event.id}', event, this)" style="flex-shrink: 0; padding: 2px; cursor: pointer; margin-top: -2px; margin-right: -2px;">
+                           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                               <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                           </svg>
+                       </div>
+                   </div>
+                   <div style="color: var(--accent-blue); font-size: 13px; font-weight: 600; margin-top: 6px;">${timeStr}</div>
+                   ${locHtml}
+                   ${descHtml}
+                </div>
+             </div>
+          `;
+          
+          listContainer.appendChild(card);
+        });
+        
+        checkEmptyFavorites();
+    }
+
+    function toggleEventFavorite(id, e, btn) {
+        e.stopPropagation(); // Verhindert, dass das Popup geöffnet wird
+        const card = btn.closest('.news-item');
+        
+        if (favoriteEvents.has(id)) {
+            favoriteEvents.delete(id);
+            btn.classList.remove('active');
+            if (card) card.classList.remove('is-favorite');
+        } else {
+            favoriteEvents.add(id);
+            btn.classList.add('active');
+            if (card) card.classList.add('is-favorite');
+        }
+        
+        if (isStorageEnabled()) saveAllData();
+        checkEmptyFavorites();
+    }
+
+    function toggleEventFilter(btn) {
+        isFavoritesFilterActive = !isFavoritesFilterActive;
+        const list = document.getElementById('news-list');
+        
+        if (isFavoritesFilterActive) {
+            btn.classList.add('active-filter');
+            if (list) list.classList.add('favorites-only');
+        } else {
+            btn.classList.remove('active-filter');
+            if (list) list.classList.remove('favorites-only');
+        }
+        checkEmptyFavorites();
+    }
+
+    function checkEmptyFavorites() {
+        const list = document.getElementById('news-list');
+        const msg = document.getElementById('no-favorites-msg');
+        if (!list || !msg) return;
+
+        if (isFavoritesFilterActive) {
+            const hasVisibleFavs = list.querySelectorAll('.news-item.is-favorite').length > 0;
+            if (!hasVisibleFavs) {
+                msg.style.display = 'block';
+            } else {
+                msg.style.display = 'none';
+            }
+        } else {
+            msg.style.display = 'none';
+        }
     }
 
     function initMailTimestamps() {
@@ -592,6 +908,7 @@
       initHeaderEasterEgg();
       // updateScheduleProgress(true, true); // Wird jetzt von loadSchedule -> updateScheduleWidget übernommen
       setInterval(() => updateScheduleProgress(false, false), 60000); // Aktualisiert den Zeitindikator jede Minute ohne Neu-Animation
+      setInterval(refreshWebcam, 30000); // Aktualisiert das Webcam-Bild alle 30 Sekunden
       
       if (localStorage.getItem('thd_setup_completed') !== 'true') {
         checkInitialSetup();
@@ -835,6 +1152,9 @@
       // Passe Wrapper-Höhe an Inhalt an
       const viewport = document.getElementById('rental-views-viewport');
       if (viewport && targetView) viewport.style.height = targetView.offsetHeight + 'px';
+      if (isStorageEnabled()) {
+          localStorage.setItem('thd_rental_view', viewId);
+      }
     }
 
     // Modal (Popup) Logik
@@ -1199,6 +1519,26 @@
   }
 }
 
+   function openEventModal(title, time, location, description, id) {
+        document.getElementById('event-popup-title').innerText = title;
+        document.getElementById('event-popup-time').innerText = time;
+        document.getElementById('event-popup-location').innerText = location || (currentLanguage === 'de' ? 'Keine Angabe' : (currentLanguage === 'fi' ? 'Ei ilmoitettu' : 'Not specified'));
+        document.getElementById('event-popup-desc').innerHTML = description || (currentLanguage === 'de' ? 'Keine Beschreibung verfügbar.' : (currentLanguage === 'fi' ? 'Ei kuvausta saatavilla.' : 'No description available.'));
+        
+        const icalBtn = document.getElementById('event-popup-ical-btn');
+        if (icalBtn) {
+            icalBtn.onclick = () => {
+                window.location.href = `https://th-deg.de/de/ical-export?eventid=${id}`;
+            };
+        }
+
+        document.getElementById('modal-overlay').classList.add('show');
+        setTimeout(() => {
+            document.getElementById('event-modal').classList.add('show');
+        }, 10);
+    }
+
+
     let previousModal = null;
 
     let setupCountdownInterval;
@@ -1406,6 +1746,9 @@
 
       // Schließt den Deckel des Such-Mülleimers, falls er offen ist
       document.getElementById('search-trash-icon')?.classList.remove('lid-stay-open');
+
+      const iframeContent = document.getElementById('iframe-modal-content');
+      if (iframeContent) iframeContent.src = '';
     }
 
     function updateCharCount() {
@@ -1884,6 +2227,21 @@
       }, 10);
     }
 
+    function openIframeModal(url, title, showSettings = false) {
+      document.getElementById('iframe-modal-title').innerText = title;
+      document.getElementById('iframe-modal-content').src = url;
+      
+      const gearIcon = document.getElementById('iframe-settings-gear-icon');
+      if (gearIcon) {
+          gearIcon.style.display = showSettings ? 'block' : 'none';
+      }
+
+      document.getElementById('modal-overlay').classList.add('show');
+      setTimeout(() => {
+        document.getElementById('iframe-modal').classList.add('show');
+      }, 10);
+    }
+
     // --- Such-Logik Start ---
     const searchData = [
       { id: 'widget-schedule', title: 'Stundenplan', page: 'page-home', loc: 'Home' },
@@ -1912,7 +2270,7 @@
       { type: 'contact', id: 'bibliothek-kontakt', title: 'Bibliothek (Kontakt)', loc: 'Service', email: 'bibliothek@th-deg.de', faculty: 'Zentrale Dienste' },
       { type: 'contact', id: 'sprachenzentrum', title: 'Sprachenzentrum', loc: 'Service', email: 'sprachenzentrum@th-deg.de', faculty: 'Zentrale Dienste' },
       { type: 'contact', id: 'rechenzentrum', title: 'Rechenzentrum (ITC)', loc: 'Service', email: 'itc@th-deg.de', faculty: 'Zentrale Dienste' },
-      { id: 'page-services', title: 'Technik (Dienste)', page: 'page-services', loc: 'Menü' },
+      { id: 'page-services', title: 'IT-Service (Dienste)', page: 'page-services', loc: 'Menü' },
       { id: 'page-services', title: 'Anträge (Dienste)', page: 'page-services', loc: 'Menü' },
       { id: 'page-services', title: 'Hilfe & FAQ', page: 'page-services', loc: 'Menü' }
     ];
@@ -2063,7 +2421,10 @@
         mails_nav: "Mails",
         home_nav: "Home",
         search_nav: "Suche",
+        news_nav: "News",
         search_header: "Suche",
+        news_header: "Veranstaltungen",
+        news_no_favorites: "Keine Favoriten markiert.",
         search_placeholder: "Widgets & Elemente suchen...",
         search_suggestions: "Vorschläge",
         search_history: "Zuletzt gesucht",
@@ -2148,6 +2509,8 @@
         edit_name_title: "Name bearbeiten",
         course_modal_tasks: "Aufgaben",
         course_modal_to_ilearn: "Zu iLearn",
+        event_location: "Ort",
+        event_desc: "Beschreibung",
         // Study Time Modal
         study_time_modal_title: "Studienzeit anpassen",
         study_time_current: "Aktuelles Semester",
@@ -2206,7 +2569,7 @@
         theme_oled: "Anti-Ghosting",
         language_label: "Sprache",
         settings_storage: "Daten lokal speichern",
-        settings_real_mode: "Echte Daten\n(Mensa, Stundenplan, KI-Mails)",
+        settings_real_mode: "Echte Daten\n(Mensa, Stundenplan, KI-Mails, Events)",
         ok_button: "OK",
         settings_privacy: "Privatmodus",
         info_privacy_title: "Privatmodus",
@@ -2216,7 +2579,7 @@
         info_storage_title: "Daten lokal speichern",
         info_storage_desc: "Speichert deine Einstellungen, Änderungen am Dashboard und andere Daten lokal auf deinem Gerät. Wenn deaktiviert, wird alles beim Schließen der App zurückgesetzt.",
         info_real_mode_title: "Echte Daten",
-        info_real_mode_desc: "Lädt den echten Speiseplan der Mensa Deggendorf, den aktuellen iCal-Stundenplan und aktiviert die KI-Antworten bei E-Mails. Wenn deaktiviert, werden Dummy-Daten zu Demonstrationszwecken angezeigt.",
+        info_real_mode_desc: "Lädt den echten Speiseplan der Mensa Deggendorf, den aktuellen iCal-Stundenplan, echte Hochschul-Veranstaltungen und aktiviert die KI-Antworten bei E-Mails. Wenn deaktiviert, werden Dummy-Daten zu Demonstrationszwecken angezeigt.",
         setup_show_again: "Beim Start anzeigen",
         info_show_again_title: "Dialog anzeigen",
         info_show_again_desc: "Wenn aktiviert, erscheint dieser Willkommensbildschirm bei jedem App-Start erneut. So kannst du schnell zwischen dem Offline- und Live-Modus wechseln.",
@@ -2238,7 +2601,7 @@
         mensa_error: "Fehler beim Laden",
         mensa_no_meals: "An diesem Tag keine Gerichte verfügbar",
         vpn_speed_title: "VPN Geschwindigkeit",
-        service_tech: "Technik",
+        service_tech: "IT-Service",
         service_schedule: "Stundenplan",
         service_requests: "Anträge",
         service_ilearn: "iLearn",
@@ -2262,7 +2625,10 @@
         mails_nav: "Mails",
         home_nav: "Home",
         search_nav: "Search",
+        news_nav: "News",
         search_header: "Search",
+        news_header: "Events",
+        news_no_favorites: "No favorites marked.",
         search_placeholder: "Search widgets & items...",
         search_suggestions: "Suggestions",
         search_history: "Recent searches",
@@ -2347,6 +2713,8 @@
         edit_name_title: "Edit Name",
         course_modal_tasks: "Tasks",
         course_modal_to_ilearn: "Go to iLearn",
+        event_location: "Location",
+        event_desc: "Description",
         // Study Time Modal
         study_time_modal_title: "Adjust Study Time",
         study_time_current: "Current Semester",
@@ -2405,7 +2773,7 @@
         theme_oled: "Anti-Ghosting",
         language_label: "Language",
         settings_storage: "Save data locally",
-        settings_real_mode: "Real Data\n(Mensa, Schedule, AI Mails)",
+        settings_real_mode: "Real Data\n(Mensa, Schedule, AI Mails, Events)",
         ok_button: "OK",
         settings_privacy: "Privacy Mode",
         info_privacy_title: "Privacy Mode",
@@ -2415,7 +2783,7 @@
         info_storage_title: "Save data locally",
         info_storage_desc: "Saves your settings, dashboard modifications, and other data locally on your device. If disabled, everything resets when you close the app.",
         info_real_mode_title: "Real Data",
-        info_real_mode_desc: "Loads the real cafeteria menu for Deggendorf, the current iCal schedule, and enables AI email replies. If disabled, dummy data is shown for demonstration purposes.",
+        info_real_mode_desc: "Loads the real cafeteria menu for Deggendorf, the current iCal schedule, real university events, and enables AI email replies. If disabled, dummy data is shown for demonstration purposes.",
         setup_show_again: "Show on startup",
         info_show_again_title: "Show dialog",
         info_show_again_desc: "If enabled, this welcome screen will appear on every app startup. Useful to quickly switch between offline and live modes.",
@@ -2437,7 +2805,7 @@
         mensa_error: "Error loading",
         mensa_no_meals: "No meals available on this day",
         vpn_speed_title: "VPN Speed",
-        service_tech: "Tech",
+        service_tech: "IT Services",
         service_schedule: "Schedule",
         service_requests: "Requests",
         service_ilearn: "iLearn",
@@ -2461,7 +2829,10 @@
         mails_nav: "Sähköpostit",
         home_nav: "Koti",
         search_nav: "Haku",
+        news_nav: "Uutiset",
         search_header: "Haku",
+        news_header: "Tapahtumat",
+        news_no_favorites: "Ei suosikkeja merkitty.",
         search_placeholder: "Etsi widgettejä...",
         search_suggestions: "Ehdotukset",
         search_history: "Viimeisimmät haut",
@@ -2546,6 +2917,8 @@
         edit_name_title: "Muokkaa nimeä",
         course_modal_tasks: "Tehtävät",
         course_modal_to_ilearn: "Siirry iLearniin",
+        event_location: "Sijainti",
+        event_desc: "Kuvaus",
         // Study Time Modal
         study_time_modal_title: "Säädä opiskeluaikaa",
         study_time_current: "Nykyinen lukukausi",
@@ -2604,7 +2977,7 @@
         theme_oled: "Anti-Ghosting",
         language_label: "Kieli",
         settings_storage: "Tallenna tiedot paikallisesti",
-        settings_real_mode: "Oikeat tiedot\n(Ruokala, Lukujärjestys, AI-postit)",
+        settings_real_mode: "Oikeat tiedot\n(Ruokala, Lukujärjestys, AI-postit, Tapahtumat)",
         ok_button: "OK",
         settings_privacy: "Yksityisyystila",
         info_privacy_title: "Yksityisyystila",
@@ -2614,7 +2987,7 @@
         info_storage_title: "Tallenna tiedot paikallisesti",
         info_storage_desc: "Tallentaa asetuksesi, kojelaudan muokkaukset ja muut tiedot paikallisesti laitteellesi. Jos tämä on pois päältä, kaikki nollautuu, kun suljet sovelluksen.",
         info_real_mode_title: "Oikeat tiedot",
-        info_real_mode_desc: "Lataa Deggendorfin todellisen ruokalistan, nykyisen iCal-lukujärjestyksen ja ottaa käyttöön tekoälyn sähköpostivastaukset. Jos pois päältä, näytetään demotietoja esittelytarkoituksessa.",
+        info_real_mode_desc: "Lataa Deggendorfin todellisen ruokalistan, nykyisen iCal-lukujärjestyksen, todelliset yliopiston tapahtumat ja ottaa käyttöön tekoälyn sähköpostivastaukset. Jos pois päältä, näytetään demotietoja esittelytarkoituksessa.",
         setup_show_again: "Näytä käynnistettäessä",
         info_show_again_title: "Näytä valintaikkuna",
         info_show_again_desc: "Jos otettu käyttöön, tämä tervetulonäyttö tulee näkyviin joka kerta, kun sovellus käynnistetään. Hyödyllinen vaihdettaessa offline- ja live-tilojen välillä.",
@@ -2636,7 +3009,7 @@
         mensa_error: "Virhe ladattaessa",
         mensa_no_meals: "Ei aterioita saatavilla tänä päivänä",
         vpn_speed_title: "VPN Nopeus",
-        service_tech: "Tekniikka",
+        service_tech: "IT-palvelut",
         service_schedule: "Lukujärjestys",
         service_requests: "Pyynnöt",
         service_ilearn: "iLearn",
@@ -2681,6 +3054,9 @@
     if (currentMensaDay < 0 || currentMensaDay > 4) currentMensaDay = 0;
     let mensaDataCache = {};
 
+    let favoriteEvents = new Set();
+    let isFavoritesFilterActive = false;
+
     function changeScheduleWeek(dir) {
         scheduleWeekOffset += dir;
         updateScheduleWeekLabel();
@@ -2711,22 +3087,78 @@
         }
     }
 
-    function openScheduleSettingsModal() {
+    function getFullMajorName(group) {
+        if (!group) return "Unbekannt";
+        
+        // Extrahiert schlau nur die Buchstaben am Anfang (ignoriert Zahlen, Leerzeichen oder Bindestriche)
+        const match = group.trim().match(/^[a-zA-ZäöüÄÖÜß]+/);
+        if (!match) return group;
+        
+        const prefix = match[0].toUpperCase();
+        const map = {
+            'MT': 'Medientechnik',
+            'AI': 'Angewandte Informatik',
+            'WI': 'Wirtschaftsinformatik',
+            'BI': 'Bauingenieurwesen',
+            'UI': 'Umweltingenieurwesen',
+            'AW': 'Angewandte Wirtschaftswissenschaften',
+            'BW': 'Betriebswirtschaft',
+            'TM': 'Tourismusmanagement',
+            'WIN': 'Wirtschaftsingenieurwesen',
+            'MB': 'Maschinenbau',
+            'ME': 'Mechatronik',
+            'ET': 'Elektrotechnik',
+            'PT': 'Physiotherapie',
+            'PM': 'Pflegemanagement'
+        };
+        return map[prefix] ? map[prefix] : group;
+    }
+
+    function openScheduleSettingsModal(caller = null) {
         const gear = document.getElementById('schedule-settings-gear-icon');
         if (gear) {
             gear.classList.add('rotate-gear-anim');
             setTimeout(() => gear.classList.remove('rotate-gear-anim'), 400);
         }
-        
-        closeModal();
-        setTimeout(() => {
+        const iframeGear = document.getElementById('iframe-settings-gear-icon');
+        if (iframeGear && iframeGear.style.display !== 'none') {
+            iframeGear.classList.add('rotate-gear-anim');
+            setTimeout(() => iframeGear.classList.remove('rotate-gear-anim'), 400);
+        }
+
+        const iframeModal = document.getElementById('iframe-modal');
+        if (caller) {
+            window.scheduleSettingsCaller = caller;
+        } else if (iframeModal && iframeModal.classList.contains('show')) {
+            window.scheduleSettingsCaller = 'iframe';
+        } else {
+            window.scheduleSettingsCaller = 'schedule';
+        }
+
+        if (caller === 'profile') {
+            // Keine vorherigen Fenster zu schließen, keine Zahnrad-Wartezeit nötig
             const inputEl = document.getElementById('schedule-group-input');
             if (inputEl) inputEl.value = currentStudyGroup;
             
             document.getElementById('modal-overlay').classList.add('show');
-            document.getElementById('schedule-settings-modal').classList.add('show');
-            if (inputEl) inputEl.focus();
-        }, 300);
+            setTimeout(() => {
+                document.getElementById('schedule-settings-modal').classList.add('show');
+                if (inputEl) inputEl.focus();
+            }, 10);
+        } else {
+            // Lasse die Zahnrad-Animation kurz laufen (250ms), bevor das aktuelle Fenster schließt
+            setTimeout(() => {
+                closeModal();
+                setTimeout(() => {
+                    const inputEl = document.getElementById('schedule-group-input');
+                    if (inputEl) inputEl.value = currentStudyGroup;
+                    
+                    document.getElementById('modal-overlay').classList.add('show');
+                    document.getElementById('schedule-settings-modal').classList.add('show');
+                    if (inputEl) inputEl.focus();
+                }, 300);
+            }, 250);
+        }
     }
 
     function saveStudyGroup() {
@@ -2734,19 +3166,46 @@
         if (!inputEl) return;
         const newGroup = inputEl.value.trim().toUpperCase(); // Großschreibung für Standard-Kürzel erzwingen
         
-        if (newGroup !== '' && currentStudyGroup !== newGroup) {
-            currentStudyGroup = newGroup;
-            if (isStorageEnabled()) saveAllData();
+        if (newGroup !== '') {
+            if (currentStudyGroup !== newGroup) {
+                currentStudyGroup = newGroup;
+                if (isStorageEnabled()) saveAllData();
+                
+                if (isRealModeEnabled) {
+                    localStorage.removeItem('thd_schedule_cache');
+                    loadSchedule();
+                }
+            }
             
-            if (isRealModeEnabled) {
-                localStorage.removeItem('thd_schedule_cache');
-                loadSchedule();
+            // Den Studiengang dynamisch im Profiltext anpassen
+            const majorEl = document.querySelector('[data-translate="profile_major"]');
+            if (majorEl) {
+                const displayName = getFullMajorName(currentStudyGroup);
+                majorEl.innerText = displayName;
+                ['de', 'en', 'fi'].forEach(lang => {
+                    if (translations[lang]) translations[lang].profile_major = displayName;
+                });
             }
         }
         
         closeModal();
         setTimeout(() => {
-            openScheduleModal();
+            if (window.scheduleSettingsCaller === 'iframe') {
+                openIframeModal('https://docs.google.com/gview?embedded=true&url=' + encodeURIComponent('https://thabella.th-deg.de/thabella/opn/pdf/page/' + currentStudyGroup), 'Stundenplan (' + currentStudyGroup + ')', true);
+            } else if (window.scheduleSettingsCaller === 'schedule') {
+                openScheduleModal();
+            }
+        }, 300);
+    }
+
+    function cancelScheduleSettings() {
+        closeModal();
+        setTimeout(() => {
+            if (window.scheduleSettingsCaller === 'iframe') {
+                openIframeModal('https://docs.google.com/gview?embedded=true&url=' + encodeURIComponent('https://thabella.th-deg.de/thabella/opn/pdf/page/' + currentStudyGroup), 'Stundenplan (' + currentStudyGroup + ')', true);
+            } else if (window.scheduleSettingsCaller === 'schedule') {
+                openScheduleModal();
+            }
         }, 300);
     }
 
@@ -3769,6 +4228,22 @@
         setLanguage('fi');
       }
       closeModal();
+    }
+
+    function refreshWebcam() {
+      const timestamp = Date.now();
+      const thumb = document.getElementById('webcam-img-thumb');
+      const full = document.getElementById('webcam-img-full');
+      if (thumb) thumb.src = `https://th-deg.de/static/images/webcam.jpg?t=${timestamp}`;
+      if (full) full.src = `https://th-deg.de/static/images/webcam.jpg?t=${timestamp}`;
+    }
+
+    function openWebcamModal() {
+      refreshWebcam();
+      document.getElementById('modal-overlay').classList.add('show');
+      setTimeout(() => {
+        document.getElementById('webcam-modal').classList.add('show');
+      }, 10);
     }
 
     function openAboutModal() {
@@ -5228,7 +5703,7 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
         } else {
             localStorage.setItem('thd_storage_enabled', 'false');
             // Alle Daten löschen, außer der Einstellung selbst
-        const keysToRemove = ['thd_widget_order', 'thd_mensa_balance', 'thd_gpa', 'thd_parking_spots', 'thd_ects', 'thd_ects_scroll_index', 'thd_study_current', 'thd_study_total', 'thd_study_extra', 'thd_mails_html', 'thd_ilearn_html', 'thd_search_history', 'thd_profile_pic', 'thd_profile_name', 'thd_schedule_cache', 'thd_mensa_cache', 'thd_real_mode', 'thd_privacy_mode', 'thd_theme', 'thd_language', 'thd_widget_visibility', 'thd_vpn_state', 'thd_setup_completed', 'thd_study_group', 'thd_grades_html', 'thd_profile_semester', 'thd_rental_books_html', 'thd_rental_tech_html', 'thd_parking_history_html'];
+        const keysToRemove = ['thd_widget_order', 'thd_mensa_balance', 'thd_gpa', 'thd_parking_spots', 'thd_ects', 'thd_ects_scroll_index', 'thd_study_current', 'thd_study_total', 'thd_study_extra', 'thd_mails_html', 'thd_ilearn_html', 'thd_search_history', 'thd_profile_pic', 'thd_profile_name', 'thd_schedule_cache', 'thd_mensa_cache', 'thd_news_cache', 'thd_favorite_events', 'thd_real_mode', 'thd_privacy_mode', 'thd_theme', 'thd_language', 'thd_widget_visibility', 'thd_vpn_state', 'thd_setup_completed', 'thd_study_group', 'thd_grades_html', 'thd_profile_semester', 'thd_rental_books_html', 'thd_rental_tech_html', 'thd_parking_history_html', 'thd_rental_view'];
             keysToRemove.forEach(k => localStorage.removeItem(k));
         }
     }
@@ -5242,6 +5717,7 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
         if (enabled) {
             loadRealMensaData();
             loadSchedule();
+            loadNewsEvents();
         } else {
           // Dummy-Daten wiederherstellen ohne Reload
           const mensaList = document.querySelector('#widget-mensa .scroll-list');
@@ -5253,6 +5729,7 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
               widgetSelectedDay = -1;
               updateScheduleProgress(true, true); // Fortschrittsbalken und Scroll-Pos aktualisieren
           }
+          loadNewsEvents();
         }
     }
 
@@ -5300,6 +5777,11 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
         const parkingChart = document.getElementById('parking-chart-container');
         if (parkingChart) localStorage.setItem('thd_parking_history_html', parkingChart.innerHTML);
 
+        const activeRentalBtn = document.querySelector('#rental-segments .segment-btn.active');
+        if (activeRentalBtn) {
+            localStorage.setItem('thd_rental_view', activeRentalBtn.getAttribute('onclick').includes('books') ? 'books' : 'tech');
+        }
+
         const widgetVisibility = {};
         document.querySelectorAll('#widget-settings-modal .toggle-input').forEach(input => {
             const match = input.getAttribute('onchange')?.match(/'([^']+)'/);
@@ -5311,6 +5793,8 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
 
         const vpnToggle = document.getElementById('vpn-toggle');
         if (vpnToggle) localStorage.setItem('thd_vpn_state', vpnToggle.checked);
+        
+        localStorage.setItem('thd_favorite_events', JSON.stringify(Array.from(favoriteEvents)));
     }
 
     function loadAllData() {
@@ -5349,6 +5833,16 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
             currentStudyGroup = savedStudyGroup;
         }
 
+        // Initial den Studiengang auch im Profil aktualisieren
+        const majorEl = document.querySelector('[data-translate="profile_major"]');
+        if (majorEl) {
+            const displayName = getFullMajorName(currentStudyGroup);
+            majorEl.innerText = displayName;
+            ['de', 'en', 'fi'].forEach(lang => {
+                if (translations[lang]) translations[lang].profile_major = displayName;
+            });
+        }
+
         if (!isStorageEnabled()) return;
 
         const savedBalance = localStorage.getItem('thd_mensa_balance');
@@ -5381,7 +5875,7 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
                 if (widgetEcts) {
                     widgetEcts.style.scrollSnapType = 'none';
                     widgetEcts.scrollTop = parseInt(savedEctsScrollIndex, 10) * 150;
-                    setTimeout(() => widgetEcts.style.scrollSnapType = 'y mandatory', 50);
+                setTimeout(() => widgetEcts.style.scrollSnapType = 'y proximity', 50);
                 }
             }, 50);
         }
@@ -5438,6 +5932,14 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
             if (rentalTechView) rentalTechView.innerHTML = savedRentalTech;
         }
         
+        const savedRentalView = localStorage.getItem('thd_rental_view');
+        if (savedRentalView !== null) {
+            const rentalBtn = document.querySelector(`#rental-segments .segment-btn[onclick*="${savedRentalView}"]`);
+            if (rentalBtn) {
+                switchRentalView(savedRentalView, rentalBtn);
+            }
+        }
+
         const savedParkingChartHtml = localStorage.getItem('thd_parking_history_html');
         if (savedParkingChartHtml !== null) {
             const parkingChart = document.getElementById('parking-chart-container');
@@ -5465,6 +5967,11 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
                     localStorage.removeItem('thd_mensa_cache');
                 }
             } catch(e) {}
+        }
+
+        const savedFavorites = localStorage.getItem('thd_favorite_events');
+        if (savedFavorites) {
+            favoriteEvents = new Set(JSON.parse(savedFavorites));
         }
 
         loadWidgetOrder();
@@ -5736,10 +6243,10 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
                 behavior: 'smooth'
               });
               // Snapping nach dem Scrollen wieder aktivieren
-              setTimeout(() => scheduleBox.style.scrollSnapType = 'y mandatory', 600); 
+          setTimeout(() => scheduleBox.style.scrollSnapType = 'y proximity', 600); 
             }, 100); // Schnellerer Start der Scroll-Animation
           } else {
-            scheduleBox.style.scrollSnapType = 'y mandatory';
+        scheduleBox.style.scrollSnapType = 'y proximity';
           }
         }
       }

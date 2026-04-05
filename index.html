@@ -78,7 +78,7 @@
         <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 10px; margin-top: 15px;">
           <div style="display: flex; align-items: center; gap: 8px;">
             <span data-translate="settings_real_mode" style="font-size: 15px; font-weight: 500; white-space: pre-line; line-height: 1.2;">Echte Daten
-(Mensa, Stundenplan, KI-Mails)</span>
+(Mensa, Stundenplan, KI-Mails, Events)</span>
             <svg viewBox="0 0 24 24" width="16" height="16" stroke="var(--text-sub)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" onclick="showInfoModal('real_mode')" style="cursor: pointer;"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
           </div>
           <label class="toggle-switch" style="transform: scale(0.8); transform-origin: right;">
@@ -172,7 +172,7 @@
     <div id="schedule-modal" class="modal">
       <div class="modal-header" style="position: relative;">
         <h3 class="modal-title" data-translate="schedule_modal_title">Gesamter Stundenplan</h3>
-        <svg id="schedule-settings-gear-icon" class="header-icon-svg" viewBox="0 0 24 24" onclick="openScheduleSettingsModal()" style="position: absolute; right: 0; top: 0; width: 22px; height: 22px;">
+        <svg id="schedule-settings-gear-icon" class="header-icon-svg" viewBox="0 0 24 24" onclick="openScheduleSettingsModal('schedule')" style="position: absolute; right: 0; top: 0; width: 22px; height: 22px;">
             <circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
         </svg>
       </div>
@@ -197,7 +197,7 @@
         </div>
         
         <div id="schedule-viewport" style="overflow: hidden;">
-          <div id="schedule-modal-list" style="display: flex; flex-direction: column; gap: 8px; overflow-y: auto; padding-right: 4px; height: 100%; box-sizing: border-box; scroll-snap-type: y mandatory;">
+          <div id="schedule-modal-list" style="display: flex; flex-direction: column; gap: 8px; overflow-y: auto; padding-right: 4px; height: 100%; box-sizing: border-box; scroll-snap-type: y proximity;">
           </div>
         </div>
       </div>
@@ -215,7 +215,7 @@
         <input type="text" id="schedule-group-input" class="compose-input" placeholder="z.B. MT-MP4" autocomplete="off" spellcheck="false" style="text-align: center; font-size: 18px; font-weight: 600;" onkeypress="if(event.key === 'Enter') saveStudyGroup()">
       </div>
       <div class="modal-buttons" style="margin-top: 20px;">
-        <button class="btn btn-secondary" onclick="closeModal()" data-translate="cancel_button">Abbrechen</button>
+        <button class="btn btn-secondary" onclick="cancelScheduleSettings()" data-translate="cancel_button">Abbrechen</button>
         <button class="btn btn-primary" onclick="saveStudyGroup()" data-translate="save_button">Speichern</button>
       </div>
     </div>
@@ -245,7 +245,7 @@
         </div>
         
         <div id="mensa-viewport" style="overflow: hidden;">
-          <div id="mensa-modal-list" style="display: flex; flex-direction: column; gap: 8px; overflow-y: auto; padding-right: 4px; height: 100%; box-sizing: border-box; scroll-snap-type: y mandatory;">
+          <div id="mensa-modal-list" style="display: flex; flex-direction: column; gap: 8px; overflow-y: auto; padding-right: 4px; height: 100%; box-sizing: border-box; scroll-snap-type: y proximity;">
           </div>
         </div>
       </div>
@@ -584,7 +584,7 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding: 0 10px;">
           <div style="display: flex; align-items: center; gap: 8px;">
             <span data-translate="settings_real_mode" style="font-size: 15px; font-weight: 500; white-space: pre-line; line-height: 1.2;">Echte Daten
-(Mensa, Stundenplan, KI-Mails)</span>
+(Mensa, Stundenplan, KI-Mails, Events)</span>
             <svg viewBox="0 0 24 24" width="16" height="16" stroke="var(--text-sub)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" onclick="showInfoModal('real_mode')" style="cursor: pointer;"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
           </div>
           <label class="toggle-switch" style="transform: scale(0.8); transform-origin: right;">
@@ -613,6 +613,19 @@
       <button class="btn btn-primary" onclick="closeSettingsModal()" data-translate="settings_close" style="width: 100%;">Schließen</button>
     </div>
     
+    <div id="webcam-modal" class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Campus Webcam</h3>
+        <p class="modal-subtitle">Live-Ansicht</p>
+      </div>
+      <div class="modal-info" style="display: flex; justify-content: center; align-items: center; padding: 0;">
+        <img id="webcam-img-full" src="https://th-deg.de/static/images/webcam.jpg" style="width: 100%; height: auto; max-height: 50vh; border-radius: 12px; border: 1px solid var(--border-color); object-fit: cover; background-color: var(--item-bg);">
+      </div>
+      <div class="modal-buttons" style="margin-top: 20px;">
+        <button class="btn btn-primary" onclick="closeModal()" data-translate="close_button" style="width: 100%;">Schließen</button>
+      </div>
+    </div>
+
     <div id="about-modal" class="modal">
       <div class="modal-header">
         <h3 class="modal-title" data-translate="about_title">Über die App</h3>
@@ -659,15 +672,15 @@
       </div>
       <div class="modal-info" style="margin-bottom: 20px;">
         <div class="services-page-grid" style="padding: 0 12px; overflow-y: visible;">
-          <a href="https://elearning.th-deg.de" class="service-card color-tech">
+          <a href="https://th-deg.de/de/mythdeg/it-services" target="_blank" class="service-card color-tech">
             <div class="service-icon-wrapper"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg></div>
-            <span class="service-name" data-translate="service_tech">Technik</span>
+            <span class="service-name" data-translate="service_tech">IT-Service</span>
           </a>
-          <a href="#" class="service-card color-schedule">
+          <a href="#" onclick="openIframeModal('https://docs.google.com/gview?embedded=true&url=' + encodeURIComponent('https://thabella.th-deg.de/thabella/opn/pdf/page/' + currentStudyGroup), 'Stundenplan (' + currentStudyGroup + ')', true); return false;" class="service-card color-schedule">
             <div class="service-icon-wrapper"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div>
             <span class="service-name" data-translate="service_schedule">Stundenplan</span>
           </a>
-          <a href="#" class="service-card color-requests">
+          <a href="https://www.th-deg.de/de/studierende/antraege-und-organisatorisches" target="_blank" class="service-card color-requests">
             <div class="service-icon-wrapper"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg></div>
             <span class="service-name" data-translate="service_requests">Anträge</span>
           </a>
@@ -675,11 +688,11 @@
             <div class="service-icon-wrapper"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg></div>
             <span class="service-name" data-translate="service_ilearn">iLearn</span>
           </a>
-          <a href="#" class="service-card color-library">
+          <a href="https://opac.th-deg.de" target="_blank" class="service-card color-library">
             <div class="service-icon-wrapper"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg></div>
             <span class="service-name" data-translate="service_library">Bibliothek</span>
           </a>
-          <a href="#" class="service-card color-faq">
+          <a href="https://github.com/TobiasjSchreiber/THD-APP" target="_blank" class="service-card color-faq">
             <div class="service-icon-wrapper"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></div>
             <span class="service-name" data-translate="service_faq">Hilfe & FAQ</span>
           </a>
@@ -699,6 +712,21 @@
       <div class="modal-buttons" style="margin-top: 20px; flex-direction: column; gap: 10px;">
         <button id="contact-action-btn" class="btn btn-primary">E-Mail schreiben</button>
         <button class="btn btn-secondary" onclick="closeModal()">Schließen</button>
+      </div>
+    </div>
+
+    <div id="iframe-modal" class="modal" style="height: 85vh; max-width: 600px; display: flex; flex-direction: column;">
+      <div class="modal-header" style="flex-shrink: 0; margin-bottom: 15px; position: relative;">
+        <h3 id="iframe-modal-title" class="modal-title">Dokument</h3>
+        <svg id="iframe-settings-gear-icon" class="header-icon-svg" viewBox="0 0 24 24" onclick="openScheduleSettingsModal('iframe')" style="position: absolute; right: 0; top: 0; width: 22px; height: 22px; display: none;">
+            <circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+      </div>
+      <div class="modal-info" style="flex: 1; padding: 0; margin-bottom: 20px; overflow: hidden; border-radius: 12px; background-color: #fff;">
+        <iframe id="iframe-modal-content" src="" style="width: 100%; height: 100%; border: none;"></iframe>
+      </div>
+      <div class="modal-buttons" style="flex-shrink: 0;">
+        <button class="btn btn-primary" onclick="closeModal()" data-translate="close_button" style="width: 100%;">Schließen</button>
       </div>
     </div>
 
@@ -973,7 +1001,7 @@
           <svg class="header-icon-svg" viewBox="0 0 24 24" onclick="openWidgetSettingsModal()"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
         </div>
 
-        <div id="empty-dashboard-msg" style="display: none; align-items: center; justify-content: center; height: 60vh; font-size: 80px; font-weight: 800; color: var(--text-sub); opacity: 0.15; letter-spacing: -4px;">
+        <div id="empty-dashboard-msg" style="display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0; align-items: center; justify-content: center; font-size: 80px; font-weight: 800; color: var(--text-sub); opacity: 0.15; letter-spacing: -4px; z-index: 0; pointer-events: none;">
           fr?
         </div>
         
@@ -997,6 +1025,10 @@
             <div class="ects-item" onclick="jumpToElement('page-profil', 'profile-study-time-card')" style="cursor: pointer;">
               <div class="ects-number ects-number-medium sensitive-data" id="home-remaining-number">635</div>
               <div class="ects-label" data-translate="home_remaining_label">Tage übrig</div>
+            </div>
+            <div class="ects-item" onclick="openWebcamModal()" style="cursor: pointer;">
+              <img id="webcam-img-thumb" src="https://th-deg.de/static/images/webcam.jpg" style="width: 120px; height: 75px; object-fit: cover; border-radius: 16px; margin-bottom: 5px; border: 1px solid var(--border-color); background-color: var(--item-bg);">
+              <div class="ects-label">Campus Webcam</div>
             </div>
           </div>
           
@@ -1148,7 +1180,7 @@
                 </div>
                 <input type="file" id="profile-pic-upload" accept="image/*" style="display: none;" onchange="handleProfilePicUpload(event)">
               <div class="profile-name sensitive-data" id="profile-name-display" onclick="editProfileName()" style="cursor: pointer; display: inline-block; transition: transform 0.2s;" onpointerdown="this.style.transform='scale(0.95)'" onpointerup="this.style.transform='scale(1)'" onpointercancel="this.style.transform='scale(1)'">Tobias</div>
-                <div class="profile-sub" data-translate="profile_major">Medientechnik</div>
+                <div class="profile-sub" data-translate="profile_major" onclick="openScheduleSettingsModal('profile')" style="cursor: pointer; display: inline-block; width: 100%; transition: transform 0.2s;" onpointerdown="this.style.transform='scale(0.95)'" onpointerup="this.style.transform='scale(1)'" onpointercancel="this.style.transform='scale(1)'">Medientechnik</div>
                 <div class="profile-sub" data-translate="profile_semester">4. Semester</div>
               </div>
 
@@ -1250,6 +1282,41 @@
           </div>
           </div>
 
+          <div id="page-news" class="page">
+            <div class="header">
+              <span data-translate="news_header">Veranstaltungen</span>
+              <svg class="header-icon-svg" id="news-filter-star" viewBox="0 0 24 24" onclick="toggleEventFilter(this)">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+              </svg>
+            </div>
+            <div id="news-list" class="mail-list">
+              <div style="color: var(--text-sub); text-align: center; padding: 20px;">Lade Termine...</div>
+            </div>
+            <div id="no-favorites-msg" style="display: none; position: absolute; top: 50%; left: 0; right: 0; text-align: center; color: var(--text-sub); transform: translateY(-50%); padding: 20px; font-size: 14px; animation: none !important;" data-translate="news_no_favorites">Keine Favoriten markiert.</div>
+          </div>
+
+    </div>
+
+    <div id="event-modal" class="modal">
+      <div class="modal-header">
+        <h3 id="event-popup-title" class="modal-title">Event</h3>
+        <p id="event-popup-time" class="modal-subtitle">Zeit</p>
+      </div>
+      <div class="modal-info">
+        <div class="info-row">
+          <span class="info-label" data-translate="event_location">Ort</span>
+          <span id="event-popup-location" style="font-weight: 600; text-align: right; max-width: 60%;">Online</span>
+        </div>
+        <hr style="border: 0; border-top: 1px dashed var(--grid-line); margin: 5px 0;">
+        <div class="info-row" style="flex-direction: column; gap: 8px;">
+          <span class="info-label" data-translate="event_desc">Beschreibung</span>
+          <div id="event-popup-desc" style="font-size: 14px; line-height: 1.4; color: var(--text-main); max-height: 250px; overflow-y: auto; overscroll-behavior: contain; padding-right: 5px;"></div>
+        </div>
+      </div>
+      <div class="modal-buttons" style="margin-top: 20px;">
+        <button class="btn btn-secondary" onclick="closeModal()" data-translate="close_button">Schließen</button>
+        <button id="event-popup-ical-btn" class="btn btn-primary">iCal Download</button>
+      </div>
     </div>
 
     <div id="study-time-modal" class="modal">
@@ -1297,6 +1364,12 @@
         </div>
         <span data-translate="mails_nav">Mails</span>
       </div>
+          <div class="nav-item" onclick="switchTab('page-news', this)">
+            <div class="nav-icon-wrapper">
+          <svg class="nav-icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            </div>
+            <span data-translate="news_nav">News</span>
+          </div>
       <div class="nav-item" onclick="switchTab('page-profil', this)">
         <div class="nav-icon-wrapper">
           <svg class="nav-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
