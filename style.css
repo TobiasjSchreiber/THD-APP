@@ -662,15 +662,16 @@ body.theme-oled {
 
 /* Navbar Styles */
 .navbar {
-  position: fixed; /* Fixiert am unteren Rand für iPhones */
+  position: fixed;
   bottom: 0; 
   left: 0; 
   right: 0;
   display: flex;
   justify-content: space-around;
+  align-items: flex-start; /* NEU: Pinnt die Icons exakt an die Oberkante, weg vom Home-Balken */
   padding: 0 12px;
-  padding-bottom: env(safe-area-inset-bottom); /* iOS Abstand */
-  height: calc(56px + env(safe-area-inset-bottom)); /* Gesamthöhe */
+  padding-bottom: env(safe-area-inset-bottom); 
+  height: calc(56px + env(safe-area-inset-bottom)); 
   box-sizing: border-box; 
   background-color: var(--glass-bg);
   backdrop-filter: blur(20px);
@@ -680,23 +681,21 @@ body.theme-oled {
   flex-shrink: 0;
 }
 
+.nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  /* Das padding-bottom: 10px; haben wir entfernt, da es die Zentrierung verfälscht hat */
+  box-sizing: border-box;
+  height: 56px; /* NEU: Feste Höhe für den Klickbereich, umkreist den Safari-Bug */
+  color: var(--text-sub);
+  font-size: 10px;
+  cursor: pointer;
+  position: relative;
+}
 
-     
-
-    .nav-item {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding-bottom: 10px;
-      box-sizing: border-box;
-      height: 100%;
-      color: var(--text-sub);
-      font-size: 10px;
-      cursor: pointer;
-      position: relative;
-    }
 
     .nav-item.active { color: var(--text-main); }
     
