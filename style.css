@@ -738,7 +738,9 @@ body.theme-oled {
     }
 
     /* Profil Styles */
-    .profile-scroll-area { padding: 0 20px calc(20px + 56px + env(safe-area-inset-bottom)); overflow-y: auto; flex: 1; display: flex; flex-direction: column; border-radius: 20px; box-sizing: border-box; }
+.profile-scroll-area { 
+  /* Auch hier die 56px anpassen */
+  padding: 0 20px calc(20px + 80px + env(safe-area-inset-bottom)); 
     .profile-scroll-area > * { flex-shrink: 0; } /* Verhindert das Quetschen auf kleinen Bildschirmen */
     .profile-header-info { text-align: center; margin-bottom: 25px; }
     .profile-name { font-size: 24px; font-weight: 600; margin-bottom: 4px; }
@@ -766,8 +768,9 @@ body.theme-oled {
     }
 
     /* Mails Liste */
-    .mail-list {
-      padding: calc(60px + max(40px, env(safe-area-inset-top))) 15px calc(56px + env(safe-area-inset-bottom) + 15px);
+  .mail-list {
+  /* Im letzten calc()-Teil die 56px erhöhen */
+  padding: calc(60px + max(40px, env(safe-area-inset-top))) 15px calc(80px + env(safe-area-inset-bottom) + 15px);
       overflow-y: auto;
       display: flex;
       flex-direction: column;
@@ -1682,8 +1685,8 @@ body.theme-light .modal .btn-secondary {
       }
       
       .navbar {
-        position: relative;
-        bottom: auto; left: auto; right: auto;
+  position: fixed; /* Vorher: absolute */
+  bottom: 0; left: 0; right: 0;
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
         flex-direction: column;
