@@ -1,4 +1,25 @@
-    // Blockiere das Standard-Kontextmenü, um Probleme beim Drag & Drop auf Android zu vermeiden
+    // iOS PWA Viewport-Fix: Simuliert das Neuladen des Bildschirms beim Start
+    function fixIOSViewport() {
+      const vh = window.innerHeight;
+      document.documentElement.style.height = vh + 'px';
+      document.body.style.height = vh + 'px';
+      
+      const appContainer = document.querySelector('.app-container');
+      if (appContainer) {
+        appContainer.style.height = vh + 'px';
+      }
+    }
+
+    // Bei Änderungen (wie Drehen) neu berechnen
+    window.addEventListener('resize', fixIOSViewport);
+    window.addEventListener('orientationchange', () => setTimeout(fixIOSViewport, 100));
+    
+    // Beim App-Start ausführen (mit leichten Verzögerungen für das träge iOS)
+    fixIOSViewport();
+    setTimeout(fixIOSViewport, 50);
+    setTimeout(fixIOSViewport, 300);
+
+// Blockiere das Standard-Kontextmenü, um Probleme beim Drag & Drop auf Android zu vermeiden
     window.addEventListener('contextmenu', function (e) {
       e.preventDefault();
     });
