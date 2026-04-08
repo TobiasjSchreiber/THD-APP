@@ -98,8 +98,25 @@ body.theme-oled {
 }
 
     html {
-      height: 100%;
+      height: 100dvh; /* Neu: Sagt dem Browser, er soll die dynamische Höhe des Geräts nutzen */
+      height: 100%; /* Fallback für sehr alte Browser */
     }
+
+    body {
+      background-color: var(--bg-color);
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      height: 100dvh; /* Neu! */
+      min-height: 100%; /* Neu! */
+      overflow: hidden;
+      overscroll-behavior-y: none;
+      -webkit-user-select: none; 
+      -ms-user-select: none; 
+      user-select: none; 
+      -webkit-touch-callout: none; 
+    }
+
 
     body {
   background-color: var(--bg-color);
