@@ -908,7 +908,14 @@
       initHeaderEasterEgg();
       // updateScheduleProgress(true, true); // Wird jetzt von loadSchedule -> updateScheduleWidget übernommen
       setInterval(() => updateScheduleProgress(false, false), 60000); // Aktualisiert den Zeitindikator jede Minute ohne Neu-Animation
-      setInterval(refreshWebcam, 30000); // Aktualisiert das Webcam-Bild alle 30 Sekunden
+      setInterval(refreshWebcam, 5000); // Aktualisiert das Webcam-Bild alle 5 Sekunden
+      
+      // Aktualisiert die Webcam sofort, wenn die App aus dem Hintergrund zurückgeholt wird
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+          refreshWebcam();
+        }
+      });
       
       if (localStorage.getItem('thd_setup_completed') !== 'true') {
         checkInitialSetup();
@@ -4232,10 +4239,16 @@
 
     function refreshWebcam() {
       const timestamp = Date.now();
-      const thumb = document.getElementById('webcam-img-thumb');
-      const full = document.getElementById('webcam-img-full');
-      if (thumb) thumb.src = `https://th-deg.de/static/images/webcam.jpg?t=${timestamp}`;
-      if (full) full.src = `https://th-deg.de/static/images/webcam.jpg?t=${timestamp}`;
+      const newSrc = `https://th-deg.de/static/images/webcam.jpg?t=${timestamp}`;
+      
+      const tempImg = new Image();
+      tempImg.onload = () => {
+        const thumb = document.getElementById('webcam-img-thumb');
+        const full = document.getElementById('webcam-img-full');
+        if (thumb) thumb.src = newSrc;
+        if (full) full.src = newSrc;
+      };
+      tempImg.src = newSrc;
     }
 
     function openWebcamModal() {
