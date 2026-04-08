@@ -651,24 +651,26 @@ body.theme-oled {
     .toggle-input:checked + .toggle-slider:before { transform: translateX(20px); }
 
     /* Navbar Styles */
-    .navbar {
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      display: flex;
-      justify-content: space-around;
-      padding: 0 12px;
-      /* Das Padding schützt deine Icons vor dem Home-Indikator */
-      padding-bottom: env(safe-area-inset-bottom);
-      /* Gesamthöhe: 56px (statt 64px) + Apple Safe Area */
-      height: calc(56px + env(safe-area-inset-bottom));
-      box-sizing: border-box; 
-      background-color: var(--glass-bg);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-top: 1px solid var(--grid-line);
-      z-index: 50;
-      flex-shrink: 0;
-    }
+.navbar {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  display: flex;
+  justify-content: space-around;
+  padding: 0 12px;
+  /* Fügt den iOS-Abstand unten als Padding hinzu */
+  padding-bottom: env(safe-area-inset-bottom);
+  /* Berechnet die Gesamthöhe: 56px + iOS-Abstand */
+  height: calc(56px + env(safe-area-inset-bottom));
+  /* GANZ WICHTIG: border-box sorgt dafür, dass das Padding nach innen wächst, nicht nach außen */
+  box-sizing: border-box; 
+  background-color: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--grid-line);
+  z-index: 50;
+  flex-shrink: 0;
+}
+
      
 
     .nav-item {
