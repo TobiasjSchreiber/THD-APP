@@ -651,24 +651,26 @@ body.theme-oled {
     .toggle-input:checked + .toggle-slider { background-color: #34C759; }
     .toggle-input:checked + .toggle-slider:before { transform: translateX(20px); }
 
-    /* Navbar Styles */
+/* Navbar Styles */
 .navbar {
-  /* Deine bisherigen Styles bleiben hier (z.B. background-color, display: flex, etc.) */
-  position: fixed;
-  bottom: 0;
-  left: 0;
+  position: fixed; /* Fixiert am unteren Rand für iPhones */
+  bottom: 0; 
+  left: 0; 
   right: 0;
-  
-  /* 1. iOS Safe Area Padding hinzufügen */
-  /* Das drückt die Icons nach oben, damit sie nicht hinter dem Home-Strich verschwinden */
-  padding-bottom: env(safe-area-inset-bottom);
-  
-  /* 2. Höhe flexibel gestalten */
-  /* Falls du vorher eine feste Höhe (z.B. height: 60px) hattest, ändere das am besten so ab, 
-     damit die Leiste auf iPhones automatisch um den unteren Bereich wächst, die Icons aber Platz haben: */
-  height: auto;
-  min-height: 60px; /* Deine gewünschte Standard-Höhe für normale Geräte */
+  display: flex;
+  justify-content: space-around;
+  padding: 0 12px;
+  padding-bottom: env(safe-area-inset-bottom); /* iOS Abstand */
+  height: calc(56px + env(safe-area-inset-bottom)); /* Gesamthöhe */
+  box-sizing: border-box; 
+  background-color: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--grid-line);
+  z-index: 50;
+  flex-shrink: 0;
 }
+
 
      
 
@@ -738,9 +740,15 @@ body.theme-oled {
     }
 
     /* Profil Styles */
-.profile-scroll-area { 
-  /* Auch hier die 56px anpassen */
-  padding: 0 20px calc(20px + 80px + env(safe-area-inset-bottom)); 
+    .profile-scroll-area { 
+      padding: 0 20px calc(20px + 80px + env(safe-area-inset-bottom)); 
+      overflow-y: auto; 
+      flex: 1; 
+      display: flex; 
+      flex-direction: column; 
+      border-radius: 20px; 
+      box-sizing: border-box; 
+    }
     .profile-scroll-area > * { flex-shrink: 0; } /* Verhindert das Quetschen auf kleinen Bildschirmen */
     .profile-header-info { text-align: center; margin-bottom: 25px; }
     .profile-name { font-size: 24px; font-weight: 600; margin-bottom: 4px; }
@@ -751,11 +759,11 @@ body.theme-oled {
     .stat-label { font-size: 12px; color: var(--text-sub); }
     .progress-section { background: var(--card-bg); border-radius: 20px; padding: 20px; margin-bottom: 25px; }
     .section-title { font-size: 16px; font-weight: 600; margin-bottom: 12px; }
-.progress-bar-container { height: 10px; background: var(--progress-bg); border-radius: 5px; overflow: hidden; margin-bottom: 10px; position: relative; }
-.progress-bar-fill { position: absolute; left: 0; top: 0; height: 100%; background: var(--accent-blue); width: 42%; border-radius: 5px 0 0 5px; z-index: 1; }
-.progress-bar-extra { position: absolute; right: 0; top: 0; height: 100%; background: repeating-linear-gradient(-45deg, transparent, transparent 4px, var(--accent-orange) 4px, var(--accent-orange) 8px); width: 15%; box-sizing: border-box; z-index: 2; transition: opacity 0.3s ease; }
+    .progress-bar-container { height: 10px; background: var(--progress-bg); border-radius: 5px; overflow: hidden; margin-bottom: 10px; position: relative; }
+    .progress-bar-fill { position: absolute; left: 0; top: 0; height: 100%; background: var(--accent-blue); width: 42%; border-radius: 5px 0 0 5px; z-index: 1; }
+    .progress-bar-extra { position: absolute; right: 0; top: 0; height: 100%; background: repeating-linear-gradient(-45deg, transparent, transparent 4px, var(--accent-orange) 4px, var(--accent-orange) 8px); width: 15%; box-sizing: border-box; z-index: 2; transition: opacity 0.3s ease; }
     .progress-labels { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-sub); }
-.grades-list { display: flex; flex-direction: column; gap: 8px; max-height: 180px; overflow-y: auto; padding-right: 4px; border-radius: 12px; scroll-snap-type: y proximity; }
+    .grades-list { display: flex; flex-direction: column; gap: 8px; max-height: 180px; overflow-y: auto; padding-right: 4px; border-radius: 12px; scroll-snap-type: y proximity; }
     .grades-list::-webkit-scrollbar { width: 3px; }
     .grades-list::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
     body.theme-light .grades-list .list-item { background-color: var(--card-bg); }
@@ -766,6 +774,7 @@ body.theme-oled {
       flex-direction: column;
       width: 100%;
     }
+
 
     /* Mails Liste */
   .mail-list {
@@ -1685,8 +1694,8 @@ body.theme-light .modal .btn-secondary {
       }
       
       .navbar {
-  position: fixed; /* Vorher: absolute */
-  bottom: 0; left: 0; right: 0;
+        position: relative; /* Hier muss wieder relative stehen! */
+        bottom: auto; left: auto; right: auto;
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
         flex-direction: column;
@@ -1701,7 +1710,7 @@ body.theme-light .modal .btn-secondary {
         justify-content: center;
         gap: 30px;
       }
-      
+ 
       .nav-item {
         padding: 10px 0;
         flex: none;
