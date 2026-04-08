@@ -198,10 +198,11 @@ body.theme-oled {
 
     /* Home Styles */
     #page-home {
-      overflow-y: auto;
-      padding-bottom: calc(56px + env(safe-area-inset-bottom));
-      box-sizing: border-box;
-    }
+  overflow-y: auto;
+  /* Erhöhe hier die 56px auf z.B. 76px oder 80px */
+  padding-bottom: calc(80px + env(safe-area-inset-bottom)); 
+  box-sizing: border-box;
+}
     #page-home > *, #page-home .widget-column > * {
       flex-shrink: 0; /* Verhindert das Quetschen der Widgets bei kleinen Bildschirmen */
     }
@@ -652,23 +653,21 @@ body.theme-oled {
 
     /* Navbar Styles */
 .navbar {
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  display: flex;
-  justify-content: space-around;
-  padding: 0 12px;
-  /* Fügt den iOS-Abstand unten als Padding hinzu */
+  /* Deine bisherigen Styles bleiben hier (z.B. background-color, display: flex, etc.) */
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  
+  /* 1. iOS Safe Area Padding hinzufügen */
+  /* Das drückt die Icons nach oben, damit sie nicht hinter dem Home-Strich verschwinden */
   padding-bottom: env(safe-area-inset-bottom);
-  /* Berechnet die Gesamthöhe: 56px + iOS-Abstand */
-  height: calc(56px + env(safe-area-inset-bottom));
-  /* GANZ WICHTIG: border-box sorgt dafür, dass das Padding nach innen wächst, nicht nach außen */
-  box-sizing: border-box; 
-  background-color: var(--glass-bg);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-top: 1px solid var(--grid-line);
-  z-index: 50;
-  flex-shrink: 0;
+  
+  /* 2. Höhe flexibel gestalten */
+  /* Falls du vorher eine feste Höhe (z.B. height: 60px) hattest, ändere das am besten so ab, 
+     damit die Leiste auf iPhones automatisch um den unteren Bereich wächst, die Icons aber Platz haben: */
+  height: auto;
+  min-height: 60px; /* Deine gewünschte Standard-Höhe für normale Geräte */
 }
 
      
@@ -1134,7 +1133,12 @@ body.theme-light .modal .btn-secondary {
     }
     /* Such-Funktion & Highlight */
     .search-input-wrapper { padding: 15px; position: relative; margin-bottom: 20px; }
-#page-search { overflow-y: auto; padding-bottom: calc(56px + env(safe-area-inset-bottom)); box-sizing: border-box; }
+#page-search { 
+  overflow-y: auto; 
+  /* Auch hier den Wert erhöhen */
+  padding-bottom: calc(80px + env(safe-area-inset-bottom)); 
+  box-sizing: border-box; 
+}
 #page-search::-webkit-scrollbar { display: none; }
     .search-input { width: 100%; background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-main); padding: 12px 40px 12px 40px; border-radius: 12px; font-size: 16px; outline: none; box-sizing: border-box; background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="%23999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>'); background-repeat: no-repeat; background-position: 12px center; }
     .search-input::-webkit-search-cancel-button {
