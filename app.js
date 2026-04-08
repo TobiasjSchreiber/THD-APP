@@ -6,8 +6,14 @@
     // VOLLBILD-FUNKTION (Aktiviert beim ersten Tippen, aber NICHT als installierte App)
     document.body.addEventListener('click', function() {
       const isWindows = navigator.userAgent.includes('Windows');
+      
+      // NEU: Erkennt iPhones und iPads zuverlässig
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-      if (!isWindows && !isStandalone && !document.fullscreenElement) {
+      
+      // NEU: Den Vollbild-Befehl nicht ausführen, wenn es ein iOS-Gerät ist
+      if (!isWindows && !isIOS && !isStandalone && !document.fullscreenElement) {
         if (document.documentElement.requestFullscreen) {
           document.documentElement.requestFullscreen().catch(e => {});
         } else if (document.documentElement.webkitRequestFullscreen) {
@@ -15,6 +21,7 @@
         }
       }
     }, { once: true });
+
 
     // Tab Logik
     const pagesList = ['page-home', 'page-search', 'page-mails', 'page-news', 'page-profil'];
