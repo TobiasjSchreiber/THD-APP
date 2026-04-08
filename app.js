@@ -210,14 +210,73 @@
     async function loadNewsEvents() {
       const listContainer = document.getElementById('news-list');
       if (!listContainer) return;
-      
-      listContainer.innerHTML = '<div style="color: var(--text-sub); text-align: center; padding: 20px;">Lade Termine...</div>';
-      
+
       let eventsData = [];
       let useCache = false;
+      let isStale = false;
       
       const now = new Date();
       now.setHours(0, 0, 0, 0);
+
+      const renderList = (dataToRender) => {
+        listContainer.innerHTML = '';
+        let validEvents = dataToRender.filter(e => e.start >= now).sort((a, b) => a.start - b.start);
+        
+        if (validEvents.length === 0) {
+          listContainer.innerHTML = '<div style="color: var(--text-sub); text-align: center; padding: 20px;">Keine anstehenden Termine gefunden.</div>';
+          return;
+        }
+        
+        const monthsLoc = {
+            de: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'],
+            en: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+            fi: ['Tam', 'Hel', 'Maa', 'Huh', 'Tou', 'Kes', 'Hei', 'Elo', 'Syy', 'Lok', 'Mar', 'Jou']
+        };
+        
+        validEvents.forEach(event => {
+          const day = String(event.start.getDate()).padStart(2, '0');
+          const monthArr = monthsLoc[currentLanguage] || monthsLoc['de'];
+          const month = monthArr[event.start.getMonth()];
+          
+          let timeStr = "";
+          if (event.start.getHours() !== 0 || event.start.getMinutes() !== 0) {
+              const sh = String(event.start.getHours()).padStart(2, '0');
+              const sm = String(event.start.getMinutes()).padStart(2, '0');
+              let timeSuffix = currentLanguage === 'en' ? 'h' : (currentLanguage === 'fi' ? '' : ' Uhr');
+              timeStr = `${sh}:${sm} ${timeSuffix}`.trim();
+              
+              if (event.end && (event.end.getHours() !== 0 || event.end.getMinutes() !== 0)) {
+                  const eh = String(event.end.getHours()).padStart(2, '0');
+                  const em = String(event.end.getMinutes()).padStart(2, '0');
+                  timeStr = `${sh}:${sm} - ${eh}:${em} ${timeSuffix}`.trim();
+              }
+          } else {
+              timeStr = currentLanguage === 'en' ? 'All day' : (currentLanguage === 'fi' ? 'Koko päivä' : 'Ganztägig');
+          }
+          
+          const isFav = favoriteEvents.has(event.id);
+          const card = document.createElement('div');
+          card.className = 'list-item news-item' + (isFav ? ' is-favorite' : '');
+          card.style.cssText = 'flex-direction: column; align-items: flex-start; gap: 12px; padding: 16px; margin: 0; isolation: isolate; position: relative; background-color: var(--card-bg); border-radius: 16px; cursor: pointer;';
+          card.onclick = () => openEventModal(event.summary, timeStr, event.location, event.description, event.id);
+          
+          let locHtml = event.location ? `<div style="color: var(--text-sub); font-size: 13px; display: flex; align-items: center; gap: 6px; margin-top: 4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg><span style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${event.location}</span></div>` : '';
+          let descHtml = event.description ? `<div style="color: var(--text-sub); font-size: 13px; margin-top: 6px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4;">${event.description}</div>` : '';
+          
+          card.innerHTML = `
+             <div style="display: flex; gap: 15px; width: 100%; align-items: flex-start;">
+                <div style="background: rgba(58, 130, 247, 0.15); color: var(--accent-blue); border: 1.5px solid rgba(58, 130, 247, 0.3); border-radius: 12px; padding: 10px 8px; text-align: center; min-width: 58px; box-sizing: border-box; flex-shrink: 0; margin-top: 2px;"><div style="font-size: 22px; font-weight: 700; line-height: 1;">${day}</div><div style="font-size: 12px; font-weight: 600; text-transform: uppercase; margin-top: 4px;">${month}</div></div>
+                <div style="flex: 1; min-width: 0;">
+                   <div style="display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; width: 100%;"><div style="font-weight: 600; font-size: 15px; color: var(--text-main); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.3; flex: 1;">${event.summary}</div><div class="event-star ${isFav ? 'active' : ''}" onclick="toggleEventFavorite('${event.id}', event, this)" style="flex-shrink: 0; padding: 2px; cursor: pointer; margin-top: -2px; margin-right: -2px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg></div></div>
+                   <div style="color: var(--accent-blue); font-size: 13px; font-weight: 600; margin-top: 6px;">${timeStr}</div>
+                   ${locHtml}${descHtml}
+                </div>
+             </div>
+          `;
+          listContainer.appendChild(card);
+        });
+        checkEmptyFavorites();
+      };
       
       if (!isRealModeEnabled) {
         eventsData = [
@@ -233,21 +292,30 @@
           if (cachedNews) {
             try {
               const parsed = JSON.parse(cachedNews);
-              if (Date.now() - parsed.timestamp < 3600000 && parsed.events.every(e => e.description !== undefined)) {
+              if (parsed.events.every(e => e.description !== undefined)) {
                 eventsData = parsed.events.map(e => ({
                   ...e,
                   start: new Date(e.start),
                   end: e.end ? new Date(e.end) : null
                 }));
                 useCache = true;
+                
+                if (Date.now() - parsed.timestamp >= 3600000) {
+                  isStale = true; // Cache ist abgelaufen, aber wir zeigen ihn trotzdem sofort
+                }
               }
             } catch(e) {}
           }
         }
         
-        if (!useCache) {
+        if (useCache) {
+            renderList(eventsData);
+        }
+        
+        if (!useCache || isStale) {
           try {
             const targetUrl = encodeURIComponent('https://th-deg.de/de/studierende/campusleben/veranstaltungskalender');
+            if (!useCache) listContainer.innerHTML = '<div style="color: var(--text-sub); text-align: center; padding: 20px;">Lade Termine...</div>';
           const proxyUrl = 'https://api.codetabs.com/v1/proxy?quest=' + targetUrl;
           
         const response = await fetch(proxyUrl);
@@ -283,13 +351,16 @@
         const idArray = Array.from(seenIds);
         
         if (idArray.length === 0) {
-          listContainer.innerHTML = '<div style="color: var(--text-sub); text-align: center; padding: 20px;">Keine Termine gefunden.</div>';
+          if (!useCache) listContainer.innerHTML = '<div style="color: var(--text-sub); text-align: center; padding: 20px;">Keine Termine gefunden.</div>';
           return;
         }
         
-        listContainer.innerHTML = '<div style="color: var(--text-sub); text-align: center; padding: 20px;">Lese Kalender-Daten...</div>';
+        if (!useCache) {
+            listContainer.innerHTML = '<div style="color: var(--text-sub); text-align: center; padding: 20px;">Lese Kalender-Daten...</div>';
+        }
 
         let upcomingCount = 0;
+        eventsData = []; // Reset eventsData for fresh fetch
         
         // In 6er-Schritten herunterladen, um den Proxy nicht zu überlasten
         for (let i = 0; i < idArray.length; i += 6) {
@@ -382,92 +453,17 @@
             }));
         }
         
+        renderList(eventsData);
+        
         } catch (error) {
           console.error('Fehler beim Laden der News:', error);
-          listContainer.innerHTML = '<div style="color: #FF3B30; text-align: center; padding: 20px;">Fehler beim Laden der Termine.</div>';
+          if (!useCache) listContainer.innerHTML = '<div style="color: #FF3B30; text-align: center; padding: 20px;">Fehler beim Laden der Termine.</div>';
           return;
         }
       }
       }
-      
-        
-        listContainer.innerHTML = '';
-        
-        // Filtere alle Termine heraus, die in der Vergangenheit liegen
-        eventsData = eventsData.filter(e => e.start >= now);
-        
-        // Chronologisch aufsteigend sortieren
-        eventsData.sort((a, b) => a.start - b.start);
-        
-        if (eventsData.length === 0) {
-          listContainer.innerHTML = '<div style="color: var(--text-sub); text-align: center; padding: 20px;">Keine anstehenden Termine gefunden.</div>';
-          return;
-        }
-        
-        const monthsLoc = {
-            de: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'],
-            en: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-            fi: ['Tam', 'Hel', 'Maa', 'Huh', 'Tou', 'Kes', 'Hei', 'Elo', 'Syy', 'Lok', 'Mar', 'Jou']
-        };
-        
-        eventsData.forEach(event => {
-          const day = String(event.start.getDate()).padStart(2, '0');
-          const monthArr = monthsLoc[currentLanguage] || monthsLoc['de'];
-          const month = monthArr[event.start.getMonth()];
-          
-          let timeStr = "";
-          if (event.start.getHours() !== 0 || event.start.getMinutes() !== 0) {
-              const sh = String(event.start.getHours()).padStart(2, '0');
-              const sm = String(event.start.getMinutes()).padStart(2, '0');
-              let timeSuffix = currentLanguage === 'en' ? 'h' : (currentLanguage === 'fi' ? '' : ' Uhr');
-              timeStr = `${sh}:${sm} ${timeSuffix}`.trim();
-              
-              if (event.end && (event.end.getHours() !== 0 || event.end.getMinutes() !== 0)) {
-                  const eh = String(event.end.getHours()).padStart(2, '0');
-                  const em = String(event.end.getMinutes()).padStart(2, '0');
-                  timeStr = `${sh}:${sm} - ${eh}:${em} ${timeSuffix}`.trim();
-              }
-          } else {
-              timeStr = currentLanguage === 'en' ? 'All day' : (currentLanguage === 'fi' ? 'Koko päivä' : 'Ganztägig');
-          }
-          
-          const isFav = favoriteEvents.has(event.id);
-          const card = document.createElement('div');
-          card.className = 'list-item news-item' + (isFav ? ' is-favorite' : '');
-          card.style.cssText = 'flex-direction: column; align-items: flex-start; gap: 12px; padding: 16px; margin: 0; isolation: isolate; position: relative; background-color: var(--card-bg); border-radius: 16px; cursor: pointer;';
-          card.onclick = () => openEventModal(event.summary, timeStr, event.location, event.description, event.id);
-          
-          let locHtml = event.location ? `<div style="color: var(--text-sub); font-size: 13px; display: flex; align-items: center; gap: 6px; margin-top: 4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg><span style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${event.location}</span></div>` : '';
-          
-          let descHtml = event.description ? `<div style="color: var(--text-sub); font-size: 13px; margin-top: 6px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4;">${event.description}</div>` : '';
-          
-          card.innerHTML = `
-             <div style="display: flex; gap: 15px; width: 100%; align-items: flex-start;">
-                <div style="background: rgba(58, 130, 247, 0.15); color: var(--accent-blue); border: 1.5px solid rgba(58, 130, 247, 0.3); border-radius: 12px; padding: 10px 8px; text-align: center; min-width: 58px; box-sizing: border-box; flex-shrink: 0; margin-top: 2px;">
-                   <div style="font-size: 22px; font-weight: 700; line-height: 1;">${day}</div>
-                   <div style="font-size: 12px; font-weight: 600; text-transform: uppercase; margin-top: 4px;">${month}</div>
-                </div>
-                <div style="flex: 1; min-width: 0;">
-                   <div style="display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; width: 100%;">
-                       <div style="font-weight: 600; font-size: 15px; color: var(--text-main); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.3; flex: 1;">${event.summary}</div>
-                       <div class="event-star ${isFav ? 'active' : ''}" onclick="toggleEventFavorite('${event.id}', event, this)" style="flex-shrink: 0; padding: 2px; cursor: pointer; margin-top: -2px; margin-right: -2px;">
-                           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                               <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                           </svg>
-                       </div>
-                   </div>
-                   <div style="color: var(--accent-blue); font-size: 13px; font-weight: 600; margin-top: 6px;">${timeStr}</div>
-                   ${locHtml}
-                   ${descHtml}
-                </div>
-             </div>
-          `;
-          
-          listContainer.appendChild(card);
-        });
-        
-        checkEmptyFavorites();
     }
+      
 
     function toggleEventFavorite(id, e, btn) {
         e.stopPropagation(); // Verhindert, dass das Popup geöffnet wird
@@ -613,13 +609,15 @@
       }
     }
 
-    async function loadRealMensaData() {
+    async function loadRealMensaData(forceRefresh = false) {
       try {
         // 1. Mensa ID für Deggendorf (hartkodiert für schnellere Ladezeit)
         const mensaId = 198;
 
         // 2. Datum von heute formatieren (YYYY-MM-DD)
-        const today = new Date().toISOString().split('T')[0];
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        const today = now.toISOString().split('T')[0];
 
         let meals = null;
 
@@ -637,13 +635,15 @@
 
         if (typeof mensaDataCache !== 'undefined' && mensaDataCache[today]) {
             meals = mensaDataCache[today];
-        } else {
+        }
+
+        if (!meals || forceRefresh) {
             // 3. Speiseplan für heute abrufen
             const mealsRes = await fetch(`https://openmensa.org/api/v2/canteens/${mensaId}/days/${today}/meals`);
             
             // Falls heute zu ist (Wochenende/Feiertag), wirft die API einen 404 Fehler
             if (!mealsRes.ok) {
-                document.querySelector('#widget-mensa .scroll-list').innerHTML = emptyHtml;
+                if (!meals) document.querySelector('#widget-mensa .scroll-list').innerHTML = emptyHtml;
                 return;
             }
             
@@ -708,9 +708,6 @@
     async function loadSchedule() {
       const scheduleBox = document.getElementById('widget-schedule');
       if (!scheduleBox) return;
-      
-      // Lade-Animation anzeigen
-      scheduleBox.innerHTML = '<div class="schedule-item"><div class="schedule-title" style="color: var(--accent-blue);">Lade Stundenplan...</div></div>';
 
       // CACHE BUSTER: Zwingt den Proxy dazu, immer die allerneueste Datei von der Hochschule zu holen
       const iCalLink = 'https://thabella.th-deg.de/thabella/opn/event/calendarStudentSubscribe?group=' + currentStudyGroup + '&cb=' + Date.now();
@@ -720,120 +717,40 @@
 
       try {
         let text = null;
+        let needsFetch = true;
         const cachedSchedule = isStorageEnabled() ? localStorage.getItem('thd_schedule_cache') : null;
         
         if (cachedSchedule) {
             try {
                 const parsed = JSON.parse(cachedSchedule);
-                if (Date.now() - parsed.timestamp < 3600000 && parsed.group === currentStudyGroup) { // 1 Stunde Cache + Gruppe check
+                if (parsed.group === currentStudyGroup) { 
                     text = parsed.text;
+                    if (Date.now() - parsed.timestamp < 3600000) {
+                        needsFetch = false;
+                    }
                 }
             } catch(e) {}
         }
 
-        if (!text) {
+        if (text) {
+            parseScheduleText(text);
+        }
+
+        if (needsFetch) {
+            if (!text && (!window.allScheduleEvents || window.allScheduleEvents.length === 0)) {
+                scheduleBox.innerHTML = '<div class="schedule-item"><div class="schedule-title" style="color: var(--accent-blue);">Lade Stundenplan...</div></div>';
+            }
             const res = await fetch(proxyUrl);
             if (!res.ok) {
               throw new Error(`Netzwerkfehler: ${res.status}`);
             }
-            text = await res.text();
-            if (isStorageEnabled() && text && text.includes('BEGIN:VCALENDAR')) {
-                localStorage.setItem('thd_schedule_cache', JSON.stringify({ timestamp: Date.now(), text: text, group: currentStudyGroup }));
+            const newText = await res.text();
+            if (isStorageEnabled() && newText && newText.includes('BEGIN:VCALENDAR')) {
+                localStorage.setItem('thd_schedule_cache', JSON.stringify({ timestamp: Date.now(), text: newText, group: currentStudyGroup }));
             }
-        }
-
-        // Sicherheitscheck: Kam wirklich ein Kalender an?
-        if (!text || !text.includes('BEGIN:VCALENDAR')) {
-          scheduleBox.innerHTML = '<div class="schedule-item"><div class="schedule-title" style="color: #FF3B30;">Fehler: Falsche Daten geladen</div><div class="schedule-time">Proxy blockiert oder Link kaputt</div></div>';
-          return;
-        }
-        
-        const events = [];
-        
-        // VERBESSERTES PARSING: iCal Zeilenumbrüche (Folded lines) reparieren
-        const unfoldedText = text.replace(/\r?\n[ \t]/g, '');
-        const lines = unfoldedText.split('\n');
-        
-        let currentEvent = {};
-
-        // Kalender Zeile für Zeile auslesen
-        lines.forEach(line => {
-          line = line.trim();
-          if (line.startsWith('BEGIN:VEVENT')) currentEvent = {};
-          
-          // Tolerantes Parsen (falls Parameter wie SUMMARY;LANGUAGE=de: vorkommen)
-          if (line.startsWith('SUMMARY:') || line.startsWith('SUMMARY;')) {
-              currentEvent.title = line.substring(line.indexOf(':') + 1).replace(/\\,/g, ',');
-          }
-          if (line.startsWith('LOCATION:') || line.startsWith('LOCATION;')) {
-              currentEvent.room = line.substring(line.indexOf(':') + 1).replace(/\\,/g, ',');
-          }
-          
-          if (line.startsWith('DTSTART')) {
-             const match = line.match(/(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})/);
-             if(match) {
-                 currentEvent.start = `${match[4]}:${match[5]}`;
-                 const year = parseInt(match[1], 10);
-                 const month = parseInt(match[2], 10) - 1;
-                 const date = parseInt(match[3], 10);
-                 const hours = parseInt(match[4], 10);
-                 const mins = parseInt(match[5], 10);
-                 const eventDate = new Date(year, month, date, hours, mins);
-                 
-                 // UTC-Korrektur falls nötig
-                 if(line.includes('Z')) {
-                     eventDate.setHours(eventDate.getHours() + (eventDate.getTimezoneOffset() / -60));
-                     const locH = String(eventDate.getHours()).padStart(2, '0');
-                     const locM = String(eventDate.getMinutes()).padStart(2, '0');
-                     currentEvent.start = `${locH}:${locM}`;
-                 }
-                 
-                 let day = eventDate.getDay() - 1;
-                 if (day < 0) day = 6;
-                 currentEvent.day = day;
-                 currentEvent.dateObj = eventDate;
-             }
-          }
-          if (line.startsWith('DTEND')) {
-             const match = line.match(/(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})/);
-             if(match) {
-                 currentEvent.end = `${match[4]}:${match[5]}`;
-                 const year = parseInt(match[1], 10);
-                 const month = parseInt(match[2], 10) - 1;
-                 const date = parseInt(match[3], 10);
-                 const hours = parseInt(match[4], 10);
-                 const mins = parseInt(match[5], 10);
-                 const endDateObj = new Date(year, month, date, hours, mins);
-                 
-                 if(line.includes('Z')) {
-                     endDateObj.setHours(endDateObj.getHours() + (endDateObj.getTimezoneOffset() / -60));
-                     const locH = String(endDateObj.getHours()).padStart(2, '0');
-                     const locM = String(endDateObj.getMinutes()).padStart(2, '0');
-                     currentEvent.end = `${locH}:${locM}`;
-                 }
-                 currentEvent.endDateObj = endDateObj;
-             }
-          }
-          if (line.startsWith('END:VEVENT')) {
-            if(currentEvent.title && currentEvent.dateObj) {
-              // Fallback: Wenn die API kein Ende liefert, addieren wir exakt 90 Minuten zur Startzeit
-              if (!currentEvent.end || !currentEvent.endDateObj) {
-                const fallbackEnd = new Date(currentEvent.dateObj.getTime() + 90 * 60000);
-                currentEvent.endDateObj = fallbackEnd;
-                const locH = String(fallbackEnd.getHours()).padStart(2, '0');
-                const locM = String(fallbackEnd.getMinutes()).padStart(2, '0');
-                currentEvent.end = `${locH}:${locM}`;
-              }
-              events.push(currentEvent);
+            if (newText && newText !== text) {
+                parseScheduleText(newText);
             }
-          }
-        });
-
-        window.allScheduleEvents = events;
-
-        // Wenn das Modal gerade offen ist, direkt aktualisieren
-        if (document.getElementById('schedule-modal').classList.contains('show')) {
-            updateScheduleModalView();
         }
         
         const savedIlearnHtml = localStorage.getItem('thd_ilearn_html');
@@ -886,8 +803,70 @@
 
       } catch (err) {
         console.error('Fehler beim Stundenplan:', err);
-        scheduleBox.innerHTML = '<div class="schedule-item"><div class="schedule-title" style="color: #FF3B30;">Verbindungsfehler</div></div>';
+        if (!window.allScheduleEvents || window.allScheduleEvents.length === 0) {
+            scheduleBox.innerHTML = '<div class="schedule-item"><div class="schedule-title" style="color: #FF3B30;">Verbindungsfehler</div></div>';
+        }
       }
+    }
+
+    function parseScheduleText(calText) {
+        if (!calText || !calText.includes('BEGIN:VCALENDAR')) return;
+        const events = [];
+        const unfoldedText = calText.replace(/\r?\n[ \t]/g, '');
+        const lines = unfoldedText.split('\n');
+        let currentEvent = {};
+
+        lines.forEach(line => {
+          line = line.trim();
+          if (line.startsWith('BEGIN:VEVENT')) currentEvent = {};
+          
+          if (line.startsWith('SUMMARY:') || line.startsWith('SUMMARY;')) currentEvent.title = line.substring(line.indexOf(':') + 1).replace(/\\,/g, ',');
+          if (line.startsWith('LOCATION:') || line.startsWith('LOCATION;')) currentEvent.room = line.substring(line.indexOf(':') + 1).replace(/\\,/g, ',');
+          
+          if (line.startsWith('DTSTART')) {
+             const match = line.match(/(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})/);
+             if(match) {
+                 currentEvent.start = `${match[4]}:${match[5]}`;
+                 const eventDate = new Date(parseInt(match[1], 10), parseInt(match[2], 10) - 1, parseInt(match[3], 10), parseInt(match[4], 10), parseInt(match[5], 10));
+                 if(line.includes('Z')) {
+                     eventDate.setHours(eventDate.getHours() + (eventDate.getTimezoneOffset() / -60));
+                     currentEvent.start = `${String(eventDate.getHours()).padStart(2, '0')}:${String(eventDate.getMinutes()).padStart(2, '0')}`;
+                 }
+                 let day = eventDate.getDay() - 1;
+                 if (day < 0) day = 6;
+                 currentEvent.day = day;
+                 currentEvent.dateObj = eventDate;
+             }
+          }
+          if (line.startsWith('DTEND')) {
+             const match = line.match(/(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})/);
+             if(match) {
+                 currentEvent.end = `${match[4]}:${match[5]}`;
+                 const endDateObj = new Date(parseInt(match[1], 10), parseInt(match[2], 10) - 1, parseInt(match[3], 10), parseInt(match[4], 10), parseInt(match[5], 10));
+                 if(line.includes('Z')) {
+                     endDateObj.setHours(endDateObj.getHours() + (endDateObj.getTimezoneOffset() / -60));
+                     currentEvent.end = `${String(endDateObj.getHours()).padStart(2, '0')}:${String(endDateObj.getMinutes()).padStart(2, '0')}`;
+                 }
+                 currentEvent.endDateObj = endDateObj;
+             }
+          }
+          if (line.startsWith('END:VEVENT')) {
+            if(currentEvent.title && currentEvent.dateObj) {
+              if (!currentEvent.end || !currentEvent.endDateObj) {
+                const fallbackEnd = new Date(currentEvent.dateObj.getTime() + 90 * 60000);
+                currentEvent.endDateObj = fallbackEnd;
+                currentEvent.end = `${String(fallbackEnd.getHours()).padStart(2, '0')}:${String(fallbackEnd.getMinutes()).padStart(2, '0')}`;
+              }
+              events.push(currentEvent);
+            }
+          }
+        });
+
+        window.allScheduleEvents = events;
+        if (document.getElementById('schedule-modal').classList.contains('show')) {
+            updateScheduleModalView();
+        }
+        updateScheduleWidget(true);
     }
 
     // Initiale Setup-Logik für Slider
@@ -900,6 +879,58 @@
 
       // Wecke das kostenlose Render-Backend lautlos im Hintergrund auf (Cold Start umgehen)
       fetch('https://thd-app-backend.onrender.com/').catch(() => {});
+
+      // Helper-Funktion: Verhindert, dass ein klassisches Raster-Mausrad am PC Elemente überspringt
+      function fixMouseWheelSnapping(widgetId, itemHeight) {
+          const widget = document.getElementById(widgetId);
+          if (!widget) return;
+
+          let isWheeling = false;
+          let scrollEndTimer = null;
+
+          // Dieser Listener erkennt, wenn das 'smooth' Scrollen beendet ist.
+          widget.addEventListener('scroll', () => {
+              // Nur reagieren, wenn wir das Scrollen selbst ausgelöst haben
+              if (!isWheeling) return; 
+              
+              clearTimeout(scrollEndTimer);
+              scrollEndTimer = setTimeout(() => {
+                  // Wenn 150ms nichts passiert, ist das Scrollen vorbei.
+                  isWheeling = false;
+              }, 150);
+          });
+
+          widget.addEventListener('wheel', (e) => {
+              // Trackpads und weiche Scrollräder senden oft kleine oder ungerade deltaY Werte.
+              // Raster-Mausräder (Windows) senden meist größere Ganzzahlen (z.B. 100, 120, 53).
+              if (Math.abs(e.deltaY) < 20 || e.deltaY % 1 !== 0) return; 
+              
+              e.preventDefault();
+
+              // Ignoriere neue Mausrad-Events, während eine Animation läuft.
+              if (isWheeling) return;
+              
+              const direction = Math.sign(e.deltaY);
+              const currentIndex = Math.round(widget.scrollTop / itemHeight);
+              let targetTop = (currentIndex + direction) * itemHeight;
+              
+              // Verhindert das Hängenbleiben an den Rändern (vermeidet unnötigen scrollTo-Aufruf)
+              const maxScroll = widget.scrollHeight - widget.clientHeight;
+              targetTop = Math.max(0, Math.min(targetTop, maxScroll));
+              
+              if (Math.abs(widget.scrollTop - targetTop) < 1) return;
+
+              isWheeling = true;
+              
+              // Sicherheits-Fallback, falls das Scroll-Event verschluckt wird
+              clearTimeout(scrollEndTimer);
+              scrollEndTimer = setTimeout(() => isWheeling = false, 400);
+
+              widget.scrollTo({ top: targetTop, behavior: 'smooth' });
+          }, { passive: false });
+      }
+      fixMouseWheelSnapping('widget-ects', 150);
+      fixMouseWheelSnapping('widget-schedule', 80); // 68px Höhe + 12px Gap
 
       setTimeout(() => {
         const activeRental = document.querySelector('#rental-views-container .rental-view.active');
@@ -942,6 +973,10 @@
       document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'visible') {
           refreshWebcam();
+          if (isRealModeEnabled) {
+            loadRealMensaData();
+            updateScheduleWidget(false);
+          }
         }
       });
       
@@ -1365,8 +1400,6 @@
     async function updateMensaModalView() {
         const list = document.getElementById('mensa-modal-list');
         const viewport = document.getElementById('mensa-viewport');
-        
-        list.innerHTML = '<div style="text-align: center; color: var(--text-sub); padding: 30px 10px;">Lade Speiseplan...</div>';
 
         if (!isRealModeEnabled) {
             const demoMenus = [
@@ -1435,13 +1468,16 @@
         const targetDate = new Date(startOfCurrentWeek);
         targetDate.setDate(startOfCurrentWeek.getDate() + (mensaWeekOffset * 7) + currentMensaDay);
         
-        const dateStr = targetDate.toISOString().split('T')[0];
+        const localTarget = new Date(targetDate);
+        localTarget.setMinutes(localTarget.getMinutes() - localTarget.getTimezoneOffset());
+        const dateStr = localTarget.toISOString().split('T')[0];
 
         let meals = [];
         try {
             if (mensaDataCache[dateStr]) {
                 meals = mensaDataCache[dateStr];
             } else {
+                list.innerHTML = '<div style="text-align: center; color: var(--text-sub); padding: 30px 10px;">Lade Speiseplan...</div>';
                 const mensaId = 198;
                 const res = await fetch(`https://openmensa.org/api/v2/canteens/${mensaId}/days/${dateStr}/meals`);
                 if (res.ok) {
@@ -5916,7 +5952,7 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
                 if (widgetEcts) {
                     widgetEcts.style.scrollSnapType = 'none';
                     widgetEcts.scrollTop = parseInt(savedEctsScrollIndex, 10) * 150;
-                setTimeout(() => widgetEcts.style.scrollSnapType = 'y proximity', 50);
+                setTimeout(() => widgetEcts.style.scrollSnapType = 'y mandatory', 50);
                 }
             }, 50);
         }
@@ -6002,10 +6038,10 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
         if (cachedMensa) {
             try {
                 const parsed = JSON.parse(cachedMensa);
-                if (Date.now() - parsed.timestamp < 3600000) { // 1 Stunde
-                    mensaDataCache = parsed.data;
-                } else {
-                    localStorage.removeItem('thd_mensa_cache');
+                mensaDataCache = parsed.data; // Immer übernehmen (Stale-while-revalidate)
+                
+                if (Date.now() - parsed.timestamp >= 3600000 && isRealModeEnabled) { 
+                    setTimeout(() => loadRealMensaData(true), 2000); // Veralteten Cache im Hintergrund stumm aktualisieren
                 }
             } catch(e) {}
         }
@@ -6266,11 +6302,13 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
         let targetIndex = 0;
         
         if (isPastDay) {
-            targetIndex = items.length - 1; // Ganz nach unten scrollen
+            targetIndex = Math.max(0, items.length - 2); // Ganz nach unten scrollen
         } else if (isFutureDay) {
             targetIndex = 0; // Ganz oben bleiben
         } else {
-            targetIndex = activeIndex !== -1 ? activeIndex : (nextIndex !== -1 ? nextIndex : items.length - 1);
+            let focusIndex = activeIndex !== -1 ? activeIndex : (nextIndex !== -1 ? nextIndex : items.length - 1);
+            // Zeige die aktive/nächste Stunde im unteren Slot an, beendete darüber
+            targetIndex = Math.max(0, focusIndex - 1);
         }
         
         const scheduleBox = document.getElementById('widget-schedule');
@@ -6284,10 +6322,10 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
                 behavior: 'smooth'
               });
               // Snapping nach dem Scrollen wieder aktivieren
-          setTimeout(() => scheduleBox.style.scrollSnapType = 'y proximity', 600); 
+          setTimeout(() => scheduleBox.style.scrollSnapType = 'y mandatory', 600); 
             }, 100); // Schnellerer Start der Scroll-Animation
           } else {
-        scheduleBox.style.scrollSnapType = 'y proximity';
+        scheduleBox.style.scrollSnapType = 'y mandatory';
           }
         }
       }

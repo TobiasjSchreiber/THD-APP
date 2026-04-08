@@ -241,7 +241,7 @@ body.theme-oled {
       transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
       height: 150px;
       overflow-y: auto !important;
-      scroll-snap-type: y proximity;
+      scroll-snap-type: y mandatory;
       overscroll-behavior-y: contain;
       touch-action: pan-y;
     }
@@ -281,7 +281,7 @@ body.theme-oled {
       border-radius: 24px;
   height: 150px; /* Leicht erhöht (150px statt 148px) für Displays mit Subpixel-Rundungsfehlern */
       overflow-y: auto !important; /* Überschreibt das globale 'overflow: hidden' der Widgets */
-      scroll-snap-type: y proximity; /* Aktiviert sanftes Einrasten, erleichtert das Scrollen einzelner Zeilen */
+      scroll-snap-type: y mandatory; /* Aktiviert sanftes Einrasten, erleichtert das Scrollen einzelner Zeilen */
       overscroll-behavior-y: contain; /* Verhindert das Wischen der gesamten Seite am Rand */
       touch-action: pan-y; /* Garantiert reibungsloses Scrollen auf Touch-Geräten */
     }
@@ -1713,8 +1713,9 @@ body.theme-light .modal .btn-secondary {
         background-color: var(--card-bg);
         border: 1px solid var(--border-color);
         border-radius: 28px;
-        padding-top: 25px;
-        padding-bottom: 25px;
+        padding: 25px 0;
+        align-items: center;
+        flex-shrink: 0;
         justify-content: center;
         gap: 30px;
       }
@@ -1723,6 +1724,7 @@ body.theme-light .modal .btn-secondary {
         padding: 10px 0;
         flex: none;
         height: 70px;
+        width: 100%;
       }
       
       .nav-item span {
@@ -1853,8 +1855,7 @@ body.theme-light .modal .btn-secondary {
     height: max-content;
     margin: auto 10px;
     gap: 15px;
-    padding-top: 15px;
-    padding-bottom: 15px;
+        padding: 15px 0;
     border-radius: 22px;
   }
   
