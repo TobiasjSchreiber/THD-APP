@@ -1713,9 +1713,8 @@ body.theme-light .modal .btn-secondary {
         background-color: var(--card-bg);
         border: 1px solid var(--border-color);
         border-radius: 28px;
-        padding: 25px 0;
-        align-items: center;
-        flex-shrink: 0;
+        padding-top: 25px;
+        padding-bottom: 25px;
         justify-content: center;
         gap: 30px;
       }
@@ -1724,7 +1723,6 @@ body.theme-light .modal .btn-secondary {
         padding: 10px 0;
         flex: none;
         height: 70px;
-        width: 100%;
       }
       
       .nav-item span {
@@ -1855,7 +1853,8 @@ body.theme-light .modal .btn-secondary {
     height: max-content;
     margin: auto 10px;
     gap: 15px;
-        padding: 15px 0;
+      padding-top: 15px;
+      padding-bottom: 15px;
     border-radius: 22px;
   }
   
