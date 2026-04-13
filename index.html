@@ -735,7 +735,7 @@
         <h3 class="modal-title" data-translate="widget_settings_title">Widgets anpassen</h3>
       </div>
       <div class="modal-info" style="margin-bottom: 20px; max-height: 60vh; overflow-y: auto; overflow-x: hidden; padding-right: 5px;">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px;">
 
           <!-- Statistiken -->
           <div class="widget-preview-card" style="background: var(--card-bg); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 10px; border: 1px solid var(--border-color); position: relative;">
@@ -834,7 +834,22 @@
               </label>
             </div>
             <div style="background: var(--item-bg); border-radius: 10px; height: 50px; display: flex; flex-direction: column; justify-content: center; padding: 0 10px; opacity: 0.7; position: relative;">
-              <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="color: #FF9500; position: absolute; right: 10px; top: 12px;"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+              <div id="settings-weather-icon-container" style="position: absolute; right: 10px; top: 12px; width: 24px; height: 24px;">
+                <svg viewBox="0 0 24 24" width="100%" height="100%" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="color: #FF9500;">
+                    <g class="weather-sun">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </g>
+                    <path class="weather-cloud" style="fill: var(--item-bg); stroke: var(--text-main);" d="M17.5 19H9a7 7 0 1 1 6.71-5h1.79a4.5 4.5 0 1 1 0 9Z"></path>
+                </svg>
+              </div>
               <div style="font-size: 14px; font-weight: 600; margin-bottom: 2px;">24°C</div>
               <div style="width: 40%; height: 4px; background: var(--text-sub); border-radius: 2px;"></div>
             </div>
@@ -1253,7 +1268,22 @@
             <span style="font-size: 32px; font-weight: 300;" id="weather-temp">18°C</span>
             <span style="font-size: 12px; color: var(--text-sub);" id="weather-desc" data-translate="widget_weather_desc">Leicht bewölkt</span>
           </div>
-          <svg viewBox="0 0 24 24" width="48" height="48" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="color: #FF9500;"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+          <div id="weather-icon-container" style="width: 48px; height: 48px;">
+              <svg viewBox="0 0 24 24" width="100%" height="100%" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="color: #FF9500;">
+                  <g class="weather-sun">
+                      <circle cx="12" cy="12" r="5"></circle>
+                      <line x1="12" y1="1" x2="12" y2="3"></line>
+                      <line x1="12" y1="21" x2="12" y2="23"></line>
+                      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                      <line x1="1" y1="12" x2="3" y2="12"></line>
+                      <line x1="21" y1="12" x2="23" y2="12"></line>
+                      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                  </g>
+                  <path class="weather-cloud" style="fill: var(--card-bg); stroke: var(--text-main);" d="M17.5 19H9a7 7 0 1 1 6.71-5h1.79a4.5 4.5 0 1 1 0 9Z"></path>
+              </svg>
+          </div>
         </div>
       </div>
 
