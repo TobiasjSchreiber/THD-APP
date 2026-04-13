@@ -6557,7 +6557,7 @@ function toggleWeatherDetails() {
     const weatherIconContainer = document.getElementById('weather-icon-container');
     const settingsWeatherIconContainer = document.getElementById('settings-weather-icon-container');
 
-    const cloudySvg = `<svg viewBox="0 0 24 24" width="100%" height="100%" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="color: #FF9500;">
+    const cloudySvg = `<svg viewBox="0 0 24 24" width="100%" height="100%" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="color: #FF9500; overflow: visible;">
         <g class="weather-sun">
             <circle cx="12" cy="12" r="5"></circle>
             <line x1="12" y1="1" x2="12" y2="3"></line>
@@ -6569,11 +6569,11 @@ function toggleWeatherDetails() {
             <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
             <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
         </g>
-        <path class="weather-cloud" style="fill: var(--card-bg); stroke: var(--text-main);" d="M17.5 19H9a7 7 0 1 1 6.71-5h1.79a4.5 4.5 0 1 1 0 9Z"></path>
+        <path class="weather-cloud" style="fill: var(--card-bg); stroke: var(--text-main);" d="M7 19h10a4.5 4.5 0 0 0 .68-8.95a6 6 0 0 0-11.36 0A4.5 4.5 0 0 0 7 19Z"></path>
     </svg>`;
 
-    const rainSvg = `<svg viewBox="0 0 24 24" width="100%" height="100%" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="color: #4A90E2;">
-        <path class="weather-cloud" style="fill: var(--card-bg); stroke: var(--text-main);" d="M17.5 19H9a7 7 0 1 1 6.71-5h1.79a4.5 4.5 0 1 1 0 9Z"></path>
+    const rainSvg = `<svg viewBox="0 0 24 24" width="100%" height="100%" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="color: #4A90E2; overflow: visible;">
+        <path class="weather-cloud" style="fill: var(--card-bg); stroke: var(--text-main);" d="M7 19h10a4.5 4.5 0 0 0 .68-8.95a6 6 0 0 0-11.36 0A4.5 4.5 0 0 0 7 19Z"></path>
         <line class="weather-drop-1" x1="8" y1="19" x2="8" y2="21"></line>
         <line class="weather-drop-2" x1="12" y1="19" x2="12" y2="21"></line>
         <line class="weather-drop-3" x1="16" y1="19" x2="16" y2="21"></line>
