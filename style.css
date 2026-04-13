@@ -43,7 +43,7 @@ body.theme-light {
   --text-sub: #666666;
   --accent-orange: #FF9500;
   --accent-blue: #007AFF;
-  
+
   --border-color: #D1D1D6;
   --item-bg: rgba(0, 0, 0, 0.05);
   --track-bg: #D1D1D6;
@@ -74,7 +74,7 @@ body.theme-oled {
   --text-sub: #999999;
   --accent-orange: #FF5A00;
   --accent-blue: #3A82F7;
-  
+
   --border-color: #3C3C3C;
   --item-bg: rgba(255, 255, 255, 0.08);
   --track-bg: #353535;
@@ -106,20 +106,20 @@ body.theme-oled {
       margin: 0;
       padding: 0;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      
+
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
       height: 100dvh;
-      
+
       overflow: hidden;
       overscroll-behavior-y: none;
-      -webkit-user-select: none; 
-      -ms-user-select: none; 
-      user-select: none; 
-      -webkit-touch-callout: none; 
+      -webkit-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
     }
 
-  
+
     /* --- Privacy Mode --- */
     body.privacy-mode .sensitive-data {
       filter: blur(6px);
@@ -155,7 +155,7 @@ body.theme-oled {
     }
 
     .page {
-      display: none; 
+      display: none;
       flex-direction: column;
       flex: 1;
       height: 100%;
@@ -209,7 +209,7 @@ body.theme-oled {
     #page-home {
   overflow-y: auto;
   /* Erhöhe hier die 56px auf z.B. 76px oder 80px */
-  padding-bottom: calc(80px + env(safe-area-inset-bottom)); 
+  padding-bottom: calc(80px + env(safe-area-inset-bottom));
   box-sizing: border-box;
 }
     #page-home > *, #page-home .widget-column > * {
@@ -394,28 +394,28 @@ body.theme-oled {
       margin-bottom: 15px;
     }
     .parking-title { font-weight: 600; font-size: 16px; }
-    .parking-status { 
-      font-size: 12px; 
-      font-weight: 600; 
-      padding: 4px 10px; 
-      border-radius: 10px; 
-      background: rgba(255, 90, 0, 0.15); 
-      color: var(--accent-orange); 
+    .parking-status {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 10px;
+      background: rgba(255, 90, 0, 0.15);
+      color: var(--accent-orange);
     }
-    .parking-bar-bg { 
-      height: 10px; 
-      background: var(--progress-bg); 
-      border-radius: 5px; 
-      overflow: hidden; 
-      margin-bottom: 8px; 
+    .parking-bar-bg {
+      height: 10px;
+      background: var(--progress-bg);
+      border-radius: 5px;
+      overflow: hidden;
+      margin-bottom: 8px;
     }
-    .parking-bar-fill { 
-      height: 100%; 
-      width: 0%; 
+    .parking-bar-fill {
+      height: 100%;
+      width: 0%;
     }
-    .parking-text { 
-      font-size: 12px; 
-      color: var(--text-sub); 
+    .parking-text {
+      font-size: 12px;
+      color: var(--text-sub);
     }
 
     /* Chart Styles für Parkplatz-Modal */
@@ -552,7 +552,7 @@ body.theme-oled {
     .rental-title { font-weight: 600; font-size: 16px; }
 .rental-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border-color); }
 .rental-item:last-child { border-bottom: none; padding-bottom: 0; }
-    
+
     #rental-segments .segment-highlight {
       top: 2px;
       bottom: 2px;
@@ -574,14 +574,70 @@ body.theme-oled {
       transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
     }
 
-    /* Standalone VPN & Dienste & ECTS & Schedule */
-    #page-home > .vpn-card, #page-home > .services-card, #page-home > .ects-free, #page-home > .schedule-box,
-    #page-home .widget-column > .vpn-card, #page-home .widget-column > .services-card, #page-home .widget-column > .ects-free, #page-home .widget-column > .schedule-box {
+    /* Standalone VPN & Dienste & ECTS & Schedule & Weather & Todo */
+    #page-home > .vpn-card, #page-home > .services-card, #page-home > .ects-free, #page-home > .schedule-box, #page-home > .weather-card, #page-home > .todo-card,
+    #page-home .widget-column > .vpn-card, #page-home .widget-column > .services-card, #page-home .widget-column > .ects-free, #page-home .widget-column > .schedule-box, #page-home .widget-column > .weather-card, #page-home .widget-column > .todo-card {
       margin: 0 15px 15px;
       flex: none;
       width: calc(100% - 30px);
       box-sizing: border-box;
     }
+
+    .weather-card, .todo-card {
+      background-color: var(--card-bg);
+      border-radius: 24px;
+      padding: 20px;
+    }
+
+    .todo-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .todo-item:last-child {
+      border-bottom: none;
+    }
+    .todo-checkbox {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 2px solid var(--text-sub);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .todo-checkbox.checked {
+      background-color: var(--accent-blue);
+      border-color: var(--accent-blue);
+    }
+    .todo-checkbox svg {
+      stroke: white;
+      stroke-width: 3;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      display: none;
+    }
+    .todo-checkbox.checked svg {
+      display: block;
+    }
+    .todo-text {
+      flex: 1;
+      font-size: 14px;
+      color: var(--text-main);
+      transition: color 0.2s, text-decoration 0.2s;
+      outline: none;
+    }
+    .todo-item.checked .todo-text {
+      color: var(--text-sub);
+      text-decoration: line-through;
+    }
+    #todo-list::-webkit-scrollbar { width: 3px; }
+    #todo-list::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
 
     /* VPN Widget (angepasst für exakt halbe Breite) */
     .vpn-card {
@@ -663,16 +719,16 @@ body.theme-oled {
 /* Navbar Styles */
 .navbar {
   position: fixed;
-  bottom: 0; 
-  left: 0; 
+  bottom: 0;
+  left: 0;
   right: 0;
   display: flex;
   justify-content: space-around;
   align-items: flex-start; /* NEU: Pinnt die Icons exakt an die Oberkante, weg vom Home-Balken */
   padding: 0 12px;
-  padding-bottom: env(safe-area-inset-bottom); 
-  height: calc(56px + env(safe-area-inset-bottom)); 
-  box-sizing: border-box; 
+  padding-bottom: env(safe-area-inset-bottom);
+  height: calc(56px + env(safe-area-inset-bottom));
+  box-sizing: border-box;
   background-color: var(--glass-bg);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
@@ -698,7 +754,7 @@ body.theme-oled {
 
 
     .nav-item.active { color: var(--text-main); }
-    
+
 .nav-item span {
   max-height: 0;
   opacity: 0;
@@ -712,17 +768,17 @@ body.theme-oled {
   transform: translateY(0);
   margin-top: 4px;
 }
-    
-    .nav-icon { 
-      width: 24px; 
-      height: 24px; 
-      stroke: currentColor; 
-      fill: none; 
-      stroke-width: 2; 
-      stroke-linecap: round; 
-      stroke-linejoin: round; 
+
+    .nav-icon {
+      width: 24px;
+      height: 24px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
     }
-    
+
     .nav-icon-wrapper {
       position: relative;
       display: inline-flex;
@@ -748,14 +804,14 @@ body.theme-oled {
     }
 
     /* Profil Styles */
-    .profile-scroll-area { 
-      padding: 0 20px calc(20px + 80px + env(safe-area-inset-bottom)); 
-      overflow-y: auto; 
-      flex: 1; 
-      display: flex; 
-      flex-direction: column; 
-      border-radius: 20px; 
-      box-sizing: border-box; 
+    .profile-scroll-area {
+      padding: 0 20px calc(20px + 80px + env(safe-area-inset-bottom));
+      overflow-y: auto;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      border-radius: 20px;
+      box-sizing: border-box;
     }
     .profile-scroll-area > * { flex-shrink: 0; } /* Verhindert das Quetschen auf kleinen Bildschirmen */
     .profile-header-info { text-align: center; margin-bottom: 25px; }
@@ -776,7 +832,7 @@ body.theme-oled {
     .grades-list::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
     body.theme-light .grades-list .list-item { background-color: var(--card-bg); }
     .placeholder-content { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-sub); }
-    
+
     .profile-content-wrapper {
       display: flex;
       flex-direction: column;
@@ -795,7 +851,7 @@ body.theme-oled {
       flex: 1;
       border-radius: 16px;
     }
-    
+
     .mail-list::-webkit-scrollbar { width: 3px; }
     .mail-list::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
 
@@ -820,9 +876,9 @@ body.theme-oled {
       background-color: var(--accent-blue);
       border-radius: 50%;
     }
-    
+
     .mail-item.unread { padding-left: 30px; }
-    
+
     .mail-top { display: flex; justify-content: space-between; align-items: center; }
     .mail-sender { font-size: 15px; font-weight: 600; }
     .mail-time { font-size: 12px; color: var(--text-sub); }
@@ -901,7 +957,7 @@ body.theme-oled {
       transition: transform 0.2s, background-color 0.2s;
     }
     .fab-button:active { transform: scale(0.95); }
-    
+
     .compose-input {
       width: 100%;
       padding: 12px 15px;
@@ -968,7 +1024,7 @@ body.theme-oled {
       background-color: var(--accent-orange);
       box-shadow: 0 4px 15px rgba(230, 115, 50, 0.4);
     }
-    
+
     .notification-view { flex: 1; flex-direction: column; overflow: hidden; }
     .overlay {
       position: fixed;
@@ -987,12 +1043,12 @@ body.theme-oled {
       transform: translate(-50%, -50%) scale(0.9);
       width: calc(100% - 40px);
       max-width: 340px;
-      
+
       background-color: var(--modal-glass);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       border: 1px solid var(--modal-border);
-      
+
       border-radius: 28px;
       padding: 24px;
       z-index: 100;
@@ -1084,7 +1140,7 @@ body.theme-light .modal .btn-secondary {
       justify-content: space-between;
       font-size: 16px;
     }
-    
+
     .info-label { color: var(--text-sub); }
 
     .minimap {
@@ -1153,11 +1209,11 @@ body.theme-light .modal .btn-secondary {
     }
     /* Such-Funktion & Highlight */
     .search-input-wrapper { padding: 15px; position: relative; margin-bottom: 20px; }
-#page-search { 
-  overflow-y: auto; 
+#page-search {
+  overflow-y: auto;
   /* Auch hier den Wert erhöhen */
-  padding-bottom: calc(80px + env(safe-area-inset-bottom)); 
-  box-sizing: border-box; 
+  padding-bottom: calc(80px + env(safe-area-inset-bottom));
+  box-sizing: border-box;
 }
 #page-search::-webkit-scrollbar { display: none; }
     .search-input { width: 100%; background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-main); padding: 12px 40px 12px 40px; border-radius: 12px; font-size: 16px; outline: none; box-sizing: border-box; background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="%23999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>'); background-repeat: no-repeat; background-position: 12px center; }
@@ -1180,7 +1236,7 @@ body.theme-light .modal .btn-secondary {
     .search-result-item { background: var(--card-bg); padding: 15px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
     .search-result-title { font-weight: 600; font-size: 15px; }
     .search-result-loc { font-size: 12px; color: var(--accent-blue); }
-    
+
     /* --- Favoriten Sterne --- */
     .event-star svg {
       transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
@@ -1200,7 +1256,7 @@ body.theme-light .modal .btn-secondary {
       fill: #FFD60A;
       stroke: #FFD60A;
     }
-    
+
     .news-item {
       max-height: 180px;
       opacity: 1;
@@ -1232,16 +1288,16 @@ body.theme-light .modal .btn-secondary {
   30% { box-shadow: inset 0 0 0 3px rgba(58, 130, 247, 0.8), inset 0 0 20px rgba(58, 130, 247, 0.4), inset 0 0 0 1000px rgba(58, 130, 247, 0.3); }
   100% { box-shadow: inset 0 0 0 0 rgba(58, 130, 247, 0), inset 0 0 0 0 rgba(58, 130, 247, 0), inset 0 0 0 0 rgba(58, 130, 247, 0); }
     }
-.highlight-anim { 
-  animation: highlightPulse 1.2s ease-out !important; 
+.highlight-anim {
+  animation: highlightPulse 1.2s ease-out !important;
   will-change: box-shadow;
   backface-visibility: hidden;
 }
 
     /* Stundenplan Fix: Container hat keinen Hintergrund, also animieren wir die Kacheln darin */
     #widget-schedule.highlight-anim { animation: none !important; }
-#widget-schedule.highlight-anim .schedule-item { 
-  animation: highlightPulse 1.2s ease-out !important; 
+#widget-schedule.highlight-anim .schedule-item {
+  animation: highlightPulse 1.2s ease-out !important;
   will-change: box-shadow;
   backface-visibility: hidden;
 }
@@ -1267,12 +1323,12 @@ body.theme-light .modal .btn-secondary {
   100% { background-color: var(--card-bg); box-shadow: inset 0 0 0 0 rgba(255, 59, 48, 0); }
     }
 
-.vpn-connect-anim { 
-  animation: vpn-glow-green 0.7s ease-out !important; 
+.vpn-connect-anim {
+  animation: vpn-glow-green 0.7s ease-out !important;
   will-change: background-color, box-shadow;
 }
-.vpn-disconnect-anim { 
-  animation: vpn-glow-red 0.7s ease-out !important; 
+.vpn-disconnect-anim {
+  animation: vpn-glow-red 0.7s ease-out !important;
   will-change: background-color, box-shadow;
 }
 
@@ -1386,7 +1442,7 @@ body.theme-light .modal .btn-secondary {
       transition: transform 0.2s, filter 0.2s;
     }
       .service-card:active { transform: scale(0.95); filter: brightness(0.8); }
-    
+
     .service-card.color-tech { background-color: #4F8BE3; color: #FFF; border-color: #4F8BE3; }
     .service-card.color-schedule { background-color: #DE9A35; color: #FFF; border-color: #DE9A35; }
     .service-card.color-requests { background-color: #4EBA6B; color: #FFF; border-color: #4EBA6B; }
@@ -1421,18 +1477,18 @@ body.theme-light .modal .btn-secondary {
     }
 
     /* Rausch-Textur für alle Kacheln */
-    .schedule-item, .mensa-card, .parking-card, .rental-card, 
-    .vpn-card, .services-card, .stat-card, .progress-section, .mail-item, 
-    .search-result-item, .suggestion-tile, .service-tile, .service-card, 
-    .minimap, .list-item {
+    .schedule-item, .mensa-card, .parking-card, .rental-card,
+    .vpn-card, .services-card, .stat-card, .progress-section, .mail-item,
+    .search-result-item, .suggestion-tile, .service-tile, .service-card,
+    .minimap, .list-item, .weather-card, .todo-card {
       position: relative;
       isolation: isolate;
     }
-    .schedule-item::after, .mensa-card::after, .parking-card::after, 
-    .rental-card::after, .vpn-card::after, .services-card::after, .stat-card::after, 
-    .progress-section::after, .mail-item::after, .search-result-item::after, 
-    .suggestion-tile::after, .service-tile::after, .service-card::after, 
-    .minimap::after, .list-item::after {
+    .schedule-item::after, .mensa-card::after, .parking-card::after,
+    .rental-card::after, .vpn-card::after, .services-card::after, .stat-card::after,
+    .progress-section::after, .mail-item::after, .search-result-item::after,
+    .suggestion-tile::after, .service-tile::after, .service-card::after,
+    .minimap::after, .list-item::after, .weather-card::after, .todo-card::after {
       content: "";
       position: absolute;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -1444,7 +1500,7 @@ body.theme-light .modal .btn-secondary {
     }
 
     /* --- ZUSÄTZLICHE SCHÖNE ANIMATIONEN --- */
-    
+
     /* Header Easter Egg */
     @keyframes flyAway {
       to {
@@ -1502,8 +1558,8 @@ body.theme-light .modal .btn-secondary {
       50% { transform: scale(1.25); }
       100% { transform: scale(1); }
     }
-.nav-item.active .nav-icon-wrapper { 
-      animation: navBounce 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; 
+.nav-item.active .nav-icon-wrapper {
+      animation: navBounce 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
     }
 
     .schedule-arrow-icon {
@@ -1524,10 +1580,10 @@ body.theme-light .modal .btn-secondary {
       transform: scale(0.9);
     }
     /* Haptisches Klick-Feedback (Squish-Effekt) */
-    .schedule-item, .list-item, .btn, .parking-card, .mensa-card, .rental-card, .stat-card, .search-result-item, .news-item, .vpn-card, .ects-free, .balance-amount, .progress-section {
+    .schedule-item, .list-item, .btn, .parking-card, .mensa-card, .rental-card, .stat-card, .search-result-item, .news-item, .vpn-card, .ects-free, .balance-amount, .progress-section, .weather-card, .todo-card {
       transition: transform 0.2s ease;
     }
-    .schedule-item:active, .list-item:active, .btn:active, .parking-card:active, .mensa-card:active, .stat-card:active, .search-result-item:active, .news-item:active, .vpn-card:active, .ects-free:active, .balance-amount:active, .progress-section:active {
+    .schedule-item:active, .list-item:active, .btn:active, .parking-card:active, .mensa-card:active, .stat-card:active, .search-result-item:active, .news-item:active, .vpn-card:active, .ects-free:active, .balance-amount:active, .progress-section:active, .weather-card:active {
       transform: scale(0.96);
     }
 
@@ -1535,24 +1591,24 @@ body.theme-light .modal .btn-secondary {
 .vpn-card.no-squish, .vpn-card:has(.toggle-switch:active), .vpn-card:has(.toggle-switch:hover) {
   transform: scale(1) !important;
 }
-    
+
     /* Separates Klick-Feedback für Verleih-Liste (wegen der Trennlinie) */
     .rental-item { transition: opacity 0.2s ease; }
     .rental-item:active { opacity: 0.5; }
 
     .mail-item { transition: transform 0.2s ease; }
     .mail-item:active { transform: scale(0.97); }
-    
+
     /* Etwas stärkerer Squish für kleine Icons und Profilbild */
     .header-icon-svg, #profile-pic-container { transition: transform 0.2s ease; }
     .header-icon-svg:active, #profile-pic-container:active { transform: scale(0.85); }
-    
+
     /* Sanftes, kaskadierendes Einfliegen der Elemente (Staggered Animation) */
     @keyframes slideUpFade {
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
     }
-    
+
     /* Einfliegen-Animation für Suchergebnisse, Service-Karten und Mails */
     .page.active .mail-item, .page.active .search-result-item, .page.active .service-card, .page.active .suggestion-tile, .page.active .news-item {
       animation: slideUpFade 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
@@ -1589,7 +1645,7 @@ body.theme-light .modal .btn-secondary {
     }
 
     /* --- Widget Toggle Animationen --- */
-    #widget-ects, #widget-schedule, #widget-mensa, #widget-parking, #widget-rental, #widget-vpn, #widget-services, #widget-bottom-row, #widget-top-row {
+    #widget-ects, #widget-schedule, #widget-mensa, #widget-parking, #widget-rental, #widget-vpn, #widget-services, #widget-weather, #widget-todo, #widget-bottom-row, #widget-top-row {
       max-height: 600px; /* Genügend Platz für den Inhalt */
       overflow: hidden;
       transform-origin: top center;
@@ -1601,7 +1657,7 @@ body.theme-light .modal .btn-secondary {
                   transform 0.4s cubic-bezier(0.25, 1, 0.5, 1),
                   max-width 0.4s cubic-bezier(0.25, 1, 0.5, 1);
     }
-    
+
     .widget-hidden {
       max-height: 0 !important;
       opacity: 0 !important;
@@ -1685,7 +1741,7 @@ body.theme-light .modal .btn-secondary {
       border: 2px dashed rgba(255, 255, 255, 0.2);
       border-radius: 24px;
       background: rgba(255, 255, 255, 0.02);
-      margin: 0 15px 15px; 
+      margin: 0 15px 15px;
       transition: height 0.2s ease;
       box-sizing: border-box;
     }
@@ -1698,9 +1754,9 @@ body.theme-light .modal .btn-secondary {
     /* --- Tablet & Desktop Layout --- */
     @media (min-width: 768px) and (orientation: landscape) {
       .app-container {
-        flex-direction: row;  
+        flex-direction: row;
       }
-      
+
       .navbar {
         position: relative; /* Hier muss wieder relative stehen! */
         bottom: auto; left: auto; right: auto;
@@ -1718,18 +1774,18 @@ body.theme-light .modal .btn-secondary {
         justify-content: center;
         gap: 30px;
       }
- 
+
       .nav-item {
         padding: 10px 0;
         flex: none;
         height: 70px;
       }
-      
+
       .nav-item span {
         font-size: 12px;
         margin-top: 4px;
       }
-      
+
       .nav-icon {
         width: 28px;
         height: 28px;
@@ -1739,7 +1795,7 @@ body.theme-light .modal .btn-secondary {
       .content-area {
         align-items: center;
       }
-      
+
       .page {
         max-width: 950px;
         width: 100%;
@@ -1755,14 +1811,14 @@ body.theme-light .modal .btn-secondary {
         gap: 15px;
         width: 100%;
       }
-      
+
       .widget-column {
         display: flex;
         flex-direction: column;
         flex: 1;
         min-width: 0;
       }
-      
+
       .mail-column-wrapper {
         width: 320px;
         flex-shrink: 0;
@@ -1857,7 +1913,7 @@ body.theme-light .modal .btn-secondary {
       padding-bottom: 15px;
     border-radius: 22px;
   }
-  
+
   .nav-item {
     height: 60px;
   }
@@ -1866,11 +1922,11 @@ body.theme-light .modal .btn-secondary {
     width: 24px;
     height: 24px;
   }
-  
+
   .nav-item span {
     font-size: 10px;
   }
-  
+
   .header {
     padding-top: max(15px, env(safe-area-inset-top));
     padding-bottom: 10px;
