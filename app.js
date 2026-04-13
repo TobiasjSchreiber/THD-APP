@@ -3,7 +3,7 @@
       const vh = window.innerHeight;
       document.documentElement.style.height = vh + 'px';
       document.body.style.height = vh + 'px';
-      
+
       const appContainer = document.querySelector('.app-container');
       if (appContainer) {
         appContainer.style.height = vh + 'px';
@@ -13,7 +13,7 @@
     // Bei Änderungen (wie Drehen) neu berechnen
     window.addEventListener('resize', fixIOSViewport);
     window.addEventListener('orientationchange', () => setTimeout(fixIOSViewport, 100));
-    
+
     // Beim App-Start ausführen (mit leichten Verzögerungen für das träge iOS)
     fixIOSViewport();
     setTimeout(fixIOSViewport, 50);
@@ -27,12 +27,12 @@
     // VOLLBILD-FUNKTION (Aktiviert beim ersten Tippen, aber NICHT als installierte App)
     document.body.addEventListener('click', function() {
       const isWindows = navigator.userAgent.includes('Windows');
-      
+
       // NEU: Erkennt iPhones und iPads zuverlässig
       const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-      
+
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-      
+
       // NEU: Den Vollbild-Befehl nicht ausführen, wenn es ein iOS-Gerät ist
       if (!isWindows && !isIOS && !isStandalone && !document.fullscreenElement) {
         if (document.documentElement.requestFullscreen) {
@@ -54,16 +54,16 @@
 
       document.querySelector('.navbar').style.display = 'flex'; // Stellt sicher, dass die Navbar sichtbar ist
       currentIndex = pagesList.indexOf(pageId);
-      
+
       const pages = document.querySelectorAll('.page');
       pages.forEach(page => page.classList.remove('active'));
-      
+
       document.getElementById(pageId).classList.add('active');
-      
+
       const navItems = document.querySelectorAll('.nav-item');
       navItems.forEach(item => item.classList.remove('active'));
       navElement.classList.add('active');
-      
+
       // JS-Animationen und Layout-Anpassungen beim Wechsel zum Dashboard
       if (pageId === 'page-home') {
         // Roll-Animationen von vorne starten
@@ -71,7 +71,7 @@
         updateParkingDisplay(true);
         displayedMensaBalance = mensaBalance; // Reset to current value to avoid jump
         updateMensaBalance(true);
-        
+
         updateScheduleProgress(true, true); // Stundenplan-Animation beim Tab-Wechsel triggern
 
         const activeRental = document.querySelector('#rental-views-container .rental-view.active');
@@ -115,7 +115,7 @@
             const nextNav = document.querySelectorAll('.nav-item')[currentIndex + 1];
             switchTab(nextId, nextNav);
           }
-        } 
+        }
         else if (diffX < 0) {
           if (currentIndex > 0) {
             const prevId = pagesList[currentIndex - 1];
@@ -214,37 +214,37 @@
       let eventsData = [];
       let useCache = false;
       let isStale = false;
-      
+
       const now = new Date();
       now.setHours(0, 0, 0, 0);
 
       const renderList = (dataToRender) => {
         listContainer.innerHTML = '';
         let validEvents = dataToRender.filter(e => e.start >= now).sort((a, b) => a.start - b.start);
-        
+
         if (validEvents.length === 0) {
           listContainer.innerHTML = '<div style="color: var(--text-sub); text-align: center; padding: 20px;">Keine anstehenden Termine gefunden.</div>';
           return;
         }
-        
+
         const monthsLoc = {
             de: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'],
             en: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
             fi: ['Tam', 'Hel', 'Maa', 'Huh', 'Tou', 'Kes', 'Hei', 'Elo', 'Syy', 'Lok', 'Mar', 'Jou']
         };
-        
+
         validEvents.forEach(event => {
           const day = String(event.start.getDate()).padStart(2, '0');
           const monthArr = monthsLoc[currentLanguage] || monthsLoc['de'];
           const month = monthArr[event.start.getMonth()];
-          
+
           let timeStr = "";
           if (event.start.getHours() !== 0 || event.start.getMinutes() !== 0) {
               const sh = String(event.start.getHours()).padStart(2, '0');
               const sm = String(event.start.getMinutes()).padStart(2, '0');
               let timeSuffix = currentLanguage === 'en' ? 'h' : (currentLanguage === 'fi' ? '' : ' Uhr');
               timeStr = `${sh}:${sm} ${timeSuffix}`.trim();
-              
+
               if (event.end && (event.end.getHours() !== 0 || event.end.getMinutes() !== 0)) {
                   const eh = String(event.end.getHours()).padStart(2, '0');
                   const em = String(event.end.getMinutes()).padStart(2, '0');
@@ -253,16 +253,16 @@
           } else {
               timeStr = currentLanguage === 'en' ? 'All day' : (currentLanguage === 'fi' ? 'Koko päivä' : 'Ganztägig');
           }
-          
+
           const isFav = favoriteEvents.has(event.id);
           const card = document.createElement('div');
           card.className = 'list-item news-item' + (isFav ? ' is-favorite' : '');
           card.style.cssText = 'flex-direction: column; align-items: flex-start; gap: 12px; padding: 16px; margin: 0; isolation: isolate; position: relative; background-color: var(--card-bg); border-radius: 16px; cursor: pointer;';
           card.onclick = () => openEventModal(event.summary, timeStr, event.location, event.description, event.id);
-          
+
           let locHtml = event.location ? `<div style="color: var(--text-sub); font-size: 13px; display: flex; align-items: center; gap: 6px; margin-top: 4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg><span style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${event.location}</span></div>` : '';
           let descHtml = event.description ? `<div style="color: var(--text-sub); font-size: 13px; margin-top: 6px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4;">${event.description}</div>` : '';
-          
+
           card.innerHTML = `
              <div style="display: flex; gap: 15px; width: 100%; align-items: flex-start;">
                 <div style="background: rgba(58, 130, 247, 0.15); color: var(--accent-blue); border: 1.5px solid rgba(58, 130, 247, 0.3); border-radius: 12px; padding: 10px 8px; text-align: center; min-width: 58px; box-sizing: border-box; flex-shrink: 0; margin-top: 2px;"><div style="font-size: 22px; font-weight: 700; line-height: 1;">${day}</div><div style="font-size: 12px; font-weight: 600; text-transform: uppercase; margin-top: 4px;">${month}</div></div>
@@ -277,7 +277,7 @@
         });
         checkEmptyFavorites();
       };
-      
+
       if (!isRealModeEnabled) {
         eventsData = [
             { id: 'demo1', summary: 'Campusfest 2024', start: new Date(now.getTime() + 86400000 * 2 + 3600000*16), end: new Date(now.getTime() + 86400000 * 2 + 3600000*22), location: 'Campus Innenhof', description: 'Das jährliche Campusfest mit Live-Musik, Foodtrucks und kühlen Getränken. Alle Studierenden sind herzlich eingeladen!' },
@@ -299,7 +299,7 @@
                   end: e.end ? new Date(e.end) : null
                 }));
                 useCache = true;
-                
+
                 if (Date.now() - parsed.timestamp >= 3600000) {
                   isStale = true; // Cache ist abgelaufen, aber wir zeigen ihn trotzdem sofort
                 }
@@ -307,61 +307,61 @@
             } catch(e) {}
           }
         }
-        
+
         if (useCache) {
             renderList(eventsData);
         }
-        
+
         if (!useCache || isStale) {
           try {
             const targetUrl = encodeURIComponent('https://th-deg.de/de/studierende/campusleben/veranstaltungskalender');
             if (!useCache) listContainer.innerHTML = '<div style="color: var(--text-sub); text-align: center; padding: 20px;">Lade Termine...</div>';
           const proxyUrl = 'https://api.codetabs.com/v1/proxy?quest=' + targetUrl;
-          
+
         const response = await fetch(proxyUrl);
         if (!response.ok) throw new Error(`Netzwerkfehler: ${response.status}`);
-        
+
         const htmlString = await response.text();
-        
+
         // Nutze DOMParser anstelle von simplem Regex, um den echten Titel auslesen zu können
         const parser = new DOMParser();
         const doc = parser.parseFromString(htmlString, 'text/html');
-        
+
         const eventLinks = doc.querySelectorAll('a[href*="veranstaltung?id="]');
         const seenIds = new Set();
-        
+
         eventLinks.forEach(link => {
           const href = link.getAttribute('href');
           const match = href.match(/id=(\d+)/);
           if (match) {
             const id = match[1];
-            
+
             // Textinhalt säubern (entfernt überflüssige Leerzeichen & HTML-Tags)
             let title = link.textContent.trim().replace(/\s+/g, ' ');
-            
+
             // Herausfiltern von Kalender-Tagen (die nur aus Zahlen bestehen) oder komplett leeren Links
             if (title !== '' && !/^\d+$/.test(title) && !seenIds.has(id)) {
               seenIds.add(id);
             }
           }
         });
-        
+
         // Wir nehmen alle gefundenen IDs, arbeiten sie aber in kleinen Schritten ab.
         // So finden wir garantiert die zukünftigen Termine.
         const idArray = Array.from(seenIds);
-        
+
         if (idArray.length === 0) {
           if (!useCache) listContainer.innerHTML = '<div style="color: var(--text-sub); text-align: center; padding: 20px;">Keine Termine gefunden.</div>';
           return;
         }
-        
+
         if (!useCache) {
             listContainer.innerHTML = '<div style="color: var(--text-sub); text-align: center; padding: 20px;">Lese Kalender-Daten...</div>';
         }
 
         let upcomingCount = 0;
         eventsData = []; // Reset eventsData for fresh fetch
-        
+
         // In 6er-Schritten herunterladen, um den Proxy nicht zu überlasten
         for (let i = 0; i < idArray.length; i += 6) {
             const chunk = idArray.slice(i, i + 6);
@@ -372,22 +372,22 @@
                     const res = await fetch(iCalProxy);
                     if (!res.ok) return null;
                     const text = await res.text();
-                    
+
                     let start = null, end = null, location = "", summary = "", description = "";
                     let currentKey = "";
-                    
+
                     const foldedText = text.replace(/\r?\n[ \t]/g, '');
                     const lines = foldedText.split('\n');
-                    
+
                     lines.forEach(line => {
                         line = line.trim();
                         if (!line) return;
-                        
+
                         const matchKey = line.match(/^([A-Z-]+)([:;])/);
                         if (matchKey) {
                             currentKey = matchKey[1];
                             const value = line.substring(line.indexOf(':') + 1).replace(/\\,/g, ',');
-                            
+
                             if (currentKey === 'SUMMARY') summary = value;
                             else if (currentKey === 'LOCATION') location = value;
                             else if (currentKey === 'DESCRIPTION') description = value;
@@ -416,9 +416,9 @@
                             else if (currentKey === 'SUMMARY') summary += ' ' + line;
                         }
                     });
-                    
+
                     if (!start || !summary) return null;
-                     
+
                     let cleanDesc = description
                         .replace(/&lt;/g, '<').replace(/&gt;/g, '>')
                         .replace(/<br\s*\/?>/gi, ' ')
@@ -427,21 +427,21 @@
                         .replace(/\\n/g, ' ')
                         .replace(/\s+/g, ' ')
                         .trim();
-                    
+
                     return { id, summary, start, end, location, description: cleanDesc };
                 } catch (e) {
                     return null;
                 }
             });
-            
+
             const results = await Promise.all(promises);
             const validEvents = results.filter(e => e !== null);
-            
+
             validEvents.forEach(e => {
                 if (e.start >= now) upcomingCount++;
                 eventsData.push(e);
             });
-            
+
             // Aufhören, sobald wir mindestens 8 zukünftige Termine gefunden haben
             if (upcomingCount >= 8) break;
         }
@@ -452,9 +452,9 @@
                 events: eventsData
             }));
         }
-        
+
         renderList(eventsData);
-        
+
         } catch (error) {
           console.error('Fehler beim Laden der News:', error);
           if (!useCache) listContainer.innerHTML = '<div style="color: #FF3B30; text-align: center; padding: 20px;">Fehler beim Laden der Termine.</div>';
@@ -463,12 +463,12 @@
       }
       }
     }
-      
+
 
     function toggleEventFavorite(id, e, btn) {
         e.stopPropagation(); // Verhindert, dass das Popup geöffnet wird
         const card = btn.closest('.news-item');
-        
+
         if (favoriteEvents.has(id)) {
             favoriteEvents.delete(id);
             btn.classList.remove('active');
@@ -478,7 +478,7 @@
             btn.classList.add('active');
             if (card) card.classList.add('is-favorite');
         }
-        
+
         if (isStorageEnabled()) saveAllData();
         checkEmptyFavorites();
     }
@@ -486,7 +486,7 @@
     function toggleEventFilter(btn) {
         isFavoritesFilterActive = !isFavoritesFilterActive;
         const list = document.getElementById('news-list');
-        
+
         if (isFavoritesFilterActive) {
             btn.classList.add('active-filter');
             if (list) list.classList.add('favorites-only');
@@ -535,19 +535,19 @@
       document.querySelectorAll('.mail-time[data-timestamp]').forEach(el => {
         const timestamp = parseInt(el.getAttribute('data-timestamp'), 10);
         if (isNaN(timestamp)) return;
-        
+
         const diffMs = now - timestamp;
         const diffMins = Math.floor(diffMs / 60000);
         const diffHours = Math.floor(diffMins / 60);
         const diffDays = Math.floor(diffHours / 24);
-        
+
         let text = "";
         if (diffMins < 1) text = translations[currentLanguage].just_now;
         else if (diffMins < 60) text = (translations[currentLanguage].time_mins_ago || "Vor {n} Min").replace('{n}', diffMins);
         else if (diffHours < 24) text = (translations[currentLanguage].time_hours_ago || "Vor {n} Std").replace('{n}', diffHours);
         else if (diffDays === 1) text = translations[currentLanguage].time_yesterday || "Gestern";
         else text = (translations[currentLanguage].time_days_ago || "Vor {n} Tagen").replace('{n}', diffDays);
-        
+
         el.innerText = text;
       });
     }
@@ -572,14 +572,14 @@
 
             headerSpan.classList.add('is-letterized');
           }
-          
+
           // Finde den nächsten Buchstaben, der wegfliegen soll (wird jetzt auch beim ersten Klick ausgeführt)
           const letters = Array.from(headerSpan.querySelectorAll('.header-letter:not(.flown-away)'));
 
           if (letters.length > 0) {
             const letterToFly = letters[letters.length - 1];
             letterToFly.classList.add('letter-fly-away', 'flown-away');
-            
+
             // Animation-Klasse nach Abschluss entfernen, damit sie beim Tab-Wechsel nicht neu startet
             setTimeout(() => {
               letterToFly.classList.remove('letter-fly-away');
@@ -640,13 +640,13 @@
         if (!meals || forceRefresh) {
             // 3. Speiseplan für heute abrufen
             const mealsRes = await fetch(`https://openmensa.org/api/v2/canteens/${mensaId}/days/${today}/meals`);
-            
+
             // Falls heute zu ist (Wochenende/Feiertag), wirft die API einen 404 Fehler
             if (!mealsRes.ok) {
                 if (!meals) document.querySelector('#widget-mensa .scroll-list').innerHTML = emptyHtml;
                 return;
             }
-            
+
             meals = await mealsRes.json();
             if (typeof mensaDataCache !== 'undefined') {
                 mensaDataCache[today] = meals;
@@ -675,17 +675,17 @@
             const itemDiv = document.createElement('div');
             itemDiv.className = 'list-item';
             itemDiv.style.cursor = 'pointer';
-            
+
             // Klick auf das kleine Widget öffnet jetzt wieder die Gesamt-Übersicht!
             itemDiv.onclick = openMensaMenuModal;
 
             // HTML-Struktur der Zeile aufbauen
             itemDiv.innerHTML = `<span>${meal.name}</span><span class="item-value">${priceText}</span>`;
-            
+
             // Rausch-Textur für dein Design hinzufügen
             itemDiv.style.position = 'relative';
             itemDiv.style.isolation = 'isolate';
-            
+
             listContainer.appendChild(itemDiv);
         });
 
@@ -711,7 +711,7 @@
 
       // CACHE BUSTER: Zwingt den Proxy dazu, immer die allerneueste Datei von der Hochschule zu holen
       const iCalLink = 'https://thabella.th-deg.de/thabella/opn/event/calendarStudentSubscribe?group=' + currentStudyGroup + '&cb=' + Date.now();
-      
+
       // WICHTIG: Die URL codieren, sonst schneidet der Proxy alles nach dem ? oder & ab
       const proxyUrl = 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(iCalLink);
 
@@ -719,11 +719,11 @@
         let text = null;
         let needsFetch = true;
         const cachedSchedule = isStorageEnabled() ? localStorage.getItem('thd_schedule_cache') : null;
-        
+
         if (cachedSchedule) {
             try {
                 const parsed = JSON.parse(cachedSchedule);
-                if (parsed.group === currentStudyGroup) { 
+                if (parsed.group === currentStudyGroup) {
                     text = parsed.text;
                     if (Date.now() - parsed.timestamp < 3600000) {
                         needsFetch = false;
@@ -752,7 +752,7 @@
                 parseScheduleText(newText);
             }
         }
-        
+
         const savedIlearnHtml = localStorage.getItem('thd_ilearn_html');
         if (savedIlearnHtml !== null) {
             const ilearnViewList = document.querySelector('#ilearn-view .mail-list');
@@ -763,7 +763,7 @@
                 updateUnreadBadge();
             }
         }
-        
+
         const savedWidgetVisibility = localStorage.getItem('thd_widget_visibility');
         if (savedWidgetVisibility) {
             try {
@@ -819,10 +819,10 @@
         lines.forEach(line => {
           line = line.trim();
           if (line.startsWith('BEGIN:VEVENT')) currentEvent = {};
-          
+
           if (line.startsWith('SUMMARY:') || line.startsWith('SUMMARY;')) currentEvent.title = line.substring(line.indexOf(':') + 1).replace(/\\,/g, ',');
           if (line.startsWith('LOCATION:') || line.startsWith('LOCATION;')) currentEvent.room = line.substring(line.indexOf(':') + 1).replace(/\\,/g, ',');
-          
+
           if (line.startsWith('DTSTART')) {
              const match = line.match(/(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})/);
              if(match) {
@@ -891,8 +891,8 @@
           // Dieser Listener erkennt, wenn das 'smooth' Scrollen beendet ist.
           widget.addEventListener('scroll', () => {
               // Nur reagieren, wenn wir das Scrollen selbst ausgelöst haben
-              if (!isWheeling) return; 
-              
+              if (!isWheeling) return;
+
               clearTimeout(scrollEndTimer);
               scrollEndTimer = setTimeout(() => {
                   // Wenn 150ms nichts passiert, ist das Scrollen vorbei.
@@ -903,25 +903,25 @@
           widget.addEventListener('wheel', (e) => {
               // Trackpads und weiche Scrollräder senden oft kleine oder ungerade deltaY Werte.
               // Raster-Mausräder (Windows) senden meist größere Ganzzahlen (z.B. 100, 120, 53).
-              if (Math.abs(e.deltaY) < 20 || e.deltaY % 1 !== 0) return; 
-              
+              if (Math.abs(e.deltaY) < 20 || e.deltaY % 1 !== 0) return;
+
               e.preventDefault();
 
               // Ignoriere neue Mausrad-Events, während eine Animation läuft.
               if (isWheeling) return;
-              
+
               const direction = Math.sign(e.deltaY);
               const currentIndex = Math.round(widget.scrollTop / itemHeight);
               let targetTop = (currentIndex + direction) * itemHeight;
-              
+
               // Verhindert das Hängenbleiben an den Rändern (vermeidet unnötigen scrollTo-Aufruf)
               const maxScroll = widget.scrollHeight - widget.clientHeight;
               targetTop = Math.max(0, Math.min(targetTop, maxScroll));
-              
+
               if (Math.abs(widget.scrollTop - targetTop) < 1) return;
 
               isWheeling = true;
-              
+
               // Sicherheits-Fallback, falls das Scroll-Event verschluckt wird
               clearTimeout(scrollEndTimer);
               scrollEndTimer = setTimeout(() => isWheeling = false, 400);
@@ -968,7 +968,7 @@
       // updateScheduleProgress(true, true); // Wird jetzt von loadSchedule -> updateScheduleWidget übernommen
       setInterval(() => updateScheduleProgress(false, false), 60000); // Aktualisiert den Zeitindikator jede Minute ohne Neu-Animation
       setInterval(refreshWebcam, 5000); // Aktualisiert das Webcam-Bild alle 5 Sekunden
-      
+
       // Aktualisiert die Webcam sofort, wenn die App aus dem Hintergrund zurückgeholt wird
       document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'visible') {
@@ -979,7 +979,7 @@
           }
         }
       });
-      
+
       if (localStorage.getItem('thd_setup_completed') !== 'true') {
         checkInitialSetup();
       } else {
@@ -989,7 +989,7 @@
         } else {
           updateScheduleProgress(true, true); // Synchronisiert Dummy-Daten mit der aktuellen echten Zeit beim Start
         }
-        
+
         if (isStorageEnabled()) saveAllData();
       }
     });
@@ -1056,7 +1056,7 @@
             pickerScrollTimeout = setTimeout(() => {
                 const scrolledIndex = Math.round(list.scrollTop / itemHeight);
                 const finalValue = min + scrolledIndex;
-                
+
                 list.scrollTo({ top: scrolledIndex * itemHeight, behavior: 'smooth' });
                 container.dataset.value = finalValue;
             }, 150);
@@ -1067,7 +1067,7 @@
       initNumberPicker('picker-study-current', 1, 20, studyCurrent);
       initNumberPicker('picker-study-total', 1, 15, studyTotal);
       initNumberPicker('picker-study-extra', 0, 10, studyExtra);
-      
+
       document.getElementById('modal-overlay').classList.add('show');
       setTimeout(() => {
         document.getElementById('study-time-modal').classList.add('show');
@@ -1078,7 +1078,7 @@
       studyCurrent = parseInt(document.getElementById('picker-study-current').dataset.value, 10) || 1;
       studyTotal = parseInt(document.getElementById('picker-study-total').dataset.value, 10) || 1;
       studyExtra = parseInt(document.getElementById('picker-study-extra').dataset.value, 10) || 0;
-      
+
       updateStudyTimeDisplay(true);
       closeModal();
       if (isStorageEnabled()) saveAllData();
@@ -1089,14 +1089,14 @@
       let totalDays = (studyTotal + studyExtra) * 180;
       let remainingDays = Math.max(0, totalDays - studiedDays);
       let extraDays = studyExtra * 180;
-      
+
       let fillPercent = totalDays > 0 ? (studiedDays / totalDays) * 100 : 0;
       let extraPercent = totalDays > 0 ? (extraDays / totalDays) * 100 : 0;
       if (fillPercent > 100) fillPercent = 100;
-      
+
       const fillBar = document.querySelector('.progress-bar-fill');
       const extraBar = document.querySelector('.progress-bar-extra');
-      
+
       if (fillBar) {
         fillBar.style.animation = 'none';
         if (animate) {
@@ -1129,20 +1129,20 @@
           extraBar.style.opacity = extraPercent > 0 ? '1' : '0';
         }
       }
-      
+
       const txtStudied = translations[currentLanguage].study_time_studied_dyn.replace('{days}', studiedDays);
       const txtRemaining = translations[currentLanguage].study_time_remaining_dyn.replace('{days}', remainingDays);
       const txtExtra = translations[currentLanguage].study_time_extra_dyn.replace('{days}', extraDays).replace('{n}', studyExtra);
-      
+
       const homeStudiedEl = document.getElementById('home-studied-number');
       const homeRemainingEl = document.getElementById('home-remaining-number');
       if (homeStudiedEl) homeStudiedEl.innerText = studiedDays;
       if (homeRemainingEl) homeRemainingEl.innerText = remainingDays;
-      
+
       const studiedEl = document.querySelector('[data-translate="study_time_studied"]');
       const remainingEl = document.querySelector('[data-translate="study_time_remaining"]');
       const extraEl = document.querySelector('[data-translate="study_time_extra"]');
-      
+
       if (studiedEl) studiedEl.innerText = txtStudied;
       if (remainingEl) remainingEl.innerText = txtRemaining;
       if (extraEl) {
@@ -1153,7 +1153,7 @@
           extraEl.style.display = 'none';
         }
       }
-      
+
       // Original-Texte dynamisch überschreiben, damit setLanguage(lang) auch nach Sprachwechsel die Werte weiß
       ['de', 'en', 'fi'].forEach(lang => {
         translations[lang].study_time_studied = translations[lang].study_time_studied_dyn.replace('{days}', studiedDays);
@@ -1174,7 +1174,7 @@
 
       const views = document.querySelectorAll('#page-mails .notification-view');
       views.forEach(view => view.classList.remove('active'));
-      
+
       const targetView = document.getElementById(viewId + '-view');
       if (targetView) targetView.classList.add('active');
 
@@ -1207,7 +1207,7 @@
         view.style.opacity = '0';
         view.style.pointerEvents = 'none';
       });
-      
+
       const targetView = card.querySelector('#rental-' + viewId + '-view');
       if (targetView) {
         targetView.classList.add('active');
@@ -1218,7 +1218,7 @@
       const container = document.getElementById('rental-views-container');
       if (viewId === 'books') container.style.transform = 'translateX(0)';
       else container.style.transform = 'translateX(-50%)';
-      
+
       // Passe Wrapper-Höhe an Inhalt an
       const viewport = document.getElementById('rental-views-viewport');
       if (viewport && targetView) viewport.style.height = targetView.offsetHeight + 'px';
@@ -1233,26 +1233,26 @@
       document.getElementById('popup-time').innerText = time;
       document.getElementById('popup-room').innerText = room;
       document.getElementById('popup-tasks').innerText = tasks;
-      
+
       const buildings = document.querySelectorAll('.building');
       buildings.forEach(b => b.classList.remove('active'));
-      
+
       const buildingLetter = room.charAt(0).toUpperCase();
       const targetBuilding = document.getElementById('bldg-' + buildingLetter);
-      
+
       if (room.toLowerCase().includes('bibliothek') || room.toLowerCase().includes('library')) {
         const bldgG = document.getElementById('bldg-G');
         if(bldgG) bldgG.classList.add('active');
       } else if (buildingLetter === 'I' || title.includes("ITC")) {
         const itc = document.getElementById('bldg-ITC');
         if(itc) itc.classList.add('active');
-      } 
+      }
       else if (targetBuilding) {
         targetBuilding.classList.add('active');
       }
-      
+
       document.getElementById('modal-overlay').classList.add('show');
-      
+
       const closeBtn = document.getElementById('course-modal-close-btn');
       if (closeBtn) {
         closeBtn.classList.remove('btn-primary');
@@ -1280,13 +1280,13 @@
         // Zum Mails Tab wechseln per Klick
         const mailsNavBtn = document.querySelectorAll('.nav-item')[2];
         if (mailsNavBtn) mailsNavBtn.click();
-        
+
         // Zum iLearn Segment wechseln per Klick
         const ilearnSegmentBtn = document.querySelectorAll('#mail-segments .segment-btn')[1];
         if (ilearnSegmentBtn && !ilearnSegmentBtn.classList.contains('active')) {
             ilearnSegmentBtn.click();
         }
-        
+
         // iLearn E-Mail finden und öffnen
         const ilearnMails = document.querySelectorAll('#ilearn-view .mail-item');
         for (let mail of ilearnMails) {
@@ -1307,12 +1307,12 @@
       document.getElementById('food-popup-price').innerText = price;
       document.getElementById('food-popup-desc').innerText = desc;
       document.getElementById('food-popup-allergens').innerText = allergens;
-      
+
       const pricesEl = document.getElementById('food-popup-all-prices');
       if (pricesEl) {
           pricesEl.innerHTML = allPrices;
       }
-      
+
       document.getElementById('modal-overlay').classList.add('show');
       setTimeout(() => {
         document.getElementById('food-modal').classList.add('show');
@@ -1322,7 +1322,7 @@
     function openMensaMenuModal(jumpToNext = false) {
       mensaWeekOffset = 0;
       let day = new Date().getDay() - 1;
-      
+
       if (jumpToNext === true) {
           if (day >= 0 && day < 4) {
               currentMensaDay = day + 1;
@@ -1338,13 +1338,13 @@
               currentMensaDay = day;
           }
       }
-      
+
       updateMensaWeekLabel();
-      
+
       document.getElementById('modal-overlay').classList.add('show');
       setTimeout(() => {
         document.getElementById('mensa-menu-modal').classList.add('show');
-        
+
         const dayBtns = document.querySelectorAll('#mensa-day-segments .segment-btn');
         if (dayBtns[currentMensaDay]) {
             switchMensaDay(currentMensaDay, dayBtns[currentMensaDay]);
@@ -1357,7 +1357,7 @@
     function changeMensaWeek(dir) {
         mensaWeekOffset += dir;
         updateMensaWeekLabel();
-        
+
         let newDay = dir > 0 ? 0 : 4; // 0 = Montag, 4 = Freitag
         const dayBtns = document.querySelectorAll('#mensa-day-segments .segment-btn');
         if (dayBtns[newDay]) {
@@ -1467,7 +1467,7 @@
 
         const targetDate = new Date(startOfCurrentWeek);
         targetDate.setDate(startOfCurrentWeek.getDate() + (mensaWeekOffset * 7) + currentMensaDay);
-        
+
         const localTarget = new Date(targetDate);
         localTarget.setMinutes(localTarget.getMinutes() - localTarget.getTimezoneOffset());
         const dateStr = localTarget.toISOString().split('T')[0];
@@ -1507,7 +1507,7 @@
             for (const [categoryName, categoryMeals] of Object.entries(categories)) {
                 const section = document.createElement('div');
                 section.style.marginBottom = '20px';
-                
+
                 const title = document.createElement('div');
                 title.className = 'section-title';
                 title.style.cssText = 'margin-bottom: 10px; color: var(--text-sub); font-weight: 500; font-size: 15px; padding-left: 4px;';
@@ -1528,10 +1528,10 @@
                     const itemDiv = document.createElement('div');
                     itemDiv.className = 'list-item';
                     itemDiv.style.cssText = 'cursor: pointer; background-color: var(--item-bg); margin: 0; position: relative; isolation: isolate; display: flex; justify-content: space-between; align-items: center; width: 100%; box-sizing: border-box;';
-                    
+
                     itemDiv.onclick = () => openFoodModalFromMenu(meal.name, priceStud, categoryName, notes, allPricesHTML);
                 itemDiv.innerHTML = `<span style="font-weight: 600; color: var(--text-main); font-size: 14px; flex: 1; min-width: 0; padding-right: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${meal.name}</span><span class="item-value" style="color: var(--accent-blue); font-size: 14px; font-weight: 600; white-space: nowrap;">${priceStud}</span>`;
-                    
+
                     itemsContainer.appendChild(itemDiv);
                 });
 
@@ -1574,10 +1574,10 @@
   if (letter === 'F') {
     floor = "1. Stock (Lernplätze)";
   }
-  
+
   // Nutzt das bestehende Kurs-Modal für die Karte
   openModal(title, 'Gebäude ' + letter, letter + ' Gebäude', floor);
-  
+
   const closeBtn = document.getElementById('course-modal-close-btn');
   if (closeBtn) {
     closeBtn.classList.remove('btn-secondary');
@@ -1595,7 +1595,7 @@
         document.getElementById('event-popup-time').innerText = time;
         document.getElementById('event-popup-location').innerText = location || (currentLanguage === 'de' ? 'Keine Angabe' : (currentLanguage === 'fi' ? 'Ei ilmoitettu' : 'Not specified'));
         document.getElementById('event-popup-desc').innerHTML = description || (currentLanguage === 'de' ? 'Keine Beschreibung verfügbar.' : (currentLanguage === 'fi' ? 'Ei kuvausta saatavilla.' : 'No description available.'));
-        
+
         const icalBtn = document.getElementById('event-popup-ical-btn');
         if (icalBtn) {
             icalBtn.onclick = () => {
@@ -1616,17 +1616,17 @@
     function startSetupCountdown() {
       const btn = document.getElementById('setup-continue-btn');
       if (!btn) return;
-      
+
       clearInterval(setupCountdownInterval);
       let counter = 5;
-      
+
       // Button initial sperren und grauer machen
       btn.disabled = true;
       btn.style.opacity = '0.5';
       btn.style.cursor = 'not-allowed';
       btn.removeAttribute('data-translate');
       btn.innerText = `${translations[currentLanguage].continue_button} (${counter})`;
-      
+
       setupCountdownInterval = setInterval(() => {
           counter--;
           if (counter > 0) {
@@ -1646,7 +1646,7 @@
       const storageToggle = document.getElementById('setup-storage-toggle');
       const realModeToggle = document.getElementById('setup-real-mode-toggle');
       const showAgainToggle = document.getElementById('setup-show-again-toggle');
-      
+
       if (localStorage.getItem('thd_storage_enabled') !== null && storageToggle) {
           storageToggle.checked = isStorageEnabled();
       }
@@ -1668,11 +1668,11 @@
       const storageEnabled = document.getElementById('setup-storage-toggle').checked;
       const realModeEnabled = document.getElementById('setup-real-mode-toggle').checked;
       const showAgain = document.getElementById('setup-show-again-toggle').checked;
-      
+
       if (storageEnabled) {
           localStorage.setItem('thd_storage_enabled', 'true');
           localStorage.setItem('thd_real_mode', realModeEnabled ? 'true' : 'false');
-          
+
           if (showAgain) {
               localStorage.setItem('thd_setup_completed', 'false');
           } else {
@@ -1682,17 +1682,17 @@
           localStorage.setItem('thd_storage_enabled', 'false');
           localStorage.removeItem('thd_setup_completed');
       }
-      
+
       isRealModeEnabled = realModeEnabled;
-      
+
       const storageToggle = document.getElementById('storage-toggle');
       if (storageToggle) storageToggle.checked = storageEnabled;
-      
+
       const realToggle = document.getElementById('real-mode-toggle');
       if (realToggle) realToggle.checked = realModeEnabled;
 
       closeModal(true);
-      
+
       if (realModeEnabled) {
           loadRealMensaData();
           loadSchedule();
@@ -1762,7 +1762,7 @@
 
       titleEl.innerText = currentLanguage === 'de' ? 'Fehler-Details' : 'Error Details';
       titleEl.removeAttribute('data-translate');
-      
+
       descEl.innerText = errorText;
       descEl.removeAttribute('data-translate');
       descEl.style.wordBreak = 'break-word'; // Verhindert, dass lange Fehler-Strings das Layout sprengen
@@ -1792,10 +1792,10 @@
              closeInfoModal();
              return;
          }
-         
+
          const setupModal = document.getElementById('initial-setup-modal');
          if (setupModal && setupModal.classList.contains('show')) {
-             return; 
+             return;
          }
       }
 
@@ -1825,11 +1825,11 @@
     function updateCharCount() {
       const body = document.getElementById('comp-body');
       const counter = document.getElementById('char-count');
-      
+
       if (body && counter) {
         const len = body.value.length;
         counter.innerText = len + ' / 500';
-        
+
         if (len >= 500) {
           counter.style.color = '#FF3B30'; // Rot bei Limit
         } else if (len >= 450) {
@@ -1858,7 +1858,7 @@
         // Felder automatisch ausfüllen
         document.getElementById('comp-to').value = sender;
         document.getElementById('comp-subject').value = "Re: " + subject.replace(/^Re:\s*/i, '');
-        document.getElementById('comp-body').value = ""; 
+        document.getElementById('comp-body').value = "";
         const bodyEl = document.getElementById('comp-body');
         if (bodyEl) bodyEl.dataset.context = originalMessage;
         openComposeModal(true); // Neues Fenster öffnen
@@ -1897,7 +1897,7 @@
         const slider = document.getElementById('topup-slider');
         selectedTopupAmount = parseInt(slider.value, 10);
         document.getElementById('topup-amount-display').innerText = selectedTopupAmount.toFixed(2).replace('.', ',') + '€';
-        
+
         const percentage = ((selectedTopupAmount - slider.min) / (slider.max - slider.min)) * 100;
         slider.style.setProperty('--slider-fill', percentage + '%');
     }
@@ -1917,11 +1917,11 @@
 
     function openTopupConfirmModal() {
       closeModal();
-      
+
       const amountStr = selectedTopupAmount.toFixed(2).replace('.', ',') + '€';
       document.getElementById('confirm-amount').innerText = amountStr;
       document.getElementById('confirm-total').innerText = amountStr;
-      
+
       setTimeout(() => {
         document.getElementById('modal-overlay').classList.add('show');
         document.getElementById('topup-confirm-modal').classList.add('show');
@@ -1987,7 +1987,7 @@
       }
 
       // Prüfen, ob alle Widgets ausgeblendet sind (Easter Egg)
-      const allWidgets = ['widget-ects', 'widget-schedule', 'widget-mensa', 'widget-parking', 'widget-rental', 'widget-vpn', 'widget-services'];
+      const allWidgets = ['widget-ects', 'widget-schedule', 'widget-mensa', 'widget-parking', 'widget-rental', 'widget-vpn', 'widget-services', 'widget-weather', 'widget-todo'];
       const isAnyVisible = allWidgets.some(id => {
         const w = document.getElementById(id);
         return w && !w.classList.contains('widget-hidden');
@@ -2019,7 +2019,7 @@
       document.querySelectorAll('.mail-list').forEach(list => {
         const hasMails = list.querySelector('.mail-item') !== null;
         let emptyMsg = list.querySelector('.empty-mail-msg');
-        
+
         if (!hasMails) {
           if (!emptyMsg) {
             emptyMsg = document.createElement('div');
@@ -2052,16 +2052,16 @@
         // ECTS im Profil auf 0 setzen
         const profileEctsValue = document.querySelector('#profile-ects-card .stat-value');
         if (profileEctsValue) profileEctsValue.innerText = '0';
-        
+
         // ECTS auf dem Home-Dashboard ebenfalls auf 0 setzen
         const homeEctsValue = document.querySelector('.ects-number');
         if (homeEctsValue) homeEctsValue.innerText = '0';
-        
+
         studyCurrent = 0; // 0 Tage studiert
         studyTotal = 7;   // Standard
         studyExtra = 5;   // 5 Extra-Semester als "Strafe"
         updateStudyTimeDisplay(true);
-        
+
         if (isStorageEnabled()) saveAllData();
       } else {
         const selectedItems = document.querySelectorAll('.mail-item.selected');
@@ -2071,10 +2071,10 @@
             item.style.height = item.offsetHeight + 'px';
             item.style.overflow = 'hidden';
             item.style.transition = 'all 0.3s cubic-bezier(0.25, 1, 0.5, 1)';
-            
+
             // Reflow erzwingen (damit der Browser die Starthöhe sicher registriert)
             void item.offsetHeight;
-            
+
             // Nun die Werte auf 0 setzen für ein geschmeidiges Zusammenklappen
             item.style.opacity = '0';
             item.style.transform = 'translateX(-100%)';
@@ -2083,7 +2083,7 @@
             item.style.paddingBottom = '0px';
             item.style.marginTop = '0px';
             item.style.marginBottom = '-12px'; // Gleicht den 12px Flex-Gap der Liste aus
-            
+
             setTimeout(() => {
               item.remove();
               updateUnreadBadge();
@@ -2113,7 +2113,7 @@
         } else {
             modalText.innerText = translations[currentLanguage].delete_confirm_multiple.replace('{count}', selectedCount);
         }
-        
+
         const modalTitle = document.querySelector('#delete-modal .modal-title');
         if (modalTitle) {
             modalTitle.innerText = translations[currentLanguage].delete_title;
@@ -2128,7 +2128,7 @@
           trashIcon.classList.add('open-trash-anim');
           setTimeout(() => trashIcon.classList.remove('open-trash-anim'), 500);
         }
-        
+
         const mailPage = document.getElementById('page-mails');
         mailPage.classList.toggle('selection-mode');
         isLongPress = false; // Sicherstellen, dass der Status zurückgesetzt wird
@@ -2153,9 +2153,9 @@
       if (!newMailElement.hasAttribute('data-mail-id')) {
         newMailElement.setAttribute('data-mail-id', 'mail-' + Date.now() + '-' + Math.floor(Math.random() * 10000));
       }
-      
+
       attachMailEventListeners(newMailElement);
-      
+
       const targetListSelector = isILearn ? '#ilearn-view .mail-list' : '#mails-view .mail-list';
       const mainList = document.querySelector(targetListSelector);
       if (mainList) mainList.prepend(newMailElement);
@@ -2180,7 +2180,7 @@
           if (iconWrapper.wiggleTimeout) {
             clearTimeout(iconWrapper.wiggleTimeout);
           }
-          
+
           iconWrapper.classList.remove('new-mail-wiggle');
           void iconWrapper.offsetWidth; // Reflow erzwingen, um Animation neu zu starten
           iconWrapper.classList.add('new-mail-wiggle');
@@ -2214,7 +2214,7 @@
       // Neue E-Mail erstellen
       const newMail = document.createElement('div');
       newMail.className = 'mail-item unread';
-      
+
       newMail.innerHTML = `
         <div class="swipe-zone"></div>
         <div class="selection-indicator">
@@ -2251,14 +2251,14 @@
       document.getElementById('rental-popup-loc').innerText = loc;
       document.getElementById('rental-popup-person').innerText = person;
       document.getElementById('rental-popup-notes').innerText = notes;
-      
+
       const modal = document.getElementById('rental-modal');
       const buildings = modal.querySelectorAll('.building');
       buildings.forEach(b => b.classList.remove('active'));
-      
+
       const buildingLetter = loc.charAt(0).toUpperCase();
       const targetBuilding = modal.querySelector('.rental-bldg-' + buildingLetter);
-      
+
       if (loc.toLowerCase().includes('bibliothek') || loc.toLowerCase().includes('library')) {
         const bldgG = modal.querySelector('.rental-bldg-G');
         if(bldgG) bldgG.classList.add('active');
@@ -2280,18 +2280,18 @@
 
       document.getElementById('contact-popup-name').innerText = contact.title;
       document.getElementById('contact-popup-faculty').innerText = contact.faculty || contact.loc;
-      
+
       const actionBtn = document.getElementById('contact-action-btn');
       actionBtn.onclick = () => {
         closeModal();
         setTimeout(() => {
           document.getElementById('comp-to').value = contact.email || contact.title;
           document.getElementById('comp-subject').value = '';
-          document.getElementById('comp-body').value = ''; 
+          document.getElementById('comp-body').value = '';
           openComposeModal(false);
         }, 300);
       };
-      
+
       document.getElementById('modal-overlay').classList.add('show');
       setTimeout(() => {
         document.getElementById('contact-modal').classList.add('show');
@@ -2301,7 +2301,7 @@
     function openIframeModal(url, title, showSettings = false) {
       document.getElementById('iframe-modal-title').innerText = title;
       document.getElementById('iframe-modal-content').src = url;
-      
+
       const gearIcon = document.getElementById('iframe-settings-gear-icon');
       if (gearIcon) {
           gearIcon.style.display = showSettings ? 'block' : 'none';
@@ -2386,7 +2386,7 @@
       const container = document.getElementById('search-history-list');
       if (!container) return;
       container.innerHTML = '';
-      
+
       if (searchHistory.length === 0) {
         container.innerHTML = `<div style="color: var(--text-sub); font-size: 13px; text-align: center; padding: 40px 10px;" data-translate="search_history_empty">${translations[currentLanguage].search_history_empty}</div>`;
         return;
@@ -2396,7 +2396,7 @@
         const div = document.createElement('div');
         div.className = 'search-result-item';
         div.innerHTML = `<span class="search-result-title">${item.title}</span><span class="search-result-loc">${item.loc}</span>`;
-        
+
         if (item.type === 'contact') {
           div.onclick = () => {
             addToHistory(item); // Klick aus dem Verlauf aktualisiert ihn ebenfalls wieder nach oben
@@ -2417,25 +2417,25 @@
       const container = document.getElementById('search-results-container');
       const suggestions = document.getElementById('search-suggestions');
       const clearBtn = document.getElementById('search-clear-btn');
-      
+
       if(clearBtn) {
         clearBtn.style.display = q.length > 0 ? 'block' : 'none';
       }
 
       container.innerHTML = '';
-      
+
       if(!q) {
         if(suggestions) suggestions.style.display = 'block';
         return;
       }
-      
+
       if(suggestions) suggestions.style.display = 'none';
 
       searchData.filter(item => item.title.toLowerCase().includes(q)).forEach(item => {
         const div = document.createElement('div');
         div.className = 'search-result-item';
         div.innerHTML = `<span class="search-result-title">${item.title}</span><span class="search-result-loc">${item.loc}</span>`;
-        
+
         if (item.type === 'contact') {
           div.onclick = () => {
             addToHistory(item);
@@ -2462,10 +2462,10 @@
         openServicesModal();
         return;
       }
-      
+
       const navIndex = pagesList.indexOf(pageId);
       if(navIndex > -1) switchTab(pageId, document.querySelectorAll('.nav-item')[navIndex]);
-      
+
       setTimeout(() => {
         const el = document.getElementById(elementId);
         if (el) {
@@ -2541,6 +2541,10 @@
         widget_vpn: "VPN",
         services_modal_title: "Dienste",
         widget_services: "Dienste",
+        widget_weather: "Wetter",
+        widget_weather_city: "Deggendorf",
+        widget_weather_desc: "Leicht bewölkt",
+        widget_todo: "To-Do Liste",
         schedule_modal_title: "Gesamter Stundenplan",
         schedule_settings_title: "Studiengang",
         mensa_menu_title: "Speiseplan",
@@ -2745,6 +2749,10 @@
         widget_vpn: "VPN",
         services_modal_title: "Services",
         widget_services: "Services",
+        widget_weather: "Weather",
+        widget_weather_city: "Deggendorf",
+        widget_weather_desc: "Partly cloudy",
+        widget_todo: "To-Do List",
         schedule_modal_title: "Full Schedule",
         schedule_settings_title: "Study Group",
         mensa_menu_title: "Menu",
@@ -2949,6 +2957,10 @@
         widget_vpn: "VPN",
         services_modal_title: "Palvelut",
         widget_services: "Palvelut",
+        widget_weather: "Sää",
+        widget_weather_city: "Deggendorf",
+        widget_weather_desc: "Puolipilvistä",
+        widget_todo: "Tehtävälista",
         schedule_modal_title: "Koko lukujärjestys",
         schedule_settings_title: "Opintoryhmä",
         mensa_menu_title: "Ruokalista",
@@ -3110,7 +3122,7 @@
     let isPrivacyModeEnabled = false;
     let isRealModeEnabled = false;
     let currentStudyGroup = 'MT-MP4';
-    
+
     // --- Globale Variable für den echten Stundenplan ---
     window.allScheduleEvents = [];
     let widgetSelectedDay = -1; // -1 = auto/upcoming, 0-4 = Mon-Fri
@@ -3131,7 +3143,7 @@
     function changeScheduleWeek(dir) {
         scheduleWeekOffset += dir;
         updateScheduleWeekLabel();
-        
+
         let newDay = dir > 0 ? 0 : 4; // 0 = Montag, 4 = Freitag
         const dayBtns = document.querySelectorAll('#schedule-day-segments .segment-btn');
         if (dayBtns[newDay]) {
@@ -3160,11 +3172,11 @@
 
     function getFullMajorName(group) {
         if (!group) return "Unbekannt";
-        
+
         // Extrahiert schlau nur die Buchstaben am Anfang (ignoriert Zahlen, Leerzeichen oder Bindestriche)
         const match = group.trim().match(/^[a-zA-ZäöüÄÖÜß]+/);
         if (!match) return group;
-        
+
         const prefix = match[0].toUpperCase();
         const map = {
             'MT': 'Medientechnik',
@@ -3210,7 +3222,7 @@
             // Keine vorherigen Fenster zu schließen, keine Zahnrad-Wartezeit nötig
             const inputEl = document.getElementById('schedule-group-input');
             if (inputEl) inputEl.value = currentStudyGroup;
-            
+
             document.getElementById('modal-overlay').classList.add('show');
             setTimeout(() => {
                 document.getElementById('schedule-settings-modal').classList.add('show');
@@ -3223,7 +3235,7 @@
                 setTimeout(() => {
                     const inputEl = document.getElementById('schedule-group-input');
                     if (inputEl) inputEl.value = currentStudyGroup;
-                    
+
                     document.getElementById('modal-overlay').classList.add('show');
                     document.getElementById('schedule-settings-modal').classList.add('show');
                     if (inputEl) inputEl.focus();
@@ -3236,18 +3248,18 @@
         const inputEl = document.getElementById('schedule-group-input');
         if (!inputEl) return;
         const newGroup = inputEl.value.trim().toUpperCase(); // Großschreibung für Standard-Kürzel erzwingen
-        
+
         if (newGroup !== '') {
             if (currentStudyGroup !== newGroup) {
                 currentStudyGroup = newGroup;
                 if (isStorageEnabled()) saveAllData();
-                
+
                 if (isRealModeEnabled) {
                     localStorage.removeItem('thd_schedule_cache');
                     loadSchedule();
                 }
             }
-            
+
             // Den Studiengang dynamisch im Profiltext anpassen
             const majorEl = document.querySelector('[data-translate="profile_major"]');
             if (majorEl) {
@@ -3258,7 +3270,7 @@
                 });
             }
         }
-        
+
         closeModal();
         setTimeout(() => {
             if (window.scheduleSettingsCaller === 'iframe') {
@@ -3290,7 +3302,7 @@
             let day = new Date().getDay() - 1;
             currentScheduleDay = day < 0 || day > 4 ? 0 : day;
         }
-        
+
         updateScheduleWeekLabel();
         document.getElementById('modal-overlay').classList.add('show');
         setTimeout(() => {
@@ -3360,7 +3372,7 @@
                     const item = document.createElement('div');
                     item.className = 'list-item';
                     item.style.cssText = 'cursor: pointer; background-color: var(--item-bg); margin: 0; flex-direction: column; align-items: flex-start; gap: 4px; position: relative; isolation: isolate;';
-                    
+
                     item.innerHTML = `
                         <div style="display: flex; justify-content: space-between; width: 100%; align-items: flex-start; gap: 8px;">
                     <span style="font-weight: 600; color: var(--text-main); font-size: 14px; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${course.title}</span>
@@ -3379,7 +3391,7 @@
                     list.appendChild(item);
                 });
             }
-            
+
             list.style.height = 'auto';
             const newHeight = list.scrollHeight;
             list.style.height = '100%';
@@ -3397,7 +3409,7 @@
 
         const startOfTargetWeek = new Date(startOfCurrentWeek);
         startOfTargetWeek.setDate(startOfCurrentWeek.getDate() + (scheduleWeekOffset * 7));
-        
+
         const endOfTargetWeek = new Date(startOfTargetWeek);
         endOfTargetWeek.setDate(startOfTargetWeek.getDate() + 6);
         endOfTargetWeek.setHours(23,59,59,999);
@@ -3414,7 +3426,7 @@
                 const item = document.createElement('div');
                 item.className = 'list-item';
                 item.style.cssText = 'cursor: pointer; background-color: var(--item-bg); margin: 0; flex-direction: column; align-items: flex-start; gap: 4px; position: relative; isolation: isolate;';
-                
+
                 item.innerHTML = `
                     <div style="display: flex; justify-content: space-between; width: 100%; align-items: flex-start; gap: 8px;">
                         <span style="font-weight: 600; color: var(--text-main); font-size: 14px; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${course.title}</span>
@@ -3476,7 +3488,7 @@
 
         if (nextEvent) {
             const nextEventDate = nextEvent.dateObj;
-            
+
             const todayDay = now.getDay() === 0 ? 6 : now.getDay() - 1;
             const currentMonday = new Date(now);
             currentMonday.setDate(now.getDate() - todayDay);
@@ -3490,9 +3502,9 @@
             const diffTime = nextEventMonday - currentMonday;
             const diffWeeks = Math.round(diffTime / (7 * 24 * 60 * 60 * 1000));
 
-            widgetSelectedDay = nextEventDay > 4 ? 0 : nextEventDay; 
+            widgetSelectedDay = nextEventDay > 4 ? 0 : nextEventDay;
             widgetSelectedWeekOffset = diffWeeks;
-            
+
             scheduleWeekOffset = diffWeeks;
             currentScheduleDay = widgetSelectedDay;
 
@@ -3519,7 +3531,7 @@
         } else {
             // Modus für ausgewählten Tag
             const todayDayIndex = now.getDay() === 0 ? 6 : now.getDay() - 1;
-            
+
             // Exakt die Woche und den Tag anzeigen, die der Nutzer im Modal ausgewählt hat
             let dayOffset = (widgetSelectedDay - todayDayIndex) + (widgetSelectedWeekOffset * 7);
 
@@ -3535,8 +3547,8 @@
         }
 
         if (eventsToShow.length === 0) {
-            
-            
+
+
             let currentViewEnd = new Date(now);
             currentViewEnd.setHours(23, 59, 59, 999);
             if (widgetSelectedDay !== -1) {
@@ -3546,7 +3558,7 @@
                 currentViewEnd.setDate(now.getDate() + dayOffset);
                 currentViewEnd.setHours(23, 59, 59, 999);
             }
-            
+
             const sortedEvents = [...events].sort((a, b) => a.dateObj - b.dateObj);
             const nextEvent = sortedEvents.find(e => e.dateObj > currentViewEnd);
 
@@ -3558,7 +3570,7 @@
                 const daysDe = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'];
                 const daysEn = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
                 const daysFi = ['Maanantai', 'Tiistai', 'Keskiviikko', 'Torstai', 'Perjantai'];
-                
+
                 ['de', 'en', 'fi'].forEach(lang => {
                     let dName = daysDe[widgetSelectedDay];
                     if (lang === 'en') dName = daysEn[widgetSelectedDay];
@@ -3571,7 +3583,7 @@
                 const startOfToday = new Date(); startOfToday.setHours(0,0,0,0);
                 const endOfToday = new Date(); endOfToday.setHours(23,59,59,999);
                 const todayEvents = events.filter(e => e.dateObj >= startOfToday && e.dateObj <= endOfToday);
-                
+
                 if (todayEvents.length > 0) {
                     const titleText = translations[currentLanguage].schedule_done_today;
                     const descText = translations[currentLanguage].schedule_done_desc;
@@ -3581,14 +3593,14 @@
                     emptyHtml = `<div class="schedule-item"><div data-translate="schedule_no_lectures" class="schedule-title">${titleText}</div>${subTextHtml}</div>`;
                 }
             }
-            
+
             if (nextEvent) {
                 const daysDeShort = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
                 const daysEnShort = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
                 const daysFiShort = ['Ma', 'Ti', 'Ke', 'To', 'Pe', 'La', 'Su'];
                 const nextDayIndex = nextEvent.dateObj.getDay() === 0 ? 6 : nextEvent.dateObj.getDay() - 1;
                 const nextDateStr = String(nextEvent.dateObj.getDate()).padStart(2, '0') + '.' + String(nextEvent.dateObj.getMonth() + 1).padStart(2, '0') + '.';
-                
+
                 ['de', 'en', 'fi'].forEach(lang => {
                     let nDayStr = daysDeShort[nextDayIndex];
                     if (lang === 'en') nDayStr = daysEnShort[nextDayIndex];
@@ -3596,7 +3608,7 @@
                     translations[lang].schedule_next_day_dyn = translations[lang].schedule_next_day.replace('{day}', nDayStr).replace('{date}', nextDateStr);
                 });
                 const btnText = translations[currentLanguage].schedule_next_day_dyn;
-                
+
                 emptyHtml += `
                 <div class="schedule-item" onclick="event.stopPropagation(); this.style.transform='scale(0.95)'; setTimeout(() => jumpToNextLectureDay(), 250)" style="background-color: rgba(58, 130, 247, 0.15); border: 1.5px solid rgba(58, 130, 247, 0.3); box-sizing: border-box; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s ease;">
                     <div class="schedule-title" style="color: var(--accent-blue); display: flex; align-items: center; gap: 6px;">
@@ -3605,7 +3617,7 @@
                     </div>
                 </div>`;
             }
-            
+
             scheduleBox.innerHTML = emptyHtml;
             return;
         }
@@ -3623,7 +3635,7 @@
                 const dayName = currentLanguage === 'de' ? daysDe[ev.dateObj.getDay()] : daysEn[ev.dateObj.getDay()];
                 dayPrefix = `<span style="color: var(--accent-orange); font-weight: 700; margin-right: 6px;">${dayName}:</span>`;
             }
-            
+
             item.innerHTML = `
                 <div class="schedule-progress-fill" style="width: 0%;"></div>
                 <div class="schedule-title" style="display: flex; align-items: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
@@ -3641,7 +3653,7 @@
     function updateMensaBalance(animate = true) {
       const balanceEl = document.getElementById('mensa-balance-amount');
       if (!balanceEl) return;
-      
+
       if (!animate) {
         displayedMensaBalance = mensaBalance;
         balanceEl.innerText = mensaBalance.toFixed(2).replace('.', ',') + '€';
@@ -3657,10 +3669,10 @@
         const elapsed = currentTime - startTime;
         const progress = Math.min(elapsed / duration, 1);
         const easeOut = 1 - Math.pow(1 - progress, 4); // easeOutQuart
-        
+
         displayedMensaBalance = startValue + (endValue - startValue) * easeOut;
         balanceEl.innerText = displayedMensaBalance.toFixed(2).replace('.', ',') + '€';
-        
+
         if (progress < 1) {
           requestAnimationFrame(animateBalance);
         } else {
@@ -3668,7 +3680,7 @@
           balanceEl.innerText = mensaBalance.toFixed(2).replace('.', ',') + '€';
         }
       }
-      
+
       requestAnimationFrame(animateBalance);
     }
 
@@ -3676,7 +3688,7 @@
       const gradeElements = document.querySelectorAll('.grades-list .grade-value');
       let total = 0;
       let count = 0;
-      
+
       gradeElements.forEach(el => {
         const val = parseFloat(el.innerText.replace(',', '.'));
         if (!isNaN(val) && val > 0) {
@@ -3684,15 +3696,15 @@
           count++;
         }
       });
-      
+
       if (count > 0) {
         currentGPA = total / count;
       } else {
         currentGPA = 0.0;
       }
-      
+
       const gpaStr = currentGPA.toFixed(1).replace('.', ',');
-      
+
       const gpaEl = document.getElementById('profile-gpa-value');
       if (gpaEl) gpaEl.innerText = gpaStr;
       const homeGpaEl = document.getElementById('home-gpa-number');
@@ -3712,10 +3724,10 @@
         setTimeout(openInsufficientFundsModal, 300);
         return;
       }
-      
+
       const gradeElements = Array.from(document.querySelectorAll('.grades-list .grade-value'));
       if (gradeElements.length === 0) return;
-      
+
       let worstEl = null;
       let worstVal = 0;
       gradeElements.forEach(el => {
@@ -3725,15 +3737,15 @@
             worstEl = el;
         }
       });
-      
+
       if (!worstEl || worstVal <= 1.0) {
         alert(currentLanguage === 'de' ? "Besser geht's nicht!" : "Can't get any better!");
         return;
       }
-      
+
       mensaBalance -= 50.00;
       updateMensaBalance();
-      
+
       // Die schlechteste Note in die nächstbessere offizielle Note verbessern
       const w = Math.round(worstVal * 10);
       let newVal;
@@ -3747,11 +3759,11 @@
       else if (w > 17) newVal = 1.7;
       else if (w > 13) newVal = 1.3;
       else newVal = 1.0;
-      
+
       worstEl.innerText = newVal.toFixed(1).replace('.', ',');
-      
+
       calculateGPAFromList(); // Durchschnitt anhand der neuen Note neu berechnen
-      
+
       closeModal();
       if (isStorageEnabled()) saveAllData();
     }
@@ -3776,10 +3788,10 @@
         const elapsed = currentTime - startTime;
         const progress = Math.min(elapsed / duration, 1);
         const easeOut = 1 - Math.pow(1 - progress, 4); // Sanftes Abbremsen
-        
+
         currentParkingSpots = startValue + (endValue - startValue) * easeOut;
         applyParkingVisuals(currentParkingSpots, bar, statusText);
-        
+
         if (progress < 1) {
           requestAnimationFrame(animateBar);
         } else {
@@ -3787,19 +3799,19 @@
           applyParkingVisuals(currentParkingSpots, bar, statusText);
         }
       }
-      
+
       requestAnimationFrame(animateBar);
     }
 
     function applyParkingVisuals(spots, bar, statusText) {
       const percentage = (spots / 200) * 100;
       bar.style.width = percentage + '%';
-      
+
       const el = document.querySelector('[data-translate="parking_text"]');
       if (el) {
         el.innerText = translations[currentLanguage].parking_text.replace('{spots}', Math.round(spots));
       }
-      
+
       let r, g, b;
       if (percentage <= 50) {
           const p = percentage / 50;
@@ -3812,14 +3824,14 @@
           g = Math.round(149 + (59 - 149) * p);
           b = Math.round(0 + (48 - 0) * p);
       }
-      
+
       const color = `rgb(${r}, ${g}, ${b})`;
       bar.style.backgroundColor = color;
-      
+
       if (statusText) {
           statusText.style.color = color;
           statusText.style.backgroundColor = `rgba(${r}, ${g}, ${b}, 0.15)`;
-          
+
           if (percentage >= 85) {
               statusText.innerText = translations[currentLanguage].parking_status_full;
           } else if (percentage >= 50) {
@@ -3843,14 +3855,14 @@
 
       const handleInteraction = (e) => {
         if (e.cancelable) e.preventDefault(); // Verhindert Scrollen beim Wischen über das Diagramm
-        
+
         isInteracting = true;
         const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        
+
         const wrappers = chartContainer.querySelectorAll('.chart-bar-wrapper');
         let closestWrapper = null;
         let minDistance = Infinity;
-        
+
         // Findet den Balken, der am nächsten am Finger liegt
         wrappers.forEach(wrapper => {
           const rect = wrapper.getBoundingClientRect();
@@ -3861,24 +3873,24 @@
             closestWrapper = wrapper;
           }
         });
-        
+
         if (closestWrapper && minDistance < 40) {
           wrappers.forEach(w => w.classList.remove('active'));
           closestWrapper.classList.add('active');
           chartContainer.classList.add('has-active');
-          
+
           const bar = closestWrapper.querySelector('.chart-bar');
           const heightPercent = parseInt(bar.style.height);
           const cars = Math.round((heightPercent / 100) * 200); // 200 ist die maximale Auslastung
-          
+
           tooltip.innerText = translations[currentLanguage].chart_cars_tooltip.replace('{n}', cars);
-          
+
           const wRect = closestWrapper.getBoundingClientRect();
           const cRect = chartContainer.getBoundingClientRect();
-          
+
           const leftPos = (wRect.left - cRect.left) + (wRect.width / 2);
           const topPos = cRect.height - 25 - ((heightPercent / 100) * (cRect.height - 25)) - 8;
-          
+
           tooltip.style.left = leftPos + 'px';
           tooltip.style.top = topPos + 'px';
           tooltip.style.opacity = '1';
@@ -3896,7 +3908,7 @@
       chartContainer.addEventListener('touchmove', handleInteraction, { passive: false });
       chartContainer.addEventListener('touchend', stopInteraction);
       chartContainer.addEventListener('touchcancel', stopInteraction);
-      
+
       chartContainer.addEventListener('mousedown', (e) => { if (e.button === 0) handleInteraction(e); });
       chartContainer.addEventListener('mousemove', (e) => { if (isInteracting) handleInteraction(e); });
       document.addEventListener('mouseup', () => { if (isInteracting) stopInteraction(); });
@@ -3910,14 +3922,14 @@
 
       const handleInteraction = (e) => {
         if (e.cancelable) e.preventDefault(); // Verhindert Scrollen beim Wischen über das Diagramm
-        
+
         isInteracting = true;
         const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        
+
         const wrappers = chartContainer.querySelectorAll('.chart-bar-wrapper');
         let closestWrapper = null;
         let minDistance = Infinity;
-        
+
         wrappers.forEach(wrapper => {
           const rect = wrapper.getBoundingClientRect();
           const center = rect.left + rect.width / 2;
@@ -3927,25 +3939,25 @@
             closestWrapper = wrapper;
           }
         });
-        
+
         const tooltip = document.getElementById('grade-chart-tooltip');
         if (closestWrapper && minDistance < 40 && tooltip) {
           wrappers.forEach(w => w.classList.remove('active'));
           closestWrapper.classList.add('active');
           chartContainer.classList.add('has-active');
-          
+
           const bar = closestWrapper.querySelector('.chart-bar');
           const heightPercent = parseInt(bar.style.height);
           const count = closestWrapper.dataset.value;
-          
+
           tooltip.innerText = translations[currentLanguage].chart_grades_tooltip.replace('{n}', count);
-          
+
           const wRect = closestWrapper.getBoundingClientRect();
           const cRect = chartContainer.getBoundingClientRect();
-          
+
           const leftPos = (wRect.left - cRect.left) + (wRect.width / 2);
           const topPos = cRect.height - 25 - ((heightPercent / 100) * (cRect.height - 25)) - 8;
-          
+
           tooltip.style.left = leftPos + 'px';
           tooltip.style.top = topPos + 'px';
           tooltip.style.opacity = '1';
@@ -3954,7 +3966,7 @@
 
       const stopInteraction = () => {
         isInteracting = false;
-        
+
         chartContainer.querySelectorAll('.chart-bar-wrapper').forEach(w => {
           w.classList.remove('active');
           if (w.dataset.isUserGrade === 'true') {
@@ -3971,7 +3983,7 @@
       chartContainer.addEventListener('touchmove', handleInteraction, { passive: false });
       chartContainer.addEventListener('touchend', stopInteraction);
       chartContainer.addEventListener('touchcancel', stopInteraction);
-      
+
       chartContainer.addEventListener('mousedown', (e) => { if (e.button === 0) handleInteraction(e); });
       chartContainer.addEventListener('mousemove', (e) => { if (isInteracting) handleInteraction(e); });
       document.addEventListener('mouseup', () => { if (isInteracting) stopInteraction(); });
@@ -3982,7 +3994,7 @@
       const chars = 'aceghkmnopqrsuvxyz023456789#*';
       let iteration = 0;
       clearInterval(el.scrambleInterval);
-      
+
       const tick = () => {
         let result = '';
         for (let i = 0; i < newText.length; i++) {
@@ -3994,13 +4006,13 @@
             result += chars[Math.floor(Math.random() * chars.length)];
           }
         }
-        
+
         if (isPlaceholder) {
           el.placeholder = result;
         } else {
           el.innerText = result;
         }
-        
+
         if (iteration >= newText.length) {
           clearInterval(el.scrambleInterval);
           if (isPlaceholder) {
@@ -4009,10 +4021,10 @@
             el.innerText = newText;
           }
         }
-        
+
         iteration += Math.max(0.5, newText.length / 15);
       };
-      
+
       tick(); // Führt den ersten Frame sofort aus, um den Text synchron auszutauschen
       el.scrambleInterval = setInterval(tick, 30);
     }
@@ -4020,8 +4032,8 @@
     function setLanguage(lang) {
       if (currentLanguage === lang) return;
       currentLanguage = lang;
-      
-      // Wenn der Nutzer sehr schnell umschaltet, zuerst alte Größen-Sperren aufheben, 
+
+      // Wenn der Nutzer sehr schnell umschaltet, zuerst alte Größen-Sperren aufheben,
       // damit die echten neuen Dimensionen berechnet werden können.
       document.querySelectorAll('[data-orig-width-saved]').forEach(el => {
         el.style.boxSizing = el.getAttribute('data-orig-box-sizing');
@@ -4033,7 +4045,7 @@
 
       const activeModal = document.querySelector('.modal.show');
       let startHeight = 0;
-      
+
       if (activeModal) {
         startHeight = activeModal.offsetHeight;
         activeModal.style.height = startHeight + 'px';
@@ -4075,7 +4087,7 @@
           if (key === 'parking_text') {
             text = text.replace('{spots}', occupiedParkingSpots);
           }
-          
+
           if (el.hasAttribute('placeholder')) {
             el.placeholder = text;
           } else {
@@ -4088,12 +4100,12 @@
         // Neue Zielhöhe messen
         activeModal.style.height = 'auto';
         const targetHeight = activeModal.offsetHeight;
-        
+
         // Zurücksetzen und flüssig zur neuen Höhe animieren
         activeModal.style.height = startHeight + 'px';
         void activeModal.offsetHeight; // Reflow erzwingen
         activeModal.style.height = targetHeight + 'px';
-        
+
         clearTimeout(activeModal.languageAnimTimeout);
         activeModal.languageAnimTimeout = setTimeout(() => {
           activeModal.style.height = '';
@@ -4101,12 +4113,12 @@
         }, 600); // 600ms warten, damit der Scramble-Effekt sicher fertig ist
       }
 
-      // UI-Elemente exakt auf ihrer neuen, finalen Größe einfrieren, 
+      // UI-Elemente exakt auf ihrer neuen, finalen Größe einfrieren,
       // damit sich Container (z.B. Buttons) während des Scrambelns nicht verformen.
       const translatedElements = document.querySelectorAll('[data-translate]');
       translatedElements.forEach(el => {
         const rect = el.getBoundingClientRect();
-        if (rect.width > 0 && rect.height > 0) { 
+        if (rect.width > 0 && rect.height > 0) {
             // Backup der ursprünglichen CSS-Werte (nur beim ersten Setzen)
             if (!el.hasAttribute('data-orig-width-saved')) {
                 el.setAttribute('data-orig-box-sizing', el.style.boxSizing || '');
@@ -4114,14 +4126,14 @@
                 el.setAttribute('data-orig-height', el.style.height || '');
                 el.setAttribute('data-orig-overflow', el.style.overflow || '');
                 el.setAttribute('data-orig-width-saved', 'true');
-                
+
                 const compStyle = window.getComputedStyle(el);
                 if (compStyle.display === 'inline') {
                   el.setAttribute('data-orig-display', el.style.display || '');
                   el.style.display = 'inline-block';
                 }
             }
-            
+
             // Element-Abmessungen rigoros einfrieren
             el.style.boxSizing = 'border-box';
             el.style.width = rect.width + 'px';
@@ -4138,13 +4150,13 @@
           if (key === 'parking_text') {
             text = text.replace('{spots}', occupiedParkingSpots);
           }
-          
+
           const isPlaceholder = el.hasAttribute('placeholder');
           scrambleText(el, text, isPlaceholder);
         }
       });
 
-      // Nach der Animation die Größen-Sperre wieder aufheben, 
+      // Nach der Animation die Größen-Sperre wieder aufheben,
       // um die natürliche Reaktionsfähigkeit beim Neigen des Geräts zurückzugeben
       clearTimeout(window.languageLockTimeout);
       window.languageLockTimeout = setTimeout(() => {
@@ -4154,12 +4166,12 @@
               el.style.width = el.getAttribute('data-orig-width');
               el.style.height = el.getAttribute('data-orig-height');
               el.style.overflow = el.getAttribute('data-orig-overflow');
-              
+
               if (el.hasAttribute('data-orig-display')) {
                  el.style.display = el.getAttribute('data-orig-display');
                  el.removeAttribute('data-orig-display');
               }
-              
+
               // Backup-Werte löschen
               el.removeAttribute('data-orig-box-sizing');
               el.removeAttribute('data-orig-width');
@@ -4172,7 +4184,7 @@
 
       renderSearchHistory();
       updateRelativeTimes();
-      
+
       if (isStorageEnabled()) {
           localStorage.setItem('thd_language', lang);
       }
@@ -4188,14 +4200,14 @@
 
         const examiners = ['Prof. Dr. Schmidt', 'Prof. Weber', 'Prof. Dr. Meier', 'Prof. Dr. Bauer', 'Prof. Dr. Fuchs', 'Prof. Dr. Wagner', 'Prof. Dr. Müller'];
         const examiner = examiners[hash % examiners.length];
-        
+
         const days = String((hash % 28) + 1).padStart(2, '0');
         const months = String((hash % 12) + 1).padStart(2, '0');
         const date = `${days}.${months}.2026`;
 
         const registered = 30 + (hash % 60);
         const participated = registered - (hash % 5);
-        
+
         const avg = (1.5 + (hash % 15) / 10).toFixed(1).replace('.', ',');
 
         // Notenverteilung detailliert (1,0 bis 5,0)
@@ -4212,7 +4224,7 @@
             Math.floor(participated * 0.05) + (hash % 2), // 4,0
             Math.floor(participated * 0.05) + (hash % 2)  // 5,0
         ];
-        
+
         // Finde heraus, in welche Kategorie die eigene Note fällt
         const gradeNum = parseFloat(String(grade).replace(',', '.'));
         const g = Math.round(gradeNum * 10);
@@ -4244,7 +4256,7 @@
             <div class="chart-grid-line" style="bottom: 50%;"></div>
             <div class="chart-grid-line" style="bottom: 80%;"></div>
         `;
-        
+
         const maxVal = Math.max(...dist, 1);
         const labels = ['1,0', '1,3', '1,7', '2,0', '2,3', '2,7', '3,0', '3,3', '3,7', '4,0', '5,0'];
         const barClasses = ['low', 'low', 'low', 'low', 'low', 'medium', 'medium', 'medium', 'medium', 'medium', 'high'];
@@ -4252,16 +4264,16 @@
         dist.forEach((val, index) => {
             const heightPct = (val / maxVal) * 100;
             const isUserGrade = index === userBucket;
-            
+
             const wrapper = document.createElement('div');
             wrapper.className = 'chart-bar-wrapper' + (isUserGrade ? ' active' : '');
             wrapper.dataset.value = val;
             wrapper.dataset.isUserGrade = isUserGrade;
-            
+
             const bar = document.createElement('div');
             bar.className = 'chart-bar ' + barClasses[index];
             bar.style.height = `${heightPct}%`;
-            
+
 
             const label = document.createElement('span');
             label.className = 'chart-label';
@@ -4304,7 +4316,7 @@
     function refreshWebcam() {
       const timestamp = Date.now();
       const newSrc = `https://th-deg.de/static/images/webcam.jpg?t=${timestamp}`;
-      
+
       const tempImg = new Image();
       tempImg.onload = () => {
         const thumb = document.getElementById('webcam-img-thumb');
@@ -4370,7 +4382,7 @@
 
     function attachMailEventListeners(item) {
         const mailPage = document.getElementById('page-mails');
-        
+
         // Prüft, ob die swipe-zone fehlt und fügt sie automatisch ein
         let swipeZone = item.querySelector('.swipe-zone');
         if (!swipeZone) {
@@ -4382,7 +4394,7 @@
         const startDrag = (e) => {
             if (mailPage.classList.contains('selection-mode')) {
                 isDraggingSelection = true;
-                
+
                 // Wenn das Element bereits markiert ist, schalten wir für diesen Wischvorgang auf "Abwählen"
                 const isSelected = item.classList.contains('selected');
                 dragSelectionAction = isSelected ? 'deselect' : 'select';
@@ -4406,7 +4418,7 @@
 
         const startPress = (e) => {
             if (mailPage.classList.contains('selection-mode')) return;
-            
+
             isLongPress = false;
             pressTimer = setTimeout(() => {
                 isLongPress = true;
@@ -4445,10 +4457,10 @@
         // Logik für den Auswahlmodus
         if (mailPage.classList.contains('selection-mode')) {
           if (isDraggingSelection) return; // Verhindert Abwählen nach dem Wischen
-          
+
           const mailId = this.getAttribute('data-mail-id');
           const isSelected = this.classList.contains('selected');
-          
+
           if (mailId) {
               document.querySelectorAll(`.mail-item[data-mail-id="${mailId}"]`).forEach(el => {
                   if (isSelected) el.classList.remove('selected');
@@ -4460,7 +4472,7 @@
           updateSelectionCount();
           return;
         }
-        
+
         // Markiere E-Mail über alle synchronisierten Ansichten als gelesen
         const mailId = this.getAttribute('data-mail-id');
         if (mailId) {
@@ -4470,23 +4482,23 @@
         }
         if (isStorageEnabled()) saveAllData();
         updateUnreadBadge();
-        
+
         // Lese Daten aus dem geklickten Listeneintrag aus
         const sender = this.querySelector('.mail-sender').innerText;
         const time = this.querySelector('.mail-time').innerText;
         const subject = this.querySelector('.mail-subject').innerText;
         const preview = this.querySelector('.mail-preview').innerText;
-        
+
         // Setze die Daten im Pop-up
         document.getElementById('email-popup-sender').innerText = sender;
         document.getElementById('email-popup-time').innerText = time;
         document.getElementById('email-popup-subject').innerText = subject;
         document.getElementById('email-popup-body').innerText = preview;
-        
+
         // Button dynamisch anpassen (Mail vs. iLearn)
         const actionBtn = document.getElementById('email-action-btn');
         const isILearn = this.closest('#ilearn-view') !== null || (this.closest('.mail-column') && Array.from(this.closest('.mail-column').querySelectorAll('.mail-list')).indexOf(this.closest('.mail-list')) === 1);
-        
+
         if (isILearn) {
           actionBtn.innerText = translations[currentLanguage].course_modal_to_ilearn;
           actionBtn.setAttribute('data-translate', 'course_modal_to_ilearn');
@@ -4494,9 +4506,9 @@
         } else {
           actionBtn.innerText = translations[currentLanguage].email_detail_reply;
           actionBtn.setAttribute('data-translate', 'email_detail_reply');
-          actionBtn.onclick = () => replyToMail(sender, subject, preview); 
+          actionBtn.onclick = () => replyToMail(sender, subject, preview);
         }
-        
+
         // Öffne das Modal
         document.getElementById('modal-overlay').classList.add('show');
         setTimeout(() => {
@@ -4510,7 +4522,7 @@
     mailItems.forEach(item => {
       attachMailEventListeners(item);
     });
-    
+
     // Initiale Prüfung beim Start der App
     updateUnreadBadge();
 
@@ -4538,7 +4550,7 @@
     function requestEctsDeleteConfirmation() {
       itemToDelete = 'ects'; // Hier geht es um die ECTS Karte
       document.getElementById('delete-confirm-text').innerText = currentLanguage === 'de' ? "Möchtest du deine ECTS wirklich auf 0 zurücksetzen?" : "Do you really want to reset your ECTS to 0?";
-      
+
       const modalTitle = document.querySelector('#delete-modal .modal-title');
       if (modalTitle) {
           modalTitle.innerText = translations[currentLanguage].delete_ects_title;
@@ -4562,7 +4574,7 @@
       const cancelPress = () => {
         clearTimeout(pressTimer);
       };
-      
+
       el.addEventListener('mousedown', startPress);
       el.addEventListener('touchstart', startPress, { passive: true });
       el.addEventListener('mouseup', cancelPress);
@@ -4656,23 +4668,23 @@
       vpnCard.classList.remove('vpn-connect-anim', 'vpn-disconnect-anim');
       // Ein "Reflow" wird erzwungen, um sicherzustellen, dass der Browser die Klassenentfernung registriert
       void vpnCard.offsetWidth;
-      
+
       if (vpnToggle.checked) {
         vpnStatusText.innerText = translations[currentLanguage].vpn_status_connected;
         vpnStatusText.setAttribute('data-translate', 'vpn_status_connected');
         vpnStatusText.classList.add('active');
         vpnCard.classList.add('vpn-connect-anim'); // Grüne Leuchtanimation hinzufügen
-        
+
         // Klasse nach der Animation entfernen, damit sie beim Tab-Wechsel nicht neu startet
         vpnAnimTimeout = setTimeout(() => {
           vpnCard.classList.remove('vpn-connect-anim');
         }, 700);
-        
+
         // Benachrichtigung auslösen
         if ("Notification" in window) {
           const title = translations[currentLanguage].vpn_notif_title;
           const options = { body: translations[currentLanguage].vpn_notif_body, icon: 'icon-192.png' };
-          
+
           const triggerNotification = () => {
             if ('serviceWorker' in navigator) {
               navigator.serviceWorker.ready.then(registration => {
@@ -4700,13 +4712,13 @@
         vpnStatusText.setAttribute('data-translate', 'vpn_status_disconnected');
         vpnStatusText.classList.remove('active');
         vpnCard.classList.add('vpn-disconnect-anim'); // Rote Leuchtanimation hinzufügen
-        
+
         // Klasse nach der Animation entfernen
         vpnAnimTimeout = setTimeout(() => {
           vpnCard.classList.remove('vpn-disconnect-anim');
         }, 700);
       }
-      
+
       if (isStorageEnabled()) saveAllData();
     }
 
@@ -4736,12 +4748,12 @@
           notif.classList.remove('show');
         };
       }
-      
+
       document.body.appendChild(notif);
-      
+
       void notif.offsetWidth; // Reflow erzwingen
       notif.classList.add('show');
-      
+
       setTimeout(() => {
         notif.classList.remove('show');
         setTimeout(() => notif.remove(), 400); // Element nach Animation löschen
@@ -4770,7 +4782,7 @@
       // 2. Das HTML-Element für die Liste bauen
       const newMail = document.createElement('div');
       newMail.className = 'mail-item'; // Ohne "unread", da selbst geschrieben
-      
+
       newMail.innerHTML = `
         <div class="selection-indicator">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"></polyline></svg>
@@ -4788,7 +4800,7 @@
 
       // 3. Klick-Funktionen aktivieren und oben in die Liste einfügen
       addMailToDOM(newMail, false);
-      
+
       // 4. Felder leeren und Fenster schließen
       document.getElementById('comp-to').value = '';
       document.getElementById('comp-subject').value = '';
@@ -4836,7 +4848,7 @@ Antworte NUR mit dem E-Mail-Text. Kein Markdown, keine Platzhalter.`;
         });
 
         const data = await response.json();
-        
+
         if (!response.ok) {
           console.error("Google/Backend hat die Anfrage abgelehnt:", JSON.stringify(data, null, 2));
           const errorMsg = data.error?.message || JSON.stringify(data);
@@ -4854,7 +4866,7 @@ Antworte NUR mit dem E-Mail-Text. Kein Markdown, keine Platzhalter.`;
           }
           return;
         }
-        
+
         console.log("Antwort der KI erfolgreich empfangen:", data);
 
         if (data.candidates && data.candidates.length > 0) {
@@ -4862,7 +4874,7 @@ Antworte NUR mit dem E-Mail-Text. Kein Markdown, keine Platzhalter.`;
 
           const replyMail = document.createElement('div');
           replyMail.className = 'mail-item unread';
-          
+
           replyMail.innerHTML = `
             <div class="swipe-zone"></div>
             <div class="selection-indicator">
@@ -4879,7 +4891,7 @@ Antworte NUR mit dem E-Mail-Text. Kein Markdown, keine Platzhalter.`;
           // Mit einer kleinen Verzögerung einfügen, damit es realistischer wirkt
           setTimeout(() => {
             addMailToDOM(replyMail, false);
-            
+
             // Benachrichtigung anzeigen, wenn man sich nicht im Mail-Tab befindet
             const mailsPage = document.getElementById('page-mails');
             if (mailsPage && !mailsPage.classList.contains('active')) {
@@ -4923,15 +4935,15 @@ Antworte NUR mit dem E-Mail-Text. Kein Markdown, keine Platzhalter.`;
         const waitMsgEn = `Please wait ${remainingSeconds} seconds.`;
         const waitMsgFi = `Odota vielä ${remainingSeconds} sekuntia.`;
         const waitMsg = currentLanguage === 'de' ? waitMsgDe : (currentLanguage === 'en' ? waitMsgEn : waitMsgFi);
-        
+
         showDropdownNotification(waitMsg, true);
         return;
       }
-      
+
       lastAiGenerationTime = now;
 
       showDropdownNotification(translations[currentLanguage].ai_generating || "KI generiert Daten...", false);
-      
+
       const url = 'https://thd-app-backend.onrender.com/api/gemini';
 
       const prompt = `Erstelle zufällige, aber realistische Studiendaten für einen Medientechnik-Studenten in Deutschland.
@@ -4984,11 +4996,11 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
             console.error("Google/Backend Fehler-Details:", data);
             throw new Error(data.error?.message || "API Limit oder Fehler");
         }
-        
+
         let jsonStr = data.candidates[0].content.parts[0].text.trim();
         if(jsonStr.startsWith('```json')) jsonStr = jsonStr.replace(/^```json/, '').replace(/```$/, '').trim();
         else if (jsonStr.startsWith('```')) jsonStr = jsonStr.replace(/^```/, '').replace(/```$/, '').trim();
-        
+
         const aiData = JSON.parse(jsonStr);
 
         mensaBalance = parseFloat(aiData.mensaBalance) || 0;
@@ -5053,7 +5065,7 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
                 });
             }
         }
-        
+
         calculateGPAFromList(); // Nach dem Auffüllen der Noten automatisch ausrechnen
 
         if (aiData.rentals) {
@@ -5075,12 +5087,12 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
                         } else if (dueStr.includes('morgen') || dueStr.includes('tomorrow') || dueStr.includes('1') || dueStr.includes('2')) {
                             dueClass += ' soon';
                         }
-                        
+
                         const escapeStr = str => (str || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
-                        
+
                         div.setAttribute('onclick', `openRentalModal('${escapeStr(item.title)}', this.querySelector('.rental-item-due').innerText, '${escapeStr(item.loc)}', '${escapeStr(item.person)}', '${escapeStr(item.notes)}', this)`);
                         div.innerHTML = `<span class="rental-item-title">${escapeStr(item.title)}</span><span class="${dueClass}">${escapeStr(item.due)}</span>`;
-                        
+
                         div.style.position = 'relative';
                         div.style.isolation = 'isolate';
                         view.appendChild(div);
@@ -5090,10 +5102,10 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
 
             const emptyBooks = translations[currentLanguage].rental_books_empty || "Keine Bücher ausgeliehen.";
             const emptyTech = currentLanguage === 'de' ? 'Keine Technik ausgeliehen.' : (currentLanguage === 'en' ? 'No tech borrowed.' : 'Ei tekniikkaa lainassa.');
-            
+
             updateRentalView('rental-books-view', aiData.rentals.books, emptyBooks, 'rental_books_empty');
             updateRentalView('rental-tech-view', aiData.rentals.tech, emptyTech, null);
-            
+
             const activeRental = document.querySelector('#rental-views-container .rental-view.active');
             const viewport = document.getElementById('rental-views-viewport');
             if (activeRental && viewport) {
@@ -5142,7 +5154,7 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
         initialY: 0,
         longPressTimer: null
     };
-    
+
     let autoScrollInterval = null;
     let currentTouchX = 0;
     let currentTouchY = 0;
@@ -5151,7 +5163,7 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
         currentTouchX = e.clientX;
         currentTouchY = e.clientY;
     }, { passive: true });
-    
+
     document.addEventListener('touchmove', (e) => {
         if (e.touches && e.touches.length > 0) {
             currentTouchX = e.touches[0].clientX;
@@ -5160,8 +5172,8 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
     }, { passive: true });
 
     function initWidgetDragAndDrop() {
-        const widgets = ['widget-ects', 'widget-schedule', 'widget-mensa', 'widget-parking', 'widget-rental', 'widget-vpn', 'widget-services'];
-        
+        const widgets = ['widget-ects', 'widget-schedule', 'widget-mensa', 'widget-parking', 'widget-rental', 'widget-vpn', 'widget-services', 'widget-weather', 'widget-todo'];
+
         widgets.forEach(id => {
             const el = document.getElementById(id);
             if (!el) return;
@@ -5173,14 +5185,14 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
 
                 // Ignoriere Klicks auf interaktive Bereiche wie Textfelder (Schalter, Listen & Segment-Buttons sind greifbar)
                 if (e.target.closest('button:not(.segment-btn), input:not([type="checkbox"])')) return;
-                
+
                 // Nur Linksklick bei der Maus
                 if (e.type === 'mousedown' && e.button !== 0) return;
 
                 // Startposition sofort speichern (verhindert asynchrone Fehler auf Mobile)
                 const clientX = e.touches ? e.touches[0].clientX : e.clientX;
                 const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-                
+
                 currentTouchX = clientX;
                 currentTouchY = clientY;
 
@@ -5197,19 +5209,19 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
                     }
 
                     const rect = el.getBoundingClientRect();
-                    
+
                     dragState.isDragging = true;
                     dragState.element = el;
                     document.body.classList.add('is-dragging-widget');
-                    
+
                     // Placeholder erstellen
                     dragState.placeholder = document.createElement('div');
                     dragState.placeholder.className = 'widget-placeholder';
                     dragState.placeholder.style.height = rect.height + 'px';
-                    
+
                     el.parentNode.insertBefore(dragState.placeholder, el.nextSibling);
-                    
-                    // Element in den body verschieben, damit es im Tablet-Modus nicht von den 
+
+                    // Element in den body verschieben, damit es im Tablet-Modus nicht von den
                     // Rändern des scrollbaren Containers (Barrikaden) abgeschnitten wird
                     document.body.appendChild(el);
 
@@ -5218,14 +5230,14 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
                     dragState.initialY = currentTouchY - (rect.height / 2);
                     dragState.startX = currentTouchX;
                     dragState.startY = currentTouchY;
-                    
+
                     // Styles für freies Bewegen anwenden
                     el.style.width = rect.width + 'px';
                     el.style.height = rect.height + 'px';
                     el.style.left = dragState.initialX + 'px';
                     el.style.top = dragState.initialY + 'px';
                     el.classList.add('widget-dragging');
-                    
+
                     // Haptisches Feedback (wenn verfügbar)
                     if (navigator.vibrate) navigator.vibrate(50);
                 }, 400); // Löst nach 400ms Gedrückthalten aus
@@ -5252,18 +5264,18 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
         const checkPlacement = (x, y) => {
             const elemBelow = document.elementFromPoint(x, y);
             if (!elemBelow) return;
-            
+
             // Flimmer-Schutz 1: Ignoriert den Platzhalter komplett
             if (elemBelow.closest('.widget-placeholder')) return;
 
             let targetWidget = elemBelow.closest('.top-widgets-row, .mensa-card, .parking-card, .rental-card, .vpn-card, .services-card, .bottom-widgets-row, .ects-free, .schedule-box');
-            
+
             if (targetWidget && targetWidget !== dragState.placeholder && targetWidget !== dragState.element) {
                 const isDraggingBottomHalf = dragState.element.id === 'widget-vpn' || dragState.element.id === 'widget-services';
                 const isDraggingTopHalf = dragState.element.id === 'widget-ects' || dragState.element.id === 'widget-schedule';
                 const isDraggingHalf = isDraggingBottomHalf || isDraggingTopHalf;
 
-                // Flimmer-Schutz 2: Falls der Finger auf die Lücke in einer Reihe rutscht, 
+                // Flimmer-Schutz 2: Falls der Finger auf die Lücke in einer Reihe rutscht,
                 // fokussieren wir das noch verbleibende Ziel-Widget darin, damit die Vorschau nicht abbricht.
                 if (isDraggingBottomHalf && targetWidget.classList.contains('bottom-widgets-row')) {
                     const innerChild = Array.from(targetWidget.children).find(c => (c.id === 'widget-vpn' || c.id === 'widget-services') && c !== dragState.element);
@@ -5274,7 +5286,7 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
                     if (innerChild) targetWidget = innerChild;
                 }
 
-                // Wenn ein großes Widget über ein gruppiertes kleines Widget gezogen wird, 
+                // Wenn ein großes Widget über ein gruppiertes kleines Widget gezogen wird,
                 // nimm die ganze Reihe als Ziel, damit die kleinen in der Vorschau nicht getrennt werden.
                 if (!isDraggingBottomHalf && (targetWidget.id === 'widget-vpn' || targetWidget.id === 'widget-services') && targetWidget.parentNode && targetWidget.parentNode.classList.contains('bottom-widgets-row')) {
                     targetWidget = targetWidget.parentNode;
@@ -5282,29 +5294,29 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
                 if (!isDraggingTopHalf && (targetWidget.id === 'widget-ects' || targetWidget.id === 'widget-schedule') && targetWidget.parentNode && targetWidget.parentNode.classList.contains('top-widgets-row')) {
                     targetWidget = targetWidget.parentNode;
                 }
-                
+
                 const rect = targetWidget.getBoundingClientRect();
-                
+
                 const isTargetBottomHalf = targetWidget.id === 'widget-vpn' || targetWidget.id === 'widget-services';
                 const isTargetTopHalf = targetWidget.id === 'widget-ects' || targetWidget.id === 'widget-schedule';
 
                 if ((isDraggingBottomHalf && isTargetBottomHalf) || (isDraggingTopHalf && isTargetTopHalf)) {
                     const rect = targetWidget.getBoundingClientRect();
                     const relY = y - rect.top;
-                    
+
                     // Befindet sich der Finger im oberen 25% oder unteren 25% Rand? => Stapeln (Vertikal)
                     const isVerticalPlacement = relY < rect.height * 0.25 || relY > rect.height * 0.75;
-                    
+
                     if (isVerticalPlacement) {
                         unwrapPreviewRow();
                         let targetParent = targetWidget.parentNode;
                         let insertReference = targetWidget;
-                        
+
                         if (targetParent.classList.contains('top-widgets-row') || targetParent.classList.contains('bottom-widgets-row')) {
                             insertReference = targetParent;
                             targetParent = targetParent.parentNode;
                         }
-                        
+
                         if (relY < rect.height * 0.5) {
                             targetParent.insertBefore(dragState.placeholder, insertReference);
                         } else {
@@ -5316,11 +5328,11 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
                         // Mitte 50% => Nebeneinander platzieren (Row)
                         const isLeft = x < rect.left + rect.width / 2;
                         let row = targetWidget.parentNode.classList.contains('preview-row') ? targetWidget.parentNode : null;
-                        
+
                         if (!row && targetWidget.parentNode && (targetWidget.parentNode.classList.contains('top-widgets-row') || targetWidget.parentNode.classList.contains('bottom-widgets-row'))) {
                             row = targetWidget.parentNode;
                         }
-                        
+
                         if (!row) {
                             unwrapPreviewRow();
                             row = document.createElement('div');
@@ -5328,13 +5340,13 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
                             targetWidget.parentNode.insertBefore(row, targetWidget);
                             row.appendChild(targetWidget);
                         }
-                        
+
                         if (isLeft) {
                             row.insertBefore(dragState.placeholder, targetWidget);
                         } else {
                             row.insertBefore(dragState.placeholder, targetWidget.nextSibling);
                         }
-                        
+
                         if (isDraggingTopHalf) {
                             dragState.placeholder.style.flex = dragState.element.id === 'widget-ects' ? '1' : '1.2';
                             targetWidget.style.flex = targetWidget.id === 'widget-ects' ? '1' : '1.2';
@@ -5350,7 +5362,7 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
                     const targetMiddle = rect.top + rect.height / 2;
                     let targetParent = targetWidget.parentNode;
                     let insertReference = targetWidget;
-                    
+
                     if (targetParent.classList.contains('top-widgets-row') || targetParent.classList.contains('bottom-widgets-row')) {
                         insertReference = targetParent;
                         targetParent = targetParent.parentNode;
@@ -5377,16 +5389,16 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
             clearTimeout(dragState.longPressTimer);
             dragState.longPressTimer = null;
             clearInterval(autoScrollInterval);
-            
+
             document.body.classList.remove('is-dragging-widget');
-            
+
             if (!dragState.isDragging) return;
-            
+
             dragState.wasDragging = true;
             setTimeout(() => dragState.wasDragging = false, 100);
 
             const el = dragState.element;
-            
+
             el.classList.remove('widget-dragging');
             el.style.width = '';
             el.style.height = '';
@@ -5394,22 +5406,22 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
             el.style.top = '';
             el.style.margin = '';
             el.style.flex = '';
-            
+
             if (dragState.placeholder && dragState.placeholder.parentNode) {
                 dragState.placeholder.parentNode.insertBefore(el, dragState.placeholder);
                 dragState.placeholder.remove();
             }
-            
+
             dragState.isDragging = false;
             dragState.element = null;
             dragState.placeholder = null;
-            
+
             // Vorschau-Reihe nahtlos in echte Reihe umwandeln, um Layout-Sprünge zu vermeiden
             const previewRows = document.querySelectorAll('.preview-row');
             previewRows.forEach(row => {
                 const isBottom = row.classList.contains('bottom-widgets-row');
                 const isTop = row.classList.contains('top-widgets-row');
-                
+
                 if (isBottom) {
                     const vpn = document.getElementById('widget-vpn');
                     const services = document.getElementById('widget-services');
@@ -5466,7 +5478,7 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
                 if (dragState.longPressTimer) {
                     const dx = Math.abs(clientX - dragState.startX);
                     const dy = Math.abs(clientY - dragState.startY);
-                    
+
                     // Bricht das Halten erst ab, wenn > 10px gescrollt / gewischt wird
                     if (dx > 10 || dy > 10) {
                         clearTimeout(dragState.longPressTimer);
@@ -5475,19 +5487,19 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
                 }
                 return;
             }
-            
+
             e.preventDefault(); // Verhindert klassisches Scrollen während des Ziehens
-            
+
             const dx = clientX - dragState.startX;
             const dy = clientY - dragState.startY;
-            
+
             dragState.element.style.left = dragState.initialX + dx + 'px';
             dragState.element.style.top = dragState.initialY + dy + 'px';
-            
+
             // Auto-Scrolling, wenn der Finger an den oberen oder unteren Rand gezogen wird
             const edgeThreshold = 100;
             const scrollContainer = document.getElementById('page-home');
-            
+
             clearInterval(autoScrollInterval);
             autoScrollInterval = null;
 
@@ -5509,7 +5521,7 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
         document.addEventListener('mouseup', stopDrag);
         document.addEventListener('touchend', stopDrag);
         document.addEventListener('touchcancel', stopDrag);
-        
+
         document.addEventListener('mousemove', moveDrag, { passive: false });
         document.addEventListener('touchmove', moveDrag, { passive: false });
 
@@ -5538,64 +5550,64 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
 
     function wrapAdjacentHalfWidgets() {
         const home = document.getElementById('page-home');
-        
+
         // Wrap bottom
         const vpn = document.getElementById('widget-vpn');
         const services = document.getElementById('widget-services');
         const existingBottomRow = document.getElementById('widget-bottom-row');
-        
+
         if (!existingBottomRow || !vpn || !services || !existingBottomRow.contains(vpn) || !existingBottomRow.contains(services)) {
             unwrapRow('widget-bottom-row');
-            
+
             if (vpn && services && home.contains(vpn) && home.contains(services)) {
                 const widgets = Array.from(home.children).filter(c => c.id && c.id.startsWith('widget-'));
                 const vpnIdx = widgets.indexOf(vpn);
                 const srvIdx = widgets.indexOf(services);
-                
+
                 if (Math.abs(vpnIdx - srvIdx) === 1) {
                     const row = document.createElement('div');
                     row.id = 'widget-bottom-row';
                     row.className = 'bottom-widgets-row';
-                    
+
                     const first = vpnIdx < srvIdx ? vpn : services;
                     const second = vpnIdx < srvIdx ? services : vpn;
-                    
+
                     home.insertBefore(row, first);
                     row.appendChild(first);
                     row.appendChild(second);
-                    
+
                     if (first.classList.contains('widget-hidden') && second.classList.contains('widget-hidden')) {
                         row.classList.add('widget-hidden');
                     }
                 }
             }
         }
-        
+
         // Wrap top
         const ects = document.getElementById('widget-ects');
         const sched = document.getElementById('widget-schedule');
         const existingTopRow = document.getElementById('widget-top-row');
-        
+
         if (!existingTopRow || !ects || !sched || !existingTopRow.contains(ects) || !existingTopRow.contains(sched)) {
             unwrapRow('widget-top-row');
-            
+
             if (ects && sched && home.contains(ects) && home.contains(sched)) {
                 const widgets = Array.from(home.children).filter(c => c.id && c.id.startsWith('widget-'));
                 const ectsIdx = widgets.indexOf(ects);
                 const schedIdx = widgets.indexOf(sched);
-                
+
                 if (Math.abs(ectsIdx - schedIdx) === 1) {
                     const row = document.createElement('div');
                     row.id = 'widget-top-row';
                     row.className = 'top-widgets-row';
-                    
+
                     const first = ectsIdx < schedIdx ? ects : sched;
                     const second = ectsIdx < schedIdx ? sched : ects;
-                    
+
                     home.insertBefore(row, first);
                     row.appendChild(first);
                     row.appendChild(second);
-                    
+
                     if (first.classList.contains('widget-hidden') && second.classList.contains('widget-hidden')) {
                         row.classList.add('widget-hidden');
                     }
@@ -5613,9 +5625,9 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
                 const rowChildren = [];
                 Array.from(child.children).forEach(c => { if(c.id) rowChildren.push(c.id); });
                 if (rowChildren.length > 0) {
-                    order.push({ 
-                        row: child.classList.contains('top-widgets-row') ? 'widget-top-row' : 'widget-bottom-row', 
-                        children: rowChildren 
+                    order.push({
+                        row: child.classList.contains('top-widgets-row') ? 'widget-top-row' : 'widget-bottom-row',
+                        children: rowChildren
                     });
                 }
             } else if (child.id && child.id.startsWith('widget-')) {
@@ -5631,7 +5643,7 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
             wrapAdjacentHalfWidgets();
             return;
         }
-        
+
         // Migration alter Speicherstände (1D Array)
         if (savedOrder.length > 0 && typeof savedOrder[0] === 'string') {
             if (savedOrder.includes('widget-bottom-row')) {
@@ -5643,7 +5655,7 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
                 savedOrder.splice(idx, 1, 'widget-ects', 'widget-schedule');
             }
             savedOrder = savedOrder.filter(id => id !== 'widget-bottom-row' && id !== 'widget-top-row');
-            
+
             const newOrder = [];
             for (let i = 0; i < savedOrder.length; i++) {
                 const id = savedOrder[i];
@@ -5667,11 +5679,11 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
             }
             savedOrder = newOrder;
         }
-        
+
         const homePage = document.querySelector('.widget-column') || document.getElementById('page-home');
         const topSpacer = document.getElementById('dashboard-top-spacer');
         let insertAfter = topSpacer;
-        
+
         savedOrder.forEach(item => {
             if (typeof item === 'string') {
                 const el = document.getElementById(item);
@@ -5688,7 +5700,7 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
                 }
                 homePage.insertBefore(rowEl, insertAfter.nextSibling);
                 insertAfter = rowEl;
-                
+
                 item.children.forEach(childId => {
                     const childEl = document.getElementById(childId);
                     if (childEl) {
@@ -5698,7 +5710,7 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
             }
         });
     }
-   
+
     // --- Profilbild Logik ---
     function handleProfilePicUpload(event) {
         const file = event.target.files[0];
@@ -5729,9 +5741,9 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
         const nameEl = document.getElementById('profile-name-display');
         const inputEl = document.getElementById('edit-name-input');
         if (!nameEl || !inputEl) return;
-        
+
         inputEl.value = nameEl.innerText;
-        
+
         document.getElementById('modal-overlay').classList.add('show');
         setTimeout(() => {
             document.getElementById('edit-name-modal').classList.add('show');
@@ -5743,7 +5755,7 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
         const nameEl = document.getElementById('profile-name-display');
         const inputEl = document.getElementById('edit-name-input');
         if (!nameEl || !inputEl) return;
-        
+
         let newName = inputEl.value.trim();
         if (newName !== '') {
             newName = newName.substring(0, 20); // Auf 20 Zeichen begrenzen, um KI Prompt kurz zu halten
@@ -5790,7 +5802,7 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
         if (isStorageEnabled()) {
             localStorage.setItem('thd_real_mode', enabled ? 'true' : 'false');
         }
-        
+
         if (enabled) {
             loadRealMensaData();
             loadSchedule();
@@ -5812,18 +5824,18 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
 
     function saveAllData() {
         if (!isStorageEnabled()) return;
-        
+
         saveWidgetOrder();
-        
+
         localStorage.setItem('thd_mensa_balance', mensaBalance);
         localStorage.setItem('thd_gpa', currentGPA);
         localStorage.setItem('thd_parking_spots', occupiedParkingSpots);
-        
+
         localStorage.setItem('thd_study_current', studyCurrent);
         localStorage.setItem('thd_study_total', studyTotal);
         localStorage.setItem('thd_study_extra', studyExtra);
         localStorage.setItem('thd_study_group', currentStudyGroup);
-        
+
         const homeEctsValue = document.querySelector('.ects-number');
         if (homeEctsValue) localStorage.setItem('thd_ects', homeEctsValue.innerText);
 
@@ -5841,13 +5853,13 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
 
         const gradesList = document.querySelector('.grades-list');
         if (gradesList) localStorage.setItem('thd_grades_html', gradesList.innerHTML);
-        
+
         const semEl = document.querySelector('[data-translate="profile_semester"]');
         if (semEl) localStorage.setItem('thd_profile_semester', semEl.innerText);
 
         const rentalBooksView = document.getElementById('rental-books-view');
         if (rentalBooksView) localStorage.setItem('thd_rental_books_html', rentalBooksView.innerHTML);
-        
+
         const rentalTechView = document.getElementById('rental-tech-view');
         if (rentalTechView) localStorage.setItem('thd_rental_tech_html', rentalTechView.innerHTML);
 
@@ -5870,7 +5882,7 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
 
         const vpnToggle = document.getElementById('vpn-toggle');
         if (vpnToggle) localStorage.setItem('thd_vpn_state', vpnToggle.checked);
-        
+
         localStorage.setItem('thd_favorite_events', JSON.stringify(Array.from(favoriteEvents)));
     }
 
@@ -5959,13 +5971,13 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
 
         const savedStudyCurrent = localStorage.getItem('thd_study_current');
         if (savedStudyCurrent !== null) studyCurrent = parseInt(savedStudyCurrent, 10);
-        
+
         const savedStudyTotal = localStorage.getItem('thd_study_total');
         if (savedStudyTotal !== null) studyTotal = parseInt(savedStudyTotal, 10);
-        
+
         const savedStudyExtra = localStorage.getItem('thd_study_extra');
         if (savedStudyExtra !== null) studyExtra = parseInt(savedStudyExtra, 10);
-        
+
         updateStudyTimeDisplay(false); // Aktualisiert Graphen & Texte basierend auf den Variablen
 
         const savedMailsHtml = localStorage.getItem('thd_mails_html');
@@ -5986,7 +5998,7 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
             const gradesList = document.querySelector('.grades-list');
             if (gradesList) gradesList.innerHTML = savedGradesHtml;
         }
-        
+
         const savedSemester = localStorage.getItem('thd_profile_semester');
         if (savedSemester !== null) {
             const semEl = document.querySelector('[data-translate="profile_semester"]');
@@ -5996,19 +6008,19 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
                 ['de', 'en', 'fi'].forEach(lang => translations[lang].profile_semester = savedSemester);
             }
         }
-        
+
         const savedRentalBooks = localStorage.getItem('thd_rental_books_html');
         if (savedRentalBooks !== null) {
             const rentalBooksView = document.getElementById('rental-books-view');
             if (rentalBooksView) rentalBooksView.innerHTML = savedRentalBooks;
         }
-        
+
         const savedRentalTech = localStorage.getItem('thd_rental_tech_html');
         if (savedRentalTech !== null) {
             const rentalTechView = document.getElementById('rental-tech-view');
             if (rentalTechView) rentalTechView.innerHTML = savedRentalTech;
         }
-        
+
         const savedRentalView = localStorage.getItem('thd_rental_view');
         if (savedRentalView !== null) {
             const rentalBtn = document.querySelector(`#rental-segments .segment-btn[onclick*="${savedRentalView}"]`);
@@ -6022,25 +6034,25 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
             const parkingChart = document.getElementById('parking-chart-container');
             if (parkingChart) parkingChart.innerHTML = savedParkingChartHtml;
         }
-        
+
         const savedProfilePic = localStorage.getItem('thd_profile_pic');
         if (savedProfilePic !== null) {
             setProfilePic(savedProfilePic);
         }
-        
+
         const savedProfileName = localStorage.getItem('thd_profile_name');
         if (savedProfileName !== null) {
             const nameEl = document.getElementById('profile-name-display');
             if (nameEl) nameEl.innerText = savedProfileName;
         }
-        
+
         const cachedMensa = localStorage.getItem('thd_mensa_cache');
         if (cachedMensa) {
             try {
                 const parsed = JSON.parse(cachedMensa);
                 mensaDataCache = parsed.data; // Immer übernehmen (Stale-while-revalidate)
-                
-                if (Date.now() - parsed.timestamp >= 3600000 && isRealModeEnabled) { 
+
+                if (Date.now() - parsed.timestamp >= 3600000 && isRealModeEnabled) {
                     setTimeout(() => loadRealMensaData(true), 2000); // Veralteten Cache im Hintergrund stumm aktualisieren
                 }
             } catch(e) {}
@@ -6054,6 +6066,7 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
         loadWidgetOrder();
         checkEmptyMailLists();
         calculateGPAFromList(); // Den anfänglichen Notenschnitt ebenfalls korrekt aus der Liste laden
+        loadTodos();
     }
 
     function setupTabletLayout() {
@@ -6076,7 +6089,7 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
 
             const topSpacer = document.getElementById('dashboard-top-spacer');
             const bottomSpacer = document.getElementById('dashboard-bottom-spacer');
-            
+
             let current = topSpacer.nextElementSibling;
             while (current && current !== bottomSpacer) {
                 const next = current.nextElementSibling;
@@ -6087,7 +6100,7 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
             // Mail-Spalte befüllen
             const mailsView = document.querySelector('#mails-view .mail-list');
             const ilearnView = document.querySelector('#ilearn-view .mail-list');
-            
+
             if (mailsView && ilearnView) {
                  mailCol.innerHTML = `
                     <div style="padding: 0 0 15px 0; font-size: 20px; flex-shrink: 0; font-weight: 400;">E-Mails</div>
@@ -6102,7 +6115,7 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
             mailColWrapper.appendChild(mailCol);
             wrapper.appendChild(widgetCol);
             wrapper.appendChild(mailColWrapper);
-            
+
             homePage.insertBefore(wrapper, bottomSpacer);
             checkEmptyMailLists();
 
@@ -6111,7 +6124,7 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
             const wrapper = homePage.querySelector('.tablet-wrapper');
             const widgetCol = wrapper.querySelector('.widget-column');
             const bottomSpacer = document.getElementById('dashboard-bottom-spacer');
-            
+
             if (widgetCol) {
                 // Elemente zurück an die richtige Stelle im DOM verschieben
                 while (widgetCol.firstChild) {
@@ -6134,7 +6147,7 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
     const vpnCanvas = document.getElementById('vpn-chart');
     const vpnCtx = vpnCanvas ? vpnCanvas.getContext('2d') : null;
     const maxPoints = 40;
-    
+
     // Initial mit Daten füllen, damit der Graph beim Öffnen sofort voll ist
     let dlData = Array.from({length: maxPoints}, () => Math.random() * 25);
     let ulData = Array.from({length: maxPoints}, () => Math.random() * 15);
@@ -6147,7 +6160,7 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
       // Daten immer generieren, damit der Graph im Hintergrund "weiterlebt"
       const newDl = isConnected ? Math.random() * 25 : 0;
       const newUl = isConnected ? Math.random() * 15 : 0;
-      
+
       dlData.push(newDl); dlData.shift();
       ulData.push(newUl); ulData.shift();
 
@@ -6156,11 +6169,11 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
 
       // --- High-DPI und Responsive Canvas ---
       const dpr = window.devicePixelRatio || 1;
-      
+
       // clientWidth/clientHeight nutzen, da getBoundingClientRect() durch scaleY verfälscht wird
       const rectWidth = vpnCanvas.clientWidth;
       const rectHeight = vpnCanvas.clientHeight;
-      
+
       // Prüfen, ob die Größe angepasst werden muss (initial oder bei resize)
       if (vpnCanvas.width !== rectWidth * dpr || vpnCanvas.height !== rectHeight * dpr) {
         if (rectWidth > 0 && rectHeight > 0) {
@@ -6169,7 +6182,7 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
           vpnCtx.scale(dpr, dpr);
         }
       }
-      
+
       const width = rectWidth;
       const height = rectHeight;
 
@@ -6178,7 +6191,7 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
 
       document.getElementById('vpn-dl-text').innerText = newDl.toFixed(2);
       document.getElementById('vpn-ul-text').innerText = newUl.toFixed(2);
-      
+
       // Canvas leeren
       vpnCtx.clearRect(0, 0, width, height);
 
@@ -6194,7 +6207,7 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
         }
         vpnCtx.lineTo(width, height);
         vpnCtx.closePath();
-        
+
         vpnCtx.fillStyle = fillColor;
         vpnCtx.fill();
 
@@ -6206,7 +6219,7 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
           const y = height - (dataArray[i] * 4);
           vpnCtx.lineTo(x, y);
         }
-        
+
         vpnCtx.strokeStyle = strokeColor;
         vpnCtx.lineWidth = 2;
         vpnCtx.stroke();
@@ -6240,14 +6253,14 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
       if (widgetSelectedDay !== -1) {
           const todayDayIndex = now.getDay() === 0 ? 6 : now.getDay() - 1;
           const dayOffset = (widgetSelectedDay - todayDayIndex) + (widgetSelectedWeekOffset * 7);
-          
+
           const targetDate = new Date(now);
           targetDate.setDate(now.getDate() + dayOffset);
           targetDate.setHours(0,0,0,0);
-          
+
           const todayDate = new Date(now);
           todayDate.setHours(0,0,0,0);
-          
+
           if (targetDate < todayDate) isPastDay = true;
           else if (targetDate > todayDate) isFutureDay = true;
       }
@@ -6255,13 +6268,13 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
       document.querySelectorAll('.schedule-item').forEach((item, index) => {
         const timeEl = item.querySelector('.schedule-time');
         if (!timeEl) return;
-        
+
         // Sicheres Auslesen der Uhrzeiten via Regex (ignoriert Text wie "Raum: ...")
         const match = timeEl.innerText.match(/(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})/);
         if (match) {
           const startMins = parseInt(match[1], 10) * 60 + parseInt(match[2], 10);
           const endMins = parseInt(match[3], 10) * 60 + parseInt(match[4], 10);
-          
+
           let progress = 0;
           let isActive = false;
           if (isPastDay) {
@@ -6280,15 +6293,15 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
               nextIndex = index; // Nächstes in der Zukunft liegendes Fach
             }
           }
-          
+
           const fillEl = item.querySelector('.schedule-progress-fill');
           if (fillEl) {
             // Animation entfernen und Reflow erzwingen, damit die Animation bei Bedarf neu starten kann
             fillEl.classList.remove('animate-active');
             void fillEl.offsetWidth;
-            
+
             fillEl.style.width = progress + '%';
-            
+
             if (isActive && animate) {
               fillEl.classList.add('animate-active');
             }
@@ -6300,7 +6313,7 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
       if (isInitialLoad) {
         const items = document.querySelectorAll('.schedule-item');
         let targetIndex = 0;
-        
+
         if (isPastDay) {
             targetIndex = Math.max(0, items.length - 2); // Ganz nach unten scrollen
         } else if (isFutureDay) {
@@ -6310,7 +6323,7 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
             // Zeige die aktive/nächste Stunde im unteren Slot an, beendete darüber
             targetIndex = Math.max(0, focusIndex - 1);
         }
-        
+
         const scheduleBox = document.getElementById('widget-schedule');
         if (scheduleBox) {
           scheduleBox.style.scrollSnapType = 'none'; // Snapping kurz ausstellen für weiches Scrollen
@@ -6322,7 +6335,7 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
                 behavior: 'smooth'
               });
               // Snapping nach dem Scrollen wieder aktivieren
-          setTimeout(() => scheduleBox.style.scrollSnapType = 'y mandatory', 600); 
+          setTimeout(() => scheduleBox.style.scrollSnapType = 'y mandatory', 600);
             }, 100); // Schnellerer Start der Scroll-Animation
           } else {
         scheduleBox.style.scrollSnapType = 'y mandatory';
@@ -6369,3 +6382,109 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
             localStorage.setItem('thd_theme', theme);
         }
     }
+
+// --- ToDo Widget Logic ---
+let todoItems = [
+    { text: "Übungsblatt Mathe machen", checked: false },
+    { text: "Buch zurückgeben", checked: true }
+];
+
+function renderTodos() {
+    const list = document.getElementById('todo-list');
+    if (!list) return;
+
+    list.innerHTML = '';
+    todoItems.forEach((todo, idx) => {
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'todo-item' + (todo.checked ? ' checked' : '');
+
+        const checkbox = document.createElement('div');
+        checkbox.className = 'todo-checkbox' + (todo.checked ? ' checked' : '');
+        checkbox.innerHTML = '<svg viewBox="0 0 24 24" width="12" height="12"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+        checkbox.onclick = (e) => {
+            e.stopPropagation();
+            toggleTodo(idx);
+        };
+
+        const textSpan = document.createElement('span');
+        textSpan.className = 'todo-text';
+        textSpan.innerText = todo.text;
+        textSpan.contentEditable = true;
+        textSpan.onblur = (e) => {
+            updateTodoText(idx, e.target.innerText);
+        };
+        textSpan.onkeydown = (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                e.target.blur();
+            }
+        };
+
+        itemDiv.appendChild(checkbox);
+        itemDiv.appendChild(textSpan);
+        list.appendChild(itemDiv);
+    });
+}
+
+function toggleTodo(index) {
+    if (todoItems[index]) {
+        todoItems[index].checked = !todoItems[index].checked;
+        renderTodos();
+        saveTodos();
+    }
+}
+
+function updateTodoText(index, text) {
+    if (todoItems[index]) {
+        if (text.trim() === '') {
+            todoItems.splice(index, 1);
+        } else {
+            todoItems[index].text = text;
+        }
+        renderTodos();
+        saveTodos();
+    }
+}
+
+function addTodoItem() {
+    todoItems.unshift({ text: "", checked: false });
+    renderTodos();
+
+    // Focus the newly added item
+    const list = document.getElementById('todo-list');
+    if (list && list.firstChild) {
+        const span = list.firstChild.querySelector('.todo-text');
+        if (span) {
+            span.focus();
+        }
+    }
+}
+
+function saveTodos() {
+    if (isStorageEnabled()) {
+        localStorage.setItem('thd_todos', JSON.stringify(todoItems));
+    }
+}
+
+function loadTodos() {
+    const saved = localStorage.getItem('thd_todos');
+    if (saved) {
+        try {
+            todoItems = JSON.parse(saved);
+        } catch(e) {}
+    }
+    renderTodos();
+}
+
+function toggleWeatherDetails() {
+    const desc = document.getElementById('weather-desc');
+    if (desc) {
+        if (desc.innerText.includes('Regen')) {
+            desc.innerText = currentLanguage === 'de' ? 'Leicht bewölkt' : (currentLanguage === 'fi' ? 'Puolipilvistä' : 'Partly cloudy');
+            document.getElementById('weather-temp').innerText = '18°C';
+        } else {
+            desc.innerText = currentLanguage === 'de' ? 'Regen' : (currentLanguage === 'fi' ? 'Sade' : 'Rain');
+            document.getElementById('weather-temp').innerText = '12°C';
+        }
+    }
+}
