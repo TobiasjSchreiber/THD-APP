@@ -5932,6 +5932,7 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
             });
         }
 
+        loadTodos();
         if (!isStorageEnabled()) return;
 
         const savedBalance = localStorage.getItem('thd_mensa_balance');
@@ -6066,7 +6067,6 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
         loadWidgetOrder();
         checkEmptyMailLists();
         calculateGPAFromList(); // Den anfänglichen Notenschnitt ebenfalls korrekt aus der Liste laden
-        loadTodos();
     }
 
     function setupTabletLayout() {
@@ -6420,8 +6420,21 @@ function renderTodos() {
             }
         };
 
+        const deleteBtn = document.createElement('div');
+        deleteBtn.className = 'todo-delete';
+        deleteBtn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" stroke="var(--text-sub)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
+        deleteBtn.style.cursor = 'pointer';
+        deleteBtn.style.padding = '4px';
+        deleteBtn.onclick = (e) => {
+            e.stopPropagation();
+            todoItems.splice(idx, 1);
+            renderTodos();
+            saveTodos();
+        };
+
         itemDiv.appendChild(checkbox);
         itemDiv.appendChild(textSpan);
+        itemDiv.appendChild(deleteBtn);
         list.appendChild(itemDiv);
     });
 }
@@ -6479,12 +6492,15 @@ function loadTodos() {
 function toggleWeatherDetails() {
     const desc = document.getElementById('weather-desc');
     if (desc) {
-        if (desc.innerText.includes('Regen')) {
+        if (desc.innerText.includes('Regen') || desc.innerText.includes('Rain') || desc.innerText.includes('Sade')) {
             desc.innerText = currentLanguage === 'de' ? 'Leicht bewölkt' : (currentLanguage === 'fi' ? 'Puolipilvistä' : 'Partly cloudy');
             document.getElementById('weather-temp').innerText = '18°C';
+            document.querySelector('[data-translate="widget_weather_city"]').innerText = 'Deggendorf';
         } else {
             desc.innerText = currentLanguage === 'de' ? 'Regen' : (currentLanguage === 'fi' ? 'Sade' : 'Rain');
             document.getElementById('weather-temp').innerText = '12°C';
+            const tomorrow = currentLanguage === 'de' ? '(Morgen)' : (currentLanguage === 'fi' ? '(Huomenna)' : '(Tomorrow)');
+            document.querySelector('[data-translate="widget_weather_city"]').innerText = `Deggendorf ${tomorrow}`;
         }
     }
 }

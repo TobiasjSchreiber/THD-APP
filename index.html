@@ -734,7 +734,7 @@
       <div class="modal-header">
         <h3 class="modal-title" data-translate="widget_settings_title">Widgets anpassen</h3>
       </div>
-      <div class="modal-info" style="margin-bottom: 20px; max-height: 60vh; overflow-y: auto; padding-right: 5px;">
+      <div class="modal-info" style="margin-bottom: 20px; max-height: 60vh; overflow-y: auto; overflow-x: hidden; padding-right: 5px;">
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
 
           <!-- Statistiken -->
@@ -829,7 +829,7 @@
             <div style="display: flex; justify-content: space-between; align-items: center; z-index: 2;">
               <span data-translate="widget_weather" style="font-size: 13px; font-weight: 600;">Wetter</span>
               <label class="toggle-switch" style="transform: scale(0.65); transform-origin: right; margin: -5px 0;">
-                <input type="checkbox" class="toggle-input" checked onchange="toggleWidget('widget-weather', this)">
+                <input type="checkbox" class="toggle-input" onchange="toggleWidget('widget-weather', this)">
                 <span class="toggle-slider"></span>
               </label>
             </div>
@@ -845,7 +845,7 @@
             <div style="display: flex; justify-content: space-between; align-items: center; z-index: 2;">
               <span data-translate="widget_todo" style="font-size: 13px; font-weight: 600;">To-Do Liste</span>
               <label class="toggle-switch" style="transform: scale(0.65); transform-origin: right; margin: -5px 0;">
-                <input type="checkbox" class="toggle-input" checked onchange="toggleWidget('widget-todo', this)">
+                <input type="checkbox" class="toggle-input" onchange="toggleWidget('widget-todo', this)">
                 <span class="toggle-slider"></span>
               </label>
             </div>
@@ -1246,7 +1246,7 @@
           </div>
         </div>
 
-      <div class="weather-card" id="widget-weather" onclick="toggleWeatherDetails()" style="cursor: pointer;">
+      <div class="weather-card widget-hidden" id="widget-weather" onclick="toggleWeatherDetails()" style="cursor: pointer;">
         <div style="display: flex; justify-content: space-between; align-items: center;">
           <div style="display: flex; flex-direction: column;">
             <span style="font-size: 14px; font-weight: 600; color: var(--text-sub);" data-translate="widget_weather_city">Deggendorf</span>
@@ -1257,7 +1257,7 @@
         </div>
       </div>
 
-      <div class="todo-card" id="widget-todo">
+      <div class="todo-card widget-hidden" id="widget-todo">
         <div class="rental-header" style="margin-bottom: 10px;">
           <span class="rental-title" data-translate="widget_todo">To-Do Liste</span>
           <button class="btn-text" onclick="addTodoItem()" style="padding: 0; font-size: 24px; line-height: 1;">+</button>
