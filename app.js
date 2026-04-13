@@ -6480,7 +6480,7 @@ function removeTodo(todo, itemDiv) {
         // Smoothly animate the removal to prevent jumping
         itemDiv.style.transition = 'all 0.3s cubic-bezier(0.25, 1, 0.5, 1)';
         itemDiv.style.opacity = '0';
-        itemDiv.style.transform = 'scaleY(0.5) translateX(20px)';
+        itemDiv.style.transform = 'scaleY(0.5)';
         itemDiv.style.maxHeight = '0px';
         itemDiv.style.paddingTop = '0px';
         itemDiv.style.paddingBottom = '0px';
@@ -6501,9 +6501,12 @@ function addTodoItem() {
     const list = document.getElementById('todo-list');
     if (!list) return;
 
+    const emptyMsg = list.querySelector('.todo-empty-msg');
+    if (emptyMsg) emptyMsg.remove();
+
     const newEl = createTodoElement(newTodo);
     newEl.style.opacity = '0';
-    newEl.style.transform = 'scaleY(0.5) translateX(-20px)';
+    newEl.style.transform = 'scaleY(0.5)';
     newEl.style.maxHeight = '0px';
     newEl.style.paddingTop = '0px';
     newEl.style.paddingBottom = '0px';
@@ -6518,7 +6521,7 @@ function addTodoItem() {
     // Animate in
     newEl.style.transition = 'all 0.4s cubic-bezier(0.25, 1, 0.5, 1)';
     newEl.style.opacity = '1';
-    newEl.style.transform = 'scaleY(1) translateX(0)';
+    newEl.style.transform = 'scaleY(1)';
     newEl.style.maxHeight = '50px'; // Oder eine andere ausreichend große Höhe
     newEl.style.paddingTop = '';
     newEl.style.paddingBottom = '';
@@ -6573,10 +6576,10 @@ function toggleWeatherDetails() {
     </svg>`;
 
     const rainSvg = `<svg viewBox="0 0 24 24" width="100%" height="100%" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="color: #4A90E2; overflow: visible;">
-        <path class="weather-cloud" style="fill: var(--card-bg); stroke: var(--text-main);" d="M7 19h10a4.5 4.5 0 0 0 .68-8.95a6 6 0 0 0-11.36 0A4.5 4.5 0 0 0 7 19Z"></path>
         <line class="weather-drop-1" x1="8" y1="19" x2="8" y2="21"></line>
         <line class="weather-drop-2" x1="12" y1="19" x2="12" y2="21"></line>
         <line class="weather-drop-3" x1="16" y1="19" x2="16" y2="21"></line>
+        <path class="weather-cloud" style="fill: var(--card-bg); stroke: var(--text-main);" d="M7 19h10a4.5 4.5 0 0 0 .68-8.95a6 6 0 0 0-11.36 0A4.5 4.5 0 0 0 7 19Z"></path>
     </svg>`;
 
     if (desc) {
