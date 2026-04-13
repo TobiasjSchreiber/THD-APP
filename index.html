@@ -1261,14 +1261,14 @@
           </div>
         </div>
 
-      <div class="weather-card widget-hidden" id="widget-weather" onclick="toggleWeatherDetails()" style="cursor: pointer;">
+      <div class="weather-card widget-hidden" id="widget-weather" style="cursor: grab;">
         <div style="display: flex; justify-content: space-between; align-items: center;">
-          <div style="display: flex; flex-direction: column;">
+          <div style="display: flex; flex-direction: column; pointer-events: none;">
             <span style="font-size: 14px; font-weight: 600; color: var(--text-sub);" data-translate="widget_weather_city">Deggendorf</span>
             <span style="font-size: 32px; font-weight: 300;" id="weather-temp">18°C</span>
             <span style="font-size: 12px; color: var(--text-sub);" id="weather-desc" data-translate="widget_weather_desc">Leicht bewölkt</span>
           </div>
-          <div id="weather-icon-container" style="width: 48px; height: 48px;">
+          <div id="weather-icon-container" style="width: 48px; height: 48px; cursor: pointer; z-index: 10;" onclick="triggerWeatherAnimation(event)">
                   <svg viewBox="0 0 24 24" width="100%" height="100%" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="color: #FF9500; overflow: visible;">
                   <g class="weather-sun">
                       <circle cx="12" cy="12" r="5"></circle>
