@@ -954,6 +954,7 @@
     }
 
       loadAllData();
+      loadTodos();
       ensureMailIds();
       initMailTimestamps();
       updateRelativeTimes();
@@ -2545,6 +2546,8 @@
         widget_weather_city: "Deggendorf",
         widget_weather_desc: "Leicht bewölkt",
         widget_todo: "To-Do Liste",
+        widget_weather_today: "Heute",
+        widget_weather_tomorrow: "Morgen",
         schedule_modal_title: "Gesamter Stundenplan",
         schedule_settings_title: "Studiengang",
         mensa_menu_title: "Speiseplan",
@@ -2753,6 +2756,8 @@
         widget_weather_city: "Deggendorf",
         widget_weather_desc: "Partly cloudy",
         widget_todo: "To-Do List",
+        widget_weather_today: "Today",
+        widget_weather_tomorrow: "Tomorrow",
         schedule_modal_title: "Full Schedule",
         schedule_settings_title: "Study Group",
         mensa_menu_title: "Menu",
@@ -2961,6 +2966,8 @@
         widget_weather_city: "Deggendorf",
         widget_weather_desc: "Puolipilvistä",
         widget_todo: "Tehtävälista",
+        widget_weather_today: "Tänään",
+        widget_weather_tomorrow: "Huomenna",
         schedule_modal_title: "Koko lukujärjestys",
         schedule_settings_title: "Opintoryhmä",
         mensa_menu_title: "Ruokalista",
@@ -6066,7 +6073,6 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
         loadWidgetOrder();
         checkEmptyMailLists();
         calculateGPAFromList(); // Den anfänglichen Notenschnitt ebenfalls korrekt aus der Liste laden
-        loadTodos();
     }
 
     function setupTabletLayout() {
@@ -6420,10 +6426,27 @@ function renderTodos() {
             }
         };
 
+        const deleteBtn = document.createElement('div');
+        deleteBtn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
+        deleteBtn.style.color = "var(--text-sub)";
+        deleteBtn.style.cursor = "pointer";
+        deleteBtn.style.padding = "4px";
+        deleteBtn.onclick = (e) => {
+            e.stopPropagation();
+            deleteTodo(idx);
+        };
+
         itemDiv.appendChild(checkbox);
         itemDiv.appendChild(textSpan);
+        itemDiv.appendChild(deleteBtn);
         list.appendChild(itemDiv);
     });
+}
+
+function deleteTodo(index) {
+    todoItems.splice(index, 1);
+    renderTodos();
+    saveTodos();
 }
 
 function toggleTodo(index) {
@@ -6477,14 +6500,23 @@ function loadTodos() {
 }
 
 function toggleWeatherDetails() {
-    const desc = document.getElementById('weather-desc');
-    if (desc) {
-        if (desc.innerText.includes('Regen')) {
-            desc.innerText = currentLanguage === 'de' ? 'Leicht bewölkt' : (currentLanguage === 'fi' ? 'Puolipilvistä' : 'Partly cloudy');
-            document.getElementById('weather-temp').innerText = '18°C';
+    const timeEl = document.getElementById('weather-time');
+    const descEl = document.getElementById('weather-desc');
+    const tempEl = document.getElementById('weather-temp');
+
+    if (timeEl && descEl && tempEl) {
+        if (timeEl.getAttribute('data-translate') === 'widget_weather_tomorrow') {
+            timeEl.setAttribute('data-translate', 'widget_weather_today');
+            timeEl.innerText = translations[currentLanguage].widget_weather_today;
+
+            descEl.innerText = currentLanguage === 'de' ? 'Leicht bewölkt' : (currentLanguage === 'fi' ? 'Puolipilvistä' : 'Partly cloudy');
+            tempEl.innerText = '18°C';
         } else {
-            desc.innerText = currentLanguage === 'de' ? 'Regen' : (currentLanguage === 'fi' ? 'Sade' : 'Rain');
-            document.getElementById('weather-temp').innerText = '12°C';
+            timeEl.setAttribute('data-translate', 'widget_weather_tomorrow');
+            timeEl.innerText = translations[currentLanguage].widget_weather_tomorrow;
+
+            descEl.innerText = currentLanguage === 'de' ? 'Regen' : (currentLanguage === 'fi' ? 'Sade' : 'Rain');
+            tempEl.innerText = '12°C';
         }
     }
 }
