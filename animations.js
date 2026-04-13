@@ -63,10 +63,12 @@ function playWeatherAnimation(condition) {
                     drop.classList.add('rain-bounce'); // specific class for bounced drops
 
                     // The standard animation takes `duration` seconds to fall 110vh (viewportHeight * 1.1)
-                    // The drop should bounce at `fallDistance`
+                    // The drop should hit the widget at `fallDistance`.
+                    // Since the impact keyframe is at 80%, the time to reach impact is 80% of the total duration.
                     const viewportHeight = window.innerHeight;
-                    const adjustedDuration = duration * (fallDistance / (viewportHeight * 1.1));
-                    drop.style.animationDuration = adjustedDuration + 's';
+                    const timeToImpact = duration * (fallDistance / (viewportHeight * 1.1));
+                    const totalDuration = timeToImpact / 0.8;
+                    drop.style.animationDuration = totalDuration + 's';
                 }
             }
 

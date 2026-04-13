@@ -188,10 +188,10 @@
 }
 
 @keyframes rain-bounce-fall {
-    0% { transform: translateY(0); opacity: 1; }
-    90% { transform: translateY(var(--fall-distance)); opacity: 1; height: 30px; width: 2px; }
-    95% { transform: translateY(var(--fall-distance)); opacity: 0.8; height: 10px; width: 6px; } /* squash at impact */
-    100% { transform: translateY(calc(var(--fall-distance) - 15px)) translateX(5px); opacity: 0; height: 5px; width: 5px; } /* bounce up */
+    0% { transform: translateY(0); opacity: 1; height: 30px; width: 2px; }
+    80% { transform: translateY(var(--fall-distance)); opacity: 1; height: 30px; width: 2px; } /* impact */
+    85% { transform: translateY(var(--fall-distance)); opacity: 0.8; height: 10px; width: 6px; } /* squash */
+    100% { transform: translateY(calc(var(--fall-distance) - 40px)) translateX(15px); opacity: 0; height: 5px; width: 5px; } /* bounce up */
 }
 
 /* Sun / Lens Flare Overlay */
