@@ -1948,7 +1948,7 @@
 
     // Alte Parkplatz-Klick-Logik entfernt
 
-    function toggleWidget(widgetId, checkbox) {
+    function toggleWidget(widgetId, checkbox, save = true) {
       const widget = document.getElementById(widgetId);
       if (widget) {
         if (checkbox.checked) {
@@ -2000,6 +2000,10 @@
         } else {
           emptyMsg.style.display = 'none';
         }
+      }
+
+      if (save && isStorageEnabled()) {
+        saveAllData();
       }
     }
 
@@ -6472,7 +6476,17 @@ function removeTodo(todo, itemDiv) {
     const index = todoItems.indexOf(todo);
     if (index > -1) {
         todoItems.splice(index, 1);
-        itemDiv.classList.add('removing');
+
+        // Smoothly animate the removal to prevent jumping
+        itemDiv.style.transition = 'all 0.3s cubic-bezier(0.25, 1, 0.5, 1)';
+        itemDiv.style.opacity = '0';
+        itemDiv.style.transform = 'scaleY(0.5) translateX(20px)';
+        itemDiv.style.maxHeight = '0px';
+        itemDiv.style.paddingTop = '0px';
+        itemDiv.style.paddingBottom = '0px';
+        itemDiv.style.borderWidth = '0px';
+        itemDiv.style.overflow = 'hidden';
+
         setTimeout(() => {
             itemDiv.remove();
         }, 300);
@@ -6493,6 +6507,8 @@ function addTodoItem() {
     newEl.style.maxHeight = '0px';
     newEl.style.paddingTop = '0px';
     newEl.style.paddingBottom = '0px';
+    newEl.style.borderWidth = '0px';
+    newEl.style.overflow = 'hidden';
 
     list.prepend(newEl);
 
@@ -6503,9 +6519,14 @@ function addTodoItem() {
     newEl.style.transition = 'all 0.4s cubic-bezier(0.25, 1, 0.5, 1)';
     newEl.style.opacity = '1';
     newEl.style.transform = 'scaleY(1) translateX(0)';
-    newEl.style.maxHeight = '50px';
+    newEl.style.maxHeight = '50px'; // Oder eine andere ausreichend große Höhe
     newEl.style.paddingTop = '';
     newEl.style.paddingBottom = '';
+    newEl.style.borderWidth = '';
+
+    setTimeout(() => {
+        newEl.style.overflow = '';
+    }, 400);
 
     const textSpan = newEl.querySelector('.todo-text');
     if (textSpan) {
