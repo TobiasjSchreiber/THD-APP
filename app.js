@@ -6395,82 +6395,124 @@ function renderTodos() {
 
     list.innerHTML = '';
     todoItems.forEach((todo, idx) => {
-        const itemDiv = document.createElement('div');
-        itemDiv.className = 'todo-item' + (todo.checked ? ' checked' : '');
-
-        const checkbox = document.createElement('div');
-        checkbox.className = 'todo-checkbox' + (todo.checked ? ' checked' : '');
-        checkbox.innerHTML = '<svg viewBox="0 0 24 24" width="12" height="12"><polyline points="20 6 9 17 4 12"></polyline></svg>';
-        checkbox.onclick = (e) => {
-            e.stopPropagation();
-            toggleTodo(idx);
-        };
-
-        const textSpan = document.createElement('span');
-        textSpan.className = 'todo-text';
-        textSpan.innerText = todo.text;
-        textSpan.contentEditable = true;
-        textSpan.onblur = (e) => {
-            updateTodoText(idx, e.target.innerText);
-        };
-        textSpan.onkeydown = (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                e.target.blur();
-            }
-        };
-
-        const deleteBtn = document.createElement('div');
-        deleteBtn.className = 'todo-delete';
-        deleteBtn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" stroke="var(--text-sub)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
-        deleteBtn.style.cursor = 'pointer';
-        deleteBtn.style.padding = '4px';
-        deleteBtn.onclick = (e) => {
-            e.stopPropagation();
-            todoItems.splice(idx, 1);
-            renderTodos();
-            saveTodos();
-        };
-
-        itemDiv.appendChild(checkbox);
-        itemDiv.appendChild(textSpan);
-        itemDiv.appendChild(deleteBtn);
-        list.appendChild(itemDiv);
+        list.appendChild(createTodoElement(todo, idx));
     });
 }
 
-function toggleTodo(index) {
-    if (todoItems[index]) {
+function createTodoElement(todo) {
+    const itemDiv = document.createElement('div');
+    itemDiv.className = 'todo-item' + (todo.checked ? ' checked' : '');
+
+    const checkbox = document.createElement('div');
+    checkbox.className = 'todo-checkbox' + (todo.checked ? ' checked' : '');
+    checkbox.innerHTML = '<svg viewBox="0 0 24 24" width="12" height="12"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+    checkbox.onclick = (e) => {
+        e.stopPropagation();
+        toggleTodo(todo, itemDiv, checkbox);
+    };
+
+    const textSpan = document.createElement('span');
+    textSpan.className = 'todo-text';
+    textSpan.innerText = todo.text;
+    textSpan.contentEditable = true;
+    textSpan.onblur = (e) => {
+        updateTodoText(todo, e.target.innerText, itemDiv);
+    };
+    textSpan.onkeydown = (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            e.target.blur();
+        }
+    };
+
+    const deleteBtn = document.createElement('div');
+    deleteBtn.className = 'todo-delete';
+    deleteBtn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" stroke="var(--text-sub)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
+    deleteBtn.style.cursor = 'pointer';
+    deleteBtn.style.padding = '4px';
+    deleteBtn.onclick = (e) => {
+        e.stopPropagation();
+        removeTodo(todo, itemDiv);
+    };
+
+    itemDiv.appendChild(checkbox);
+    itemDiv.appendChild(textSpan);
+    itemDiv.appendChild(deleteBtn);
+    return itemDiv;
+}
+
+function toggleTodo(todo, itemDiv, checkbox) {
+    const index = todoItems.indexOf(todo);
+    if (index > -1) {
         todoItems[index].checked = !todoItems[index].checked;
-        renderTodos();
+        if (todoItems[index].checked) {
+            itemDiv.classList.add('checked');
+            checkbox.classList.add('checked');
+        } else {
+            itemDiv.classList.remove('checked');
+            checkbox.classList.remove('checked');
+        }
         saveTodos();
     }
 }
 
-function updateTodoText(index, text) {
-    if (todoItems[index]) {
+function updateTodoText(todo, text, itemDiv) {
+    const index = todoItems.indexOf(todo);
+    if (index > -1) {
         if (text.trim() === '') {
-            todoItems.splice(index, 1);
+            removeTodo(todo, itemDiv);
         } else {
             todoItems[index].text = text;
+            saveTodos();
         }
-        renderTodos();
+    }
+}
+
+function removeTodo(todo, itemDiv) {
+    const index = todoItems.indexOf(todo);
+    if (index > -1) {
+        todoItems.splice(index, 1);
+        itemDiv.classList.add('removing');
+        setTimeout(() => {
+            itemDiv.remove();
+        }, 300);
         saveTodos();
     }
 }
 
 function addTodoItem() {
-    todoItems.unshift({ text: "", checked: false });
-    renderTodos();
+    const newTodo = { text: "", checked: false };
+    todoItems.unshift(newTodo);
 
-    // Focus the newly added item
     const list = document.getElementById('todo-list');
-    if (list && list.firstChild) {
-        const span = list.firstChild.querySelector('.todo-text');
-        if (span) {
-            span.focus();
-        }
+    if (!list) return;
+
+    const newEl = createTodoElement(newTodo);
+    newEl.style.opacity = '0';
+    newEl.style.transform = 'scaleY(0.5) translateX(-20px)';
+    newEl.style.maxHeight = '0px';
+    newEl.style.paddingTop = '0px';
+    newEl.style.paddingBottom = '0px';
+
+    list.prepend(newEl);
+
+    // Reflow
+    void newEl.offsetHeight;
+
+    // Animate in
+    newEl.style.transition = 'all 0.4s cubic-bezier(0.25, 1, 0.5, 1)';
+    newEl.style.opacity = '1';
+    newEl.style.transform = 'scaleY(1) translateX(0)';
+    newEl.style.maxHeight = '50px';
+    newEl.style.paddingTop = '';
+    newEl.style.paddingBottom = '';
+
+    const textSpan = newEl.querySelector('.todo-text');
+    if (textSpan) {
+        textSpan.focus();
     }
+
+    saveTodos();
 }
 
 function saveTodos() {
@@ -6491,16 +6533,45 @@ function loadTodos() {
 
 function toggleWeatherDetails() {
     const desc = document.getElementById('weather-desc');
+    const weatherIconContainer = document.getElementById('weather-icon-container');
+    const settingsWeatherIconContainer = document.getElementById('settings-weather-icon-container');
+
+    const cloudySvg = `<svg viewBox="0 0 24 24" width="100%" height="100%" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="color: #FF9500;">
+        <g class="weather-sun">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </g>
+        <path class="weather-cloud" style="fill: var(--card-bg); stroke: var(--text-main);" d="M17.5 19H9a7 7 0 1 1 6.71-5h1.79a4.5 4.5 0 1 1 0 9Z"></path>
+    </svg>`;
+
+    const rainSvg = `<svg viewBox="0 0 24 24" width="100%" height="100%" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="color: #4A90E2;">
+        <path class="weather-cloud" style="fill: var(--card-bg); stroke: var(--text-main);" d="M17.5 19H9a7 7 0 1 1 6.71-5h1.79a4.5 4.5 0 1 1 0 9Z"></path>
+        <line class="weather-drop-1" x1="8" y1="19" x2="8" y2="21"></line>
+        <line class="weather-drop-2" x1="12" y1="19" x2="12" y2="21"></line>
+        <line class="weather-drop-3" x1="16" y1="19" x2="16" y2="21"></line>
+    </svg>`;
+
     if (desc) {
         if (desc.innerText.includes('Regen') || desc.innerText.includes('Rain') || desc.innerText.includes('Sade')) {
             desc.innerText = currentLanguage === 'de' ? 'Leicht bewölkt' : (currentLanguage === 'fi' ? 'Puolipilvistä' : 'Partly cloudy');
             document.getElementById('weather-temp').innerText = '18°C';
             document.querySelector('[data-translate="widget_weather_city"]').innerText = 'Deggendorf';
+            if (weatherIconContainer) weatherIconContainer.innerHTML = cloudySvg;
+            if (settingsWeatherIconContainer) settingsWeatherIconContainer.innerHTML = cloudySvg;
         } else {
             desc.innerText = currentLanguage === 'de' ? 'Regen' : (currentLanguage === 'fi' ? 'Sade' : 'Rain');
             document.getElementById('weather-temp').innerText = '12°C';
             const tomorrow = currentLanguage === 'de' ? '(Morgen)' : (currentLanguage === 'fi' ? '(Huomenna)' : '(Tomorrow)');
             document.querySelector('[data-translate="widget_weather_city"]').innerText = `Deggendorf ${tomorrow}`;
+            if (weatherIconContainer) weatherIconContainer.innerHTML = rainSvg;
+            if (settingsWeatherIconContainer) settingsWeatherIconContainer.innerHTML = rainSvg;
         }
     }
 }
