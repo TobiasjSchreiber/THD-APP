@@ -281,7 +281,7 @@ body.theme-oled {
       border-radius: 24px;
   height: 150px; /* Leicht erhöht (150px statt 148px) für Displays mit Subpixel-Rundungsfehlern */
       overflow-y: auto !important; /* Überschreibt das globale 'overflow: hidden' der Widgets */
-      scroll-snap-type: y mandatory; /* Aktiviert sanftes Einrasten, erleichtert das Scrollen einzelner Zeilen */
+      scroll-snap-type: y proximity; /* Proximity statt Mandatory verhindert das Steckenbleiben bei Randelementen */
       overscroll-behavior-y: contain; /* Verhindert das Wischen der gesamten Seite am Rand */
       touch-action: pan-y; /* Garantiert reibungsloses Scrollen auf Touch-Geräten */
     }
@@ -314,6 +314,7 @@ body.theme-oled {
       bottom: 0;
       background-color: var(--schedule-fill-bg);
       z-index: 0;
+      pointer-events: none;
     }
 
     .schedule-title { font-weight: 600; font-size: 15px; position: relative; z-index: 1; }
@@ -1087,9 +1088,13 @@ body.theme-light .modal .btn-secondary {
       transform: translate(-50%, -50%) scale(1);
     }
 
-    .modal.show.keyboard-up {
-      top: 40%;
-      transform: translate(-50%, -50%) scale(1);
+#ai-assistant-modal {
+  top: 7.5dvh;
+  transform: translate(-50%, 0) scale(0.9);
+}
+
+#ai-assistant-modal.show {
+  transform: translate(-50%, 0) scale(1);
     }
 
     .modal::-webkit-scrollbar {
@@ -1499,6 +1504,39 @@ body.theme-light .modal .btn-secondary {
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
       z-index: -1;
     }
+
+.deggster-bubble {
+  position: absolute;
+  top: 15px;
+  left: 50%;
+  background: var(--accent-blue);
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 14px;
+  font-size: 11px;
+  font-weight: 600;
+  opacity: 0;
+  transform: translateX(-50%) scale(0.8) translateY(10px);
+  transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+  pointer-events: none;
+  z-index: 10;
+  max-width: 90px;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(58, 130, 247, 0.4);
+}
+
+.deggster-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 6px solid var(--accent-blue);
+}
 
     /* --- ZUSÄTZLICHE SCHÖNE ANIMATIONEN --- */
 
