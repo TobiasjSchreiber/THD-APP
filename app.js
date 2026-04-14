@@ -24,7 +24,7 @@
 
 
     // Tab Logik
-    const pagesList = ['page-home', 'page-search', 'page-mails', 'page-news', 'page-profil'];
+    const pagesList = ['page-home', 'page-mails', 'page-news', 'page-search', 'page-profil'];
     let currentIndex = 0;
 
     function switchTab(pageId, navElement) {
@@ -946,6 +946,40 @@
       initHeaderEasterEgg();
       // updateScheduleProgress(true, true); // Wird jetzt von loadSchedule -> updateScheduleWidget übernommen
       setInterval(() => updateScheduleProgress(false, false), 60000); // Aktualisiert den Zeitindikator jede Minute ohne Neu-Animation
+
+      function showDeggsterBubble() {
+        const bubble = document.getElementById('deggster-speech-bubble');
+        if (!bubble) return;
+        
+        const ectsWidget = document.getElementById('widget-ects');
+        if (ectsWidget && ectsWidget.classList.contains('widget-hidden')) return;
+        
+        const homePage = document.getElementById('page-home');
+        if (!homePage || !homePage.classList.contains('active')) return;
+
+        const phrases = [
+          translations[currentLanguage].deggster_bubble_1 || "Brauchst du Hilfe?",
+          translations[currentLanguage].deggster_bubble_2 || "Ich bin zur Stelle!",
+          translations[currentLanguage].deggster_bubble_3 || "Frag mich was!",
+          translations[currentLanguage].deggster_bubble_2 || "Rrrr! Zur Stelle!",
+          translations[currentLanguage].deggster_bubble_3 || "Frag mich was, roar!",
+          translations[currentLanguage].deggster_bubble_4 || "Wie läuft's?",
+          translations[currentLanguage].deggster_bubble_5 || "Bereit für Fragen! Rrrr."
+        ];
+
+        bubble.innerText = phrases[Math.floor(Math.random() * phrases.length)];
+        bubble.style.opacity = '1';
+        bubble.style.transform = 'translateX(-50%) scale(1) translateY(0)';
+        
+        setTimeout(() => {
+          if(bubble) {
+            bubble.style.opacity = '0';
+            bubble.style.transform = 'translateX(-50%) scale(0.8) translateY(10px)';
+          }
+        }, 4000);
+      }
+      setInterval(() => { if (Math.random() > 0.7) showDeggsterBubble(); }, 30000);
+
       setInterval(refreshWebcam, 5000); // Aktualisiert das Webcam-Bild alle 5 Sekunden
 
       // Aktualisiert die Webcam sofort, wenn die App aus dem Hintergrund zurückgeholt wird
@@ -958,6 +992,40 @@
           }
         }
       });
+
+      // Dynamische Tastatur-Anpassung für das KI-Fenster
+      if (window.visualViewport) {
+          const adjustAiModalHeight = () => {
+              const aiModal = document.getElementById('ai-assistant-modal');
+              if (aiModal && aiModal.classList.contains('show')) {
+                  const vvHeight = window.visualViewport.height;
+                  const winHeight = window.innerHeight;
+                  const topOffset = winHeight * 0.075; // entspricht top: 7.5dvh
+                  
+                  const calculatedHeight = vvHeight - topOffset - 10; // 10px Abstand zur Tastatur
+                  const defaultHeight = winHeight * 0.85; // 85dvh
+                  
+                  if (calculatedHeight < defaultHeight) {
+                      aiModal.style.height = calculatedHeight + 'px';
+                  } else {
+                      aiModal.style.height = '85dvh';
+                  }
+                  
+                  const chatHistory = document.getElementById('ai-chat-history');
+                  if (chatHistory) chatHistory.scrollTop = chatHistory.scrollHeight;
+              }
+          };
+          
+          window.visualViewport.addEventListener('resize', adjustAiModalHeight);
+          
+          const aiChatInput = document.getElementById('ai-chat-input');
+          if (aiChatInput) {
+              aiChatInput.addEventListener('focus', () => {
+                  setTimeout(adjustAiModalHeight, 100);
+                  setTimeout(adjustAiModalHeight, 300); // Zweiter Aufruf für flüssige Tastatur-Animation
+              });
+          }
+      }
 
       if (localStorage.getItem('thd_setup_completed') !== 'true') {
         checkInitialSetup();
@@ -1257,7 +1325,7 @@
       closeModal();
       setTimeout(() => {
         // Zum Mails Tab wechseln per Klick
-        const mailsNavBtn = document.querySelectorAll('.nav-item')[2];
+        const mailsNavBtn = document.querySelectorAll('.nav-item')[1];
         if (mailsNavBtn) mailsNavBtn.click();
 
         // Zum iLearn Segment wechseln per Klick
@@ -1789,7 +1857,6 @@
 
       allModals.forEach(m => {
         m.classList.remove('show');
-        m.classList.remove('keyboard-up');
       });
       document.getElementById('modal-overlay').classList.remove('show');
       isLongPress = false; // Sicherheitsnetz: Setzt den Status global zurück
@@ -2155,7 +2222,7 @@
         }
       }
 
-      const mailsNavBtn = document.querySelectorAll('.nav-item')[2];
+      const mailsNavBtn = document.querySelectorAll('.nav-item')[1];
       if (mailsNavBtn) {
         const iconWrapper = mailsNavBtn.querySelector('.nav-icon-wrapper');
         if (iconWrapper) {
@@ -2221,7 +2288,7 @@
           currentLanguage === 'de' ? `Neue E-Mail von ${senderName}` : `New email from ${senderName}`,
           false,
           () => {
-            switchTab('page-mails', document.querySelectorAll('.nav-item')[2]);
+            switchTab('page-mails', document.querySelectorAll('.nav-item')[1]);
             setTimeout(() => newMail.click(), 300); // Wartet kurz auf die Tab-Animation, öffnet dann die E-Mail
           }
         );
@@ -2676,7 +2743,15 @@
         ai_generated: "Daten erfolgreich generiert!",
         ai_error: "Fehler bei der KI-Generierung.",
         info_ai_generate_title: "KI Daten generieren",
-        info_ai_generate_desc: "Erstellt mithilfe von künstlicher Intelligenz (Gemini) zufällige, realistische Studiendaten (Noten, ECTS, Mensa-Guthaben etc.) zu Demonstrationszwecken. Kann nur einmal pro Minute genutzt werden."
+        info_ai_generate_desc: "Erstellt mithilfe von künstlicher Intelligenz (Gemini) zufällige, realistische Studiendaten (Noten, ECTS, Mensa-Guthaben etc.) zu Demonstrationszwecken. Kann nur einmal pro Minute genutzt werden.",
+        ai_assistant_title: "Deggster",
+        deggster_bubble_1: "Brauchst du Hilfe?",
+        deggster_bubble_2: "Ich bin zur Stelle!",
+        deggster_bubble_3: "Frag mich was!",
+        deggster_bubble_2: "Rrrr! Zur Stelle!",
+        deggster_bubble_3: "Frag mich was, roar!",
+        deggster_bubble_4: "Wie läuft's?",
+        deggster_bubble_5: "Bereit für Fragen! Rrrr."
       },
       en: {
         // Navbar
@@ -2884,7 +2959,15 @@
         ai_generated: "Data successfully generated!",
         ai_error: "Error during AI generation.",
         info_ai_generate_title: "Generate AI Data",
-        info_ai_generate_desc: "Uses Artificial Intelligence (Gemini) to generate random, realistic study data (grades, ECTS, cafeteria balance, etc.) for demonstration purposes. Can only be used once per minute."
+        info_ai_generate_desc: "Uses Artificial Intelligence (Gemini) to generate random, realistic study data (grades, ECTS, cafeteria balance, etc.) for demonstration purposes. Can only be used once per minute.",
+        ai_assistant_title: "Deggster",
+        deggster_bubble_1: "Need help?",
+        deggster_bubble_2: "I am here!",
+        deggster_bubble_3: "Ask me anything!",
+        deggster_bubble_2: "Rrrr! I am here!",
+        deggster_bubble_3: "Ask me anything, roar!",
+        deggster_bubble_4: "How's it going?",
+        deggster_bubble_5: "Ready for questions! Rrrr."
       },
       fi: {
         // Navbar
@@ -3092,7 +3175,15 @@
         ai_generated: "Tiedot luotu onnistuneesti!",
         ai_error: "Virhe tekoälyn luonnissa.",
         info_ai_generate_title: "Luo tekoälytiedot",
-        info_ai_generate_desc: "Käyttää tekoälyä (Gemini) satunnaisten, realististen opiskelutietojen (arvosanat, OP, ruokalan saldo jne.) luomiseen esittelytarkoituksessa. Voidaan käyttää vain kerran minuutissa."
+        info_ai_generate_desc: "Käyttää tekoälyä (Gemini) satunnaisten, realististen opiskelutietojen (arvosanat, OP, ruokalan saldo jne.) luomiseen esittelytarkoituksessa. Voidaan käyttää vain kerran minuutissa.",
+        ai_assistant_title: "Deggster",
+        deggster_bubble_1: "Tarvitsetko apua?",
+        deggster_bubble_2: "Olen täällä!",
+        deggster_bubble_3: "Kysy mitä vain!",
+        deggster_bubble_2: "Rrrr! Olen täällä!",
+        deggster_bubble_3: "Kysy mitä vain, roar!",
+        deggster_bubble_4: "Miten menee?",
+        deggster_bubble_5: "Valmiina kysymyksiin! Rrrr."
       }
     };
 
@@ -3629,6 +3720,12 @@
             `;
             scheduleBox.appendChild(item);
         });
+
+        // Spacer hinzufügen, damit auch die letzte Stunde problemlos nach oben gescrollt/gesnappt werden kann
+        const spacer = document.createElement('div');
+        spacer.style.height = '82px';
+        spacer.style.flexShrink = '0';
+        scheduleBox.appendChild(spacer);
 
         updateScheduleProgress(isInitialLoad, isInitialLoad);
     }
@@ -4512,23 +4609,6 @@
     // Suchverlauf initial laden
     renderSearchHistory();
 
-    // Tastatur-Fix für Eingabefelder (verschiebt das jeweilige Fenster nach oben)
-    const composeInputs = document.querySelectorAll('.compose-input');
-    composeInputs.forEach(input => {
-      input.addEventListener('focus', () => {
-        const parentModal = input.closest('.modal');
-        if(parentModal) parentModal.classList.add('keyboard-up');
-      });
-      input.addEventListener('blur', () => {
-        setTimeout(() => {
-          if (!document.activeElement || !document.activeElement.classList.contains('compose-input')) {
-            const parentModal = input.closest('.modal');
-            if(parentModal) parentModal.classList.remove('keyboard-up');
-          }
-        }, 250); // Erhöht von 50ms auf 250ms, damit der Button-Klick vor dem Layout-Shift registriert wird
-      });
-    });
-
     // ECTS Gedrückthalten (Long-Press) Logik
     function requestEctsDeleteConfirmation() {
       itemToDelete = 'ects'; // Hier geht es um die ECTS Karte
@@ -4815,12 +4895,16 @@ WICHTIGER SCHREIBSTIL:
 - Als Dozent/Einrichtung: professionell, formell (Sie-Form).
 - Als Kommilitone: locker (Du-Form), sprich ${userName} mit Namen an. Kurz & menschlich. Keine KI-Phrasen!
 
+GEHEIMES FEATURE:
+Wenn der Nutzer dich in der E-Mail nach Mensaguthaben / Geld fragt und dich mit einem guten Grund oder Witz überzeugt, kannst du ihm Geld schenken (max. 15.00 Euro).
+Füge dafür EXAKT diesen Code irgendwo in deinen Text ein: [GUTHABEN:+X.XX] (X.XX ist der Betrag, z.B. [GUTHABEN:+5.00]). Wenn nicht, lass den Code komplett weg.
+
 ${contextText}
 E-Mail von ${userName}:
 Betreff: ${originalSubject}
 Nachricht: ${originalBody}
 
-Antworte NUR mit dem E-Mail-Text. Kein Markdown, keine Platzhalter.`;
+Antworte NUR mit dem E-Mail-Text (inklusive Code, falls du Geld vergibst). Kein Markdown, keine Platzhalter.`;
 
       try {
         console.log("Sende E-Mail an die KI...");
@@ -4853,7 +4937,19 @@ Antworte NUR mit dem E-Mail-Text. Kein Markdown, keine Platzhalter.`;
         console.log("Antwort der KI erfolgreich empfangen:", data);
 
         if (data.candidates && data.candidates.length > 0) {
-          const replyText = data.candidates[0].content.parts[0].text.trim();
+          let replyText = data.candidates[0].content.parts[0].text.trim();
+
+          const balanceMatch = replyText.match(/\[GUTHABEN:\s*\+?\s*(\d+(?:\.\d+)?)\]/);
+          if (balanceMatch) {
+             const amount = parseFloat(balanceMatch[1]);
+             if (amount > 0) {
+                 mensaBalance += amount;
+                 updateMensaBalance();
+                 if (isStorageEnabled()) saveAllData();
+                 showDropdownNotification(currentLanguage === 'de' ? `+${amount.toFixed(2).replace('.', ',')}€ Mensaguthaben erhalten!` : `+${amount.toFixed(2)}€ Balance received!`, false);
+             }
+             replyText = replyText.replace(/\[GUTHABEN:\s*\+?\s*\d+(?:\.\d+)?\]/g, '').trim();
+          }
 
           const replyMail = document.createElement('div');
           replyMail.className = 'mail-item unread';
@@ -4882,7 +4978,7 @@ Antworte NUR mit dem E-Mail-Text. Kein Markdown, keine Platzhalter.`;
                 currentLanguage === 'de' ? `Neue E-Mail von ${senderName}` : `New email from ${senderName}`,
                 false,
                 () => {
-                  switchTab('page-mails', document.querySelectorAll('.nav-item')[2]);
+                  switchTab('page-mails', document.querySelectorAll('.nav-item')[1]);
                   setTimeout(() => replyMail.click(), 300);
                 }
               );
@@ -5122,6 +5218,24 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
     let aiChatHistory = [];
     let isAiSpeaking = false;
     let aiTypingInterval = null;
+    let isDeggsterPoked = false;
+    let deggsterPokeTimeout = null;
+
+    function pokeDeggster() {
+        const faceImg = document.getElementById('ai-assistant-face');
+        if (!faceImg) return;
+        
+        clearTimeout(deggsterPokeTimeout);
+        isDeggsterPoked = true;
+        faceImg.src = 'ai_surprised.png';
+        faceImg.style.transform = 'scale(1.45) translateY(-20%)';
+        
+        deggsterPokeTimeout = setTimeout(() => {
+            isDeggsterPoked = false;
+            faceImg.src = 'ai_neutral.png';
+            faceImg.style.transform = 'scale(1.4) translateY(-20%)';
+        }, 800);
+    }
 
     function openAiAssistantModal() {
         document.getElementById('modal-overlay').classList.add('show');
@@ -5131,8 +5245,9 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
             if (chatInput) {
                 chatInput.focus();
             }
-            if (aiChatHistory.length === 0) {
-                 addAiMessage("Hallo! Ich bin der KI Assistent der THD App. Wie kann ich dir helfen?", "ai_happy");
+            const chatHistory = document.getElementById('ai-chat-history');
+            if (chatHistory && chatHistory.children.length === 0) {
+                 addAiMessage("Rrrr! Hallo! Ich bin Deggster. Wie kann ich dir helfen?", "ai_happy");
             }
         }, 10);
     }
@@ -5148,6 +5263,7 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
         msgDiv.style.fontSize = '14px';
         msgDiv.style.lineHeight = '1.4';
         msgDiv.style.wordBreak = 'break-word';
+        msgDiv.style.whiteSpace = 'pre-wrap';
         msgDiv.style.animation = 'slideUpFade 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) backwards';
 
         if (sender === 'user') {
@@ -5155,7 +5271,7 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
             msgDiv.style.color = '#FFF';
             msgDiv.style.alignSelf = 'flex-end';
             msgDiv.style.borderBottomRightRadius = '4px';
-            msgDiv.innerText = text;
+            msgDiv.textContent = text;
             chatHistory.appendChild(msgDiv);
         } else {
             msgDiv.style.backgroundColor = 'var(--item-bg)';
@@ -5206,20 +5322,22 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
             const url = 'https://thd-app-backend.onrender.com/api/gemini';
 
             // Konstruiere Prompt
-            const prompt = `Du bist ein hilfreicher KI-Assistent für die THD App (Technische Hochschule Deggendorf).
+            const prompt = `Du bist Deggster, das Löwen-Maskottchen und ein hilfreicher KI-Assistent für die THD App (Technische Hochschule Deggendorf).
 Der Benutzer schreibt dir: "${userText}"
 
 WICHTIG: Antworte IMMER im folgenden JSON-Format:
 {
   "text": "Deine Antwort hier...",
   "emotion": "ai_neutral",
-  "action": null
+  "action": null,
+  "addBalance": 0
 }
 
-Mögliche Werte für 'emotion': "ai_neutral", "ai_happy", "ai_thinking", "ai_surprised", "ai_sad".
+Mögliche Werte für 'emotion': "ai_neutral", "ai_happy", "ai_thinking", "ai_surprised", "ai_sad". WICHTIG: Passe die Emotion unbedingt an die Stimmung deiner Antwort an (z.B. ai_happy bei Hilfe, ai_sad bei Problemen, ai_surprised bei unerwarteten Aussagen)!
 Optional: Du kannst eine 'action' zurückgeben, um ein Widget zu öffnen (Mögliche Werte: "widget-mensa", "widget-schedule", "widget-vpn", "widget-parking", "widget-ects"). Wenn du kein Widget öffnen willst, setze 'action' auf null.
+GEHEIMES FEATURE: Wenn der Nutzer dich mit sehr guten Argumenten oder Witzen davon überzeugt, kannst du ihm Mensaguthaben schenken (max. 10.00 Euro). Trage den Betrag dann bei 'addBalance' als Zahl ein (z.B. 5.50). Ansonsten 0.
 
-Antworte kurz und bündig, auf Deutsch.`;
+Antworte EXTREM kurz und prägnant (maximal 1-2 Sätze) auf Deutsch. Vermeide jegliches Geschwafel. Zeige deinen Löwen-Charakter, indem du gelegentlich ein "Rrrr" oder "Roar" in deine Antworten einbaust.`;
 
             const historyForApi = aiChatHistory.slice(0, -1); // Remove the user message we just pushed to send it inside the prompt structure instead for strict JSON output enforcement
 
@@ -5236,7 +5354,12 @@ Antworte kurz und bündig, auf Deutsch.`;
             loadingMsgDiv.remove();
 
             if (!response.ok) {
-                 addAiMessage("Entschuldigung, ich habe gerade Verbindungsprobleme.", "ai_sad");
+                 const errorMsg = data.error?.message || "Unbekannt";
+                 if (response.status === 429 || errorMsg.includes("retry") || errorMsg.includes("quota")) {
+                     addAiMessage("Entschuldigung, ich bekomme gerade zu viele Anfragen auf einmal (Rate Limit). Bitte warte kurz eine Minute.", "ai_sad");
+                 } else {
+                     addAiMessage("Entschuldigung, mein Backend-Server hat gerade Verbindungsprobleme. Versuche es in ein paar Sekunden noch einmal.", "ai_sad");
+                 }
                  console.error("AI Error:", data);
                  inputEl.disabled = false;
                  inputEl.focus();
@@ -5254,7 +5377,27 @@ Antworte kurz und bündig, auf Deutsch.`;
                 parsedResponse = JSON.parse(responseText);
             } catch (e) {
                 console.error("Failed to parse JSON from AI", responseText);
-                parsedResponse = { text: responseText, emotion: "ai_neutral", action: null }; // Fallback
+                // Fallback: Versuche reines JSON mit Regex zu extrahieren, falls die KI Text drumherum geschrieben hat
+                const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+                if (jsonMatch) {
+                    try {
+                        parsedResponse = JSON.parse(jsonMatch[0]);
+                    } catch(err) {
+                        parsedResponse = { text: responseText, emotion: "ai_neutral", action: null, addBalance: 0 };
+                    }
+                } else {
+                    parsedResponse = { text: responseText, emotion: "ai_neutral", action: null, addBalance: 0 };
+                }
+            }
+
+            if (parsedResponse.addBalance && !isNaN(parsedResponse.addBalance) && parsedResponse.addBalance > 0) {
+                const amount = parseFloat(parsedResponse.addBalance);
+                mensaBalance += amount;
+                updateMensaBalance();
+                if (isStorageEnabled()) saveAllData();
+                setTimeout(() => {
+                    showDropdownNotification(currentLanguage === 'de' ? `+${amount.toFixed(2).replace('.', ',')}€ Mensaguthaben!` : `+${amount.toFixed(2)}€ Balance added!`, false);
+                }, 1000);
             }
 
             // Animate message
@@ -5279,6 +5422,7 @@ Antworte kurz und bündig, auf Deutsch.`;
         msgDiv.style.fontSize = '14px';
         msgDiv.style.lineHeight = '1.4';
         msgDiv.style.wordBreak = 'break-word';
+        msgDiv.style.whiteSpace = 'pre-wrap';
         msgDiv.style.animation = 'slideUpFade 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) backwards';
         msgDiv.style.backgroundColor = 'var(--item-bg)';
         msgDiv.style.color = 'var(--text-main)';
@@ -5291,6 +5435,11 @@ Antworte kurz und bündig, auf Deutsch.`;
         const faceImg = document.getElementById('ai-assistant-face');
 
         if (!emotionStr) emotionStr = "ai_neutral";
+        emotionStr = emotionStr.toLowerCase().trim();
+        if (!emotionStr.startsWith("ai_")) emotionStr = "ai_" + emotionStr;
+        
+        const validEmotions = ["ai_neutral", "ai_happy", "ai_thinking", "ai_surprised", "ai_sad"];
+        if (!validEmotions.includes(emotionStr)) emotionStr = "ai_neutral";
 
         let charIndex = 0;
         let isSpeakingMouthOpen = false;
@@ -5298,19 +5447,19 @@ Antworte kurz und bündig, auf Deutsch.`;
         clearInterval(aiTypingInterval);
 
         aiTypingInterval = setInterval(() => {
-            msgDiv.innerText += text[charIndex];
+            msgDiv.textContent += text[charIndex];
             charIndex++;
             chatHistory.scrollTop = chatHistory.scrollHeight;
 
             // Animate speaking face every few characters
-            if (charIndex % 3 === 0 && faceImg) {
+            if (charIndex % 3 === 0 && faceImg && !isDeggsterPoked) {
                 isSpeakingMouthOpen = !isSpeakingMouthOpen;
                 faceImg.src = isSpeakingMouthOpen ? `${emotionStr}_speaking.png` : `${emotionStr}.png`;
             }
 
             if (charIndex >= text.length) {
                 clearInterval(aiTypingInterval);
-                if (faceImg) faceImg.src = `${emotionStr}.png`; // Close mouth at the end
+                if (faceImg && !isDeggsterPoked) faceImg.src = `${emotionStr}.png`; // Close mouth at the end
 
                 if (action) {
                     setTimeout(() => {
@@ -6522,10 +6671,10 @@ Antworte kurz und bündig, auf Deutsch.`;
                 behavior: 'smooth'
               });
               // Snapping nach dem Scrollen wieder aktivieren
-          setTimeout(() => scheduleBox.style.scrollSnapType = 'y mandatory', 600);
+              setTimeout(() => scheduleBox.style.scrollSnapType = 'y proximity', 600);
             }, 100); // Schnellerer Start der Scroll-Animation
           } else {
-        scheduleBox.style.scrollSnapType = 'y mandatory';
+            scheduleBox.style.scrollSnapType = 'y proximity';
           }
         }
       }

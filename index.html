@@ -1141,6 +1141,10 @@
 
         <div class="top-widgets-row" id="widget-top-row">
           <div class="ects-free" id="widget-ects">
+            <div class="ects-item" onclick="openAiAssistantModal()" style="cursor: pointer; position: relative; overflow: hidden;">
+              <img id="ai-assistant-thumb" src="ai_neutral.png" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; object-position: top; transform: scaleX(-1) scale(1.15) translateY(-6%); z-index: 0;" onerror="this.src='data:image/svg+xml;utf8,<svg viewBox=\'0 0 24 24\' width=\'100%\' height=\'100%\' stroke=\'%23999\' fill=\'none\' stroke-width=\'1.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><circle cx=\'12\' cy=\'12\' r=\'10\'/><path d=\'M8 14s1.5 2 4 2 4-2 4-2\'/><line x1=\'9\' y1=\'9\' x2=\'9.01\' y2=\'9\'/><line x1=\'15\' y1=\'9\' x2=\'15.01\' y2=\'9\'/></svg>'">
+              <div id="deggster-speech-bubble" class="deggster-bubble">Frag mich was!</div>
+            </div>
             <div class="ects-item" onclick="jumpToElement('page-profil', 'profile-ects-card')" style="cursor: pointer;">
               <div class="ects-number sensitive-data" id="home-ects-number">78</div>
               <div class="ects-label" data-translate="ects_label">ECTS</div>
@@ -1160,10 +1164,6 @@
             <div class="ects-item" onclick="openWebcamModal()" style="cursor: pointer;">
               <img id="webcam-img-thumb" src="https://th-deg.de/static/images/webcam.jpg" style="width: 120px; height: 75px; object-fit: cover; border-radius: 16px; margin-bottom: 5px; border: 1px solid var(--border-color); background-color: var(--item-bg);">
               <div class="ects-label">Campus Webcam</div>
-            </div>
-            <div class="ects-item" onclick="openAiAssistantModal()" style="cursor: pointer;">
-              <img id="ai-assistant-thumb" src="ai_neutral.png" style="width: 75px; height: 75px; object-fit: cover; border-radius: 50%; margin-bottom: 5px; border: 1px solid var(--border-color); background-color: var(--item-bg);" onerror="this.src='data:image/svg+xml;utf8,<svg viewBox=\'0 0 24 24\' width=\'100%\' height=\'100%\' stroke=\'%23999\' fill=\'none\' stroke-width=\'1.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><circle cx=\'12\' cy=\'12\' r=\'10\'/><path d=\'M8 14s1.5 2 4 2 4-2 4-2\'/><line x1=\'9\' y1=\'9\' x2=\'9.01\' y2=\'9\'/><line x1=\'15\' y1=\'9\' x2=\'15.01\' y2=\'9\'/></svg>'">
-              <div class="ects-label" data-translate="ai_assistant_label">KI Assistent</div>
             </div>
           </div>
           
@@ -1198,6 +1198,7 @@
               <div class="schedule-title">Physik</div>
               <div class="schedule-time">16:15 - 17:45 | Raum: D101</div>
             </div>
+            <div style="height: 82px; flex-shrink: 0;"></div>
           </div>
         </div>
 
@@ -1468,22 +1469,22 @@
 
     </div>
 
-    <div id="ai-assistant-modal" class="modal" style="height: 85vh; display: flex; flex-direction: column;">
+    <div id="ai-assistant-modal" class="modal" style="height: 85dvh; display: flex; flex-direction: column;">
       <div class="modal-header" style="flex-shrink: 0; margin-bottom: 10px; display: flex; flex-direction: column; align-items: center;">
-        <img id="ai-assistant-face" src="ai_neutral.png" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin-bottom: 10px; transition: transform 0.2s;" onerror="this.src='data:image/svg+xml;utf8,<svg viewBox=\'0 0 24 24\' width=\'100%\' height=\'100%\' stroke=\'%23999\' fill=\'none\' stroke-width=\'1.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><circle cx=\'12\' cy=\'12\' r=\'10\'/><path d=\'M8 14s1.5 2 4 2 4-2 4-2\'/><line x1=\'9\' y1=\'9\' x2=\'9.01\' y2=\'9\'/><line x1=\'15\' y1=\'9\' x2=\'15.01\' y2=\'9\'/></svg>'">
-        <h3 class="modal-title" data-translate="ai_assistant_title">KI Assistent</h3>
+        <div style="width: 220px; height: 130px; overflow: hidden; margin-bottom: 5px; position: relative;">
+          <img id="ai-assistant-face" src="ai_neutral.png" onclick="pokeDeggster()" style="cursor: pointer; width: 100%; height: 100%; object-fit: cover; object-position: top; transform: scale(1.4) translateY(-20%); transition: transform 0.2s;" onerror="this.src='data:image/svg+xml;utf8,<svg viewBox=\'0 0 24 24\' width=\'100%\' height=\'100%\' stroke=\'%23999\' fill=\'none\' stroke-width=\'1.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><circle cx=\'12\' cy=\'12\' r=\'10\'/><path d=\'M8 14s1.5 2 4 2 4-2 4-2\'/><line x1=\'9\' y1=\'9\' x2=\'9.01\' y2=\'9\'/><line x1=\'15\' y1=\'9\' x2=\'15.01\' y2=\'9\'/></svg>'">
+        </div>
+        <h3 class="modal-title" data-translate="ai_assistant_title">Deggster</h3>
       </div>
       <div class="modal-info" style="flex: 1; padding: 0; margin-bottom: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; scroll-behavior: smooth;" id="ai-chat-history">
         <!-- Chat messages will be appended here -->
       </div>
-      <div style="flex-shrink: 0; display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
-        <input type="text" id="ai-chat-input" class="compose-input" placeholder="Frag mich etwas..." autocomplete="off" spellcheck="false" style="flex: 1; border-radius: 20px;" onkeypress="if(event.key === 'Enter') sendAiChatMessage()">
-        <button class="btn btn-primary" onclick="sendAiChatMessage()" style="padding: 0; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-          <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-        </button>
+      <div style="flex-shrink: 0; margin-bottom: 10px;">
+        <input type="text" id="ai-chat-input" class="compose-input" placeholder="Frag mich etwas..." autocomplete="off" spellcheck="false" onkeypress="if(event.key === 'Enter') sendAiChatMessage()">
       </div>
       <div class="modal-buttons" style="flex-shrink: 0;">
-        <button class="btn btn-secondary" onclick="closeModal()" data-translate="close_button" style="width: 100%;">Schließen</button>
+        <button class="btn btn-secondary" onclick="closeModal()" data-translate="close_button">Schließen</button>
+        <button class="btn btn-primary" onclick="sendAiChatMessage()" data-translate="compose_send">Senden</button>
       </div>
     </div>
 
@@ -1541,12 +1542,6 @@
         </div>
         <span data-translate="home_nav">Home</span>
       </div>
-      <div class="nav-item" onclick="switchTab('page-search', this)">
-        <div class="nav-icon-wrapper">
-          <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-        </div>
-        <span data-translate="search_nav">Suche</span>
-      </div>
       <div class="nav-item" onclick="switchTab('page-mails', this)">
         <div class="nav-icon-wrapper">
           <div class="nav-badge" id="unread-badge"></div>
@@ -1560,6 +1555,12 @@
             </div>
             <span data-translate="news_nav">News</span>
           </div>
+      <div class="nav-item" onclick="switchTab('page-search', this)">
+        <div class="nav-icon-wrapper">
+          <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        </div>
+        <span data-translate="search_nav">Suche</span>
+      </div>
       <div class="nav-item" onclick="switchTab('page-profil', this)">
         <div class="nav-icon-wrapper">
           <svg class="nav-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
