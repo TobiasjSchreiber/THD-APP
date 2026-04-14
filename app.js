@@ -5118,6 +5118,210 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
       }
     }
 
+    // --- AI Assistant Logik ---
+    let aiChatHistory = [];
+    let isAiSpeaking = false;
+    let aiTypingInterval = null;
+
+    function openAiAssistantModal() {
+        document.getElementById('modal-overlay').classList.add('show');
+        setTimeout(() => {
+            document.getElementById('ai-assistant-modal').classList.add('show');
+            const chatInput = document.getElementById('ai-chat-input');
+            if (chatInput) {
+                chatInput.focus();
+            }
+            if (aiChatHistory.length === 0) {
+                 addAiMessage("Hallo! Ich bin der KI Assistent der THD App. Wie kann ich dir helfen?", "ai_happy");
+            }
+        }, 10);
+    }
+
+    function appendChatMessage(text, sender) {
+        const chatHistory = document.getElementById('ai-chat-history');
+        if (!chatHistory) return;
+
+        const msgDiv = document.createElement('div');
+        msgDiv.style.padding = '10px 14px';
+        msgDiv.style.borderRadius = '16px';
+        msgDiv.style.maxWidth = '80%';
+        msgDiv.style.fontSize = '14px';
+        msgDiv.style.lineHeight = '1.4';
+        msgDiv.style.wordBreak = 'break-word';
+        msgDiv.style.animation = 'slideUpFade 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) backwards';
+
+        if (sender === 'user') {
+            msgDiv.style.backgroundColor = 'var(--accent-blue)';
+            msgDiv.style.color = '#FFF';
+            msgDiv.style.alignSelf = 'flex-end';
+            msgDiv.style.borderBottomRightRadius = '4px';
+            msgDiv.innerText = text;
+            chatHistory.appendChild(msgDiv);
+        } else {
+            msgDiv.style.backgroundColor = 'var(--item-bg)';
+            msgDiv.style.color = 'var(--text-main)';
+            msgDiv.style.alignSelf = 'flex-start';
+            msgDiv.style.borderBottomLeftRadius = '4px';
+            chatHistory.appendChild(msgDiv);
+            return msgDiv; // Return element to animate typing
+        }
+
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+    }
+
+    async function sendAiChatMessage() {
+        const inputEl = document.getElementById('ai-chat-input');
+        if (!inputEl) return;
+
+        const userText = inputEl.value.trim();
+        if (!userText) return;
+
+        // Add user message to UI
+        appendChatMessage(userText, 'user');
+        aiChatHistory.push({ role: "user", parts: [{ text: userText }] });
+
+        inputEl.value = '';
+        inputEl.disabled = true;
+
+        const faceImg = document.getElementById('ai-assistant-face');
+        if (faceImg) faceImg.src = 'ai_thinking.png';
+
+        const chatHistoryDiv = document.getElementById('ai-chat-history');
+        const loadingMsgDiv = document.createElement('div');
+        loadingMsgDiv.style.padding = '10px 14px';
+        loadingMsgDiv.style.borderRadius = '16px';
+        loadingMsgDiv.style.maxWidth = '80%';
+        loadingMsgDiv.style.fontSize = '14px';
+        loadingMsgDiv.style.lineHeight = '1.4';
+        loadingMsgDiv.style.backgroundColor = 'var(--item-bg)';
+        loadingMsgDiv.style.color = 'var(--text-sub)';
+        loadingMsgDiv.style.fontStyle = 'italic';
+        loadingMsgDiv.style.alignSelf = 'flex-start';
+        loadingMsgDiv.style.borderBottomLeftRadius = '4px';
+        loadingMsgDiv.innerText = "...";
+        chatHistoryDiv.appendChild(loadingMsgDiv);
+        chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
+
+        try {
+            const url = 'https://thd-app-backend.onrender.com/api/gemini';
+
+            // Konstruiere Prompt
+            const prompt = `Du bist ein hilfreicher KI-Assistent für die THD App (Technische Hochschule Deggendorf).
+Der Benutzer schreibt dir: "${userText}"
+
+WICHTIG: Antworte IMMER im folgenden JSON-Format:
+{
+  "text": "Deine Antwort hier...",
+  "emotion": "ai_neutral",
+  "action": null
+}
+
+Mögliche Werte für 'emotion': "ai_neutral", "ai_happy", "ai_thinking", "ai_surprised", "ai_sad".
+Optional: Du kannst eine 'action' zurückgeben, um ein Widget zu öffnen (Mögliche Werte: "widget-mensa", "widget-schedule", "widget-vpn", "widget-parking", "widget-ects"). Wenn du kein Widget öffnen willst, setze 'action' auf null.
+
+Antworte kurz und bündig, auf Deutsch.`;
+
+            const historyForApi = aiChatHistory.slice(0, -1); // Remove the user message we just pushed to send it inside the prompt structure instead for strict JSON output enforcement
+
+            let contents = historyForApi;
+            contents.push({ role: "user", parts: [{ text: prompt }]});
+
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: contents })
+            });
+
+            const data = await response.json();
+            loadingMsgDiv.remove();
+
+            if (!response.ok) {
+                 addAiMessage("Entschuldigung, ich habe gerade Verbindungsprobleme.", "ai_sad");
+                 console.error("AI Error:", data);
+                 inputEl.disabled = false;
+                 inputEl.focus();
+                 return;
+            }
+
+            let responseText = data.candidates[0].content.parts[0].text.trim();
+
+            // Parse JSON
+            if(responseText.startsWith('```json')) responseText = responseText.replace(/^```json/, '').replace(/```$/, '').trim();
+            else if (responseText.startsWith('```')) responseText = responseText.replace(/^```/, '').replace(/```$/, '').trim();
+
+            let parsedResponse;
+            try {
+                parsedResponse = JSON.parse(responseText);
+            } catch (e) {
+                console.error("Failed to parse JSON from AI", responseText);
+                parsedResponse = { text: responseText, emotion: "ai_neutral", action: null }; // Fallback
+            }
+
+            // Animate message
+            addAiMessage(parsedResponse.text, parsedResponse.emotion, parsedResponse.action);
+            aiChatHistory.push({ role: "model", parts: [{ text: parsedResponse.text }] });
+
+        } catch (error) {
+             loadingMsgDiv.remove();
+             addAiMessage("Ein Fehler ist aufgetreten. Bitte versuche es später noch einmal.", "ai_sad");
+             console.error("AI Catch Error:", error);
+        } finally {
+            inputEl.disabled = false;
+            inputEl.focus();
+        }
+    }
+
+    function addAiMessage(text, emotionStr, action = null) {
+        const msgDiv = document.createElement('div');
+        msgDiv.style.padding = '10px 14px';
+        msgDiv.style.borderRadius = '16px';
+        msgDiv.style.maxWidth = '80%';
+        msgDiv.style.fontSize = '14px';
+        msgDiv.style.lineHeight = '1.4';
+        msgDiv.style.wordBreak = 'break-word';
+        msgDiv.style.animation = 'slideUpFade 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) backwards';
+        msgDiv.style.backgroundColor = 'var(--item-bg)';
+        msgDiv.style.color = 'var(--text-main)';
+        msgDiv.style.alignSelf = 'flex-start';
+        msgDiv.style.borderBottomLeftRadius = '4px';
+
+        const chatHistory = document.getElementById('ai-chat-history');
+        if(chatHistory) chatHistory.appendChild(msgDiv);
+
+        const faceImg = document.getElementById('ai-assistant-face');
+
+        if (!emotionStr) emotionStr = "ai_neutral";
+
+        let charIndex = 0;
+        let isSpeakingMouthOpen = false;
+
+        clearInterval(aiTypingInterval);
+
+        aiTypingInterval = setInterval(() => {
+            msgDiv.innerText += text[charIndex];
+            charIndex++;
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+
+            // Animate speaking face every few characters
+            if (charIndex % 3 === 0 && faceImg) {
+                isSpeakingMouthOpen = !isSpeakingMouthOpen;
+                faceImg.src = isSpeakingMouthOpen ? `${emotionStr}_speaking.png` : `${emotionStr}.png`;
+            }
+
+            if (charIndex >= text.length) {
+                clearInterval(aiTypingInterval);
+                if (faceImg) faceImg.src = `${emotionStr}.png`; // Close mouth at the end
+
+                if (action) {
+                    setTimeout(() => {
+                        closeModal();
+                        setTimeout(() => jumpToElement('page-home', action), 300);
+                    }, 1000);
+                }
+            }
+        }, 30); // Typing speed
+    }
+
     function openServicesModal() {
       document.getElementById('modal-overlay').classList.add('show');
       setTimeout(() => {

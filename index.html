@@ -1161,6 +1161,10 @@
               <img id="webcam-img-thumb" src="https://th-deg.de/static/images/webcam.jpg" style="width: 120px; height: 75px; object-fit: cover; border-radius: 16px; margin-bottom: 5px; border: 1px solid var(--border-color); background-color: var(--item-bg);">
               <div class="ects-label">Campus Webcam</div>
             </div>
+            <div class="ects-item" onclick="openAiAssistantModal()" style="cursor: pointer;">
+              <img id="ai-assistant-thumb" src="ai_neutral.png" style="width: 75px; height: 75px; object-fit: cover; border-radius: 50%; margin-bottom: 5px; border: 1px solid var(--border-color); background-color: var(--item-bg);" onerror="this.src='data:image/svg+xml;utf8,<svg viewBox=\'0 0 24 24\' width=\'100%\' height=\'100%\' stroke=\'%23999\' fill=\'none\' stroke-width=\'1.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><circle cx=\'12\' cy=\'12\' r=\'10\'/><path d=\'M8 14s1.5 2 4 2 4-2 4-2\'/><line x1=\'9\' y1=\'9\' x2=\'9.01\' y2=\'9\'/><line x1=\'15\' y1=\'9\' x2=\'15.01\' y2=\'9\'/></svg>'">
+              <div class="ects-label" data-translate="ai_assistant_label">KI Assistent</div>
+            </div>
           </div>
           
           <div class="schedule-box" id="widget-schedule" onclick="openScheduleModal()" style="cursor: pointer;">
@@ -1462,6 +1466,25 @@
             <div id="no-favorites-msg" style="display: none; position: absolute; top: 50%; left: 0; right: 0; text-align: center; color: var(--text-sub); transform: translateY(-50%); padding: 20px; font-size: 14px; animation: none !important;" data-translate="news_no_favorites">Keine Favoriten markiert.</div>
           </div>
 
+    </div>
+
+    <div id="ai-assistant-modal" class="modal" style="height: 85vh; display: flex; flex-direction: column;">
+      <div class="modal-header" style="flex-shrink: 0; margin-bottom: 10px; display: flex; flex-direction: column; align-items: center;">
+        <img id="ai-assistant-face" src="ai_neutral.png" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin-bottom: 10px; transition: transform 0.2s;" onerror="this.src='data:image/svg+xml;utf8,<svg viewBox=\'0 0 24 24\' width=\'100%\' height=\'100%\' stroke=\'%23999\' fill=\'none\' stroke-width=\'1.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><circle cx=\'12\' cy=\'12\' r=\'10\'/><path d=\'M8 14s1.5 2 4 2 4-2 4-2\'/><line x1=\'9\' y1=\'9\' x2=\'9.01\' y2=\'9\'/><line x1=\'15\' y1=\'9\' x2=\'15.01\' y2=\'9\'/></svg>'">
+        <h3 class="modal-title" data-translate="ai_assistant_title">KI Assistent</h3>
+      </div>
+      <div class="modal-info" style="flex: 1; padding: 0; margin-bottom: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; scroll-behavior: smooth;" id="ai-chat-history">
+        <!-- Chat messages will be appended here -->
+      </div>
+      <div style="flex-shrink: 0; display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
+        <input type="text" id="ai-chat-input" class="compose-input" placeholder="Frag mich etwas..." autocomplete="off" spellcheck="false" style="flex: 1; border-radius: 20px;" onkeypress="if(event.key === 'Enter') sendAiChatMessage()">
+        <button class="btn btn-primary" onclick="sendAiChatMessage()" style="padding: 0; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+          <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+        </button>
+      </div>
+      <div class="modal-buttons" style="flex-shrink: 0;">
+        <button class="btn btn-secondary" onclick="closeModal()" data-translate="close_button" style="width: 100%;">Schließen</button>
+      </div>
     </div>
 
     <div id="event-modal" class="modal">
