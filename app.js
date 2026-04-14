@@ -6651,13 +6651,15 @@ document.addEventListener('DOMContentLoaded', () => {
         let touchEndX = 0;
 
         weatherWidget.addEventListener('touchstart', e => {
+            e.stopPropagation();
             touchStartX = e.changedTouches[0].screenX;
-        }, { passive: true });
+        }, { passive: false });
 
         weatherWidget.addEventListener('touchend', e => {
+            e.stopPropagation();
             touchEndX = e.changedTouches[0].screenX;
             handleWeatherSwipe();
-        }, { passive: true });
+        }, { passive: false });
 
         function handleWeatherSwipe() {
             const threshold = 30; // minimum distance to be considered a swipe
