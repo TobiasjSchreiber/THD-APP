@@ -5327,8 +5327,8 @@ Der Benutzer schreibt dir: "${userText}"
 
 WICHTIG: Antworte IMMER im folgenden JSON-Format:
 {
-  "text": "Deine Antwort hier...",
   "emotion": "ai_neutral",
+  "text": "Deine Antwort hier...",
   "action": null,
   "addBalance": 0
 }
@@ -5440,6 +5440,10 @@ Antworte EXTREM kurz und prägnant (maximal 1-2 Sätze) auf Deutsch. Vermeide je
         
         const validEmotions = ["ai_neutral", "ai_happy", "ai_thinking", "ai_surprised", "ai_sad"];
         if (!validEmotions.includes(emotionStr)) emotionStr = "ai_neutral";
+
+        if (faceImg && !isDeggsterPoked) {
+            faceImg.src = `${emotionStr}.png`;
+        }
 
         let charIndex = 0;
         let isSpeakingMouthOpen = false;
