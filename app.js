@@ -3597,10 +3597,12 @@
         let eventsToShow = [];
 
         if (widgetSelectedDay === -1) {
-            // Auto-Modus: Zeige nur noch anstehende Termine für HEUTE
+            // Auto-Modus: Zeige alle Termine für HEUTE
+            const startOfToday = new Date(now);
+            startOfToday.setHours(0, 0, 0, 0);
             const endOfToday = new Date(now);
             endOfToday.setHours(23, 59, 59, 999);
-            eventsToShow = events.filter(e => e.endDateObj && e.endDateObj > now && e.dateObj <= endOfToday)
+            eventsToShow = events.filter(e => e.dateObj >= startOfToday && e.dateObj <= endOfToday)
                                  .sort((a, b) => a.dateObj - b.dateObj);
         } else {
             // Modus für ausgewählten Tag
@@ -3720,6 +3722,53 @@
             `;
             scheduleBox.appendChild(item);
         });
+
+        // Wenn im Auto-Modus alle heutigen Termine in der Vergangenheit liegen, füge den "Nächster Tag" Button am Ende hinzu
+        if (widgetSelectedDay === -1 && eventsToShow.length > 0 && eventsToShow.every(e => e.endDateObj && e.endDateObj <= now)) {
+            let currentViewEnd = new Date(now);
+            currentViewEnd.setHours(23, 59, 59, 999);
+            const sortedEvents = [...events].sort((a, b) => a.dateObj - b.dateObj);
+            const nextEvent = sortedEvents.find(e => e.dateObj > currentViewEnd);
+
+            if (nextEvent) {
+                const daysDeShort = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
+                const daysEnShort = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                const daysFiShort = ['Ma', 'Ti', 'Ke', 'To', 'Pe', 'La', 'Su'];
+                const nextDayIndex = nextEvent.dateObj.getDay() === 0 ? 6 : nextEvent.dateObj.getDay() - 1;
+                const nextDateStr = String(nextEvent.dateObj.getDate()).padStart(2, '0') + '.' + String(nextEvent.dateObj.getMonth() + 1).padStart(2, '0') + '.';
+
+                ['de', 'en', 'fi'].forEach(lang => {
+                    let nDayStr = daysDeShort[nextDayIndex];
+                    if (lang === 'en') nDayStr = daysEnShort[nextDayIndex];
+                    else if (lang === 'fi') nDayStr = daysFiShort[nextDayIndex];
+                    translations[lang].schedule_next_day_dyn = translations[lang].schedule_next_day.replace('{day}', nDayStr).replace('{date}', nextDateStr);
+                });
+                const btnText = translations[currentLanguage].schedule_next_day_dyn;
+
+                const btnItem = document.createElement('div');
+                btnItem.className = 'schedule-item';
+                btnItem.style.backgroundColor = 'rgba(58, 130, 247, 0.15)';
+                btnItem.style.border = '1.5px solid rgba(58, 130, 247, 0.3)';
+                btnItem.style.boxSizing = 'border-box';
+                btnItem.style.alignItems = 'center';
+                btnItem.style.justifyContent = 'center';
+                btnItem.style.cursor = 'pointer';
+                btnItem.style.transition = 'transform 0.2s ease';
+                btnItem.onclick = function(event) {
+                    event.stopPropagation();
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => jumpToNextLectureDay(), 250);
+                };
+
+                btnItem.innerHTML = `
+                    <div class="schedule-title" style="color: var(--accent-blue); display: flex; align-items: center; gap: 6px;">
+                        <span data-translate="schedule_next_day_dyn">${btnText}</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                    </div>
+                `;
+                scheduleBox.appendChild(btnItem);
+            }
+        }
 
         // Spacer hinzufügen, damit auch die letzte Stunde problemlos nach oben gescrollt/gesnappt werden kann
         const spacer = document.createElement('div');
