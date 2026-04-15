@@ -98,7 +98,7 @@ body.theme-oled {
 }
 
     html {
-      height: 100dvh;
+      height: 100%;
     }
 
     body {
@@ -109,7 +109,7 @@ body.theme-oled {
 
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      height: 100dvh;
+      height: 100%;
 
       overflow: hidden;
       overscroll-behavior-y: none;
