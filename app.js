@@ -1925,9 +1925,31 @@
       }, 10);
     }
 
-    function openTopupModalFromInsufficient() {
+    function openTopupChoiceModal() {
+      document.getElementById('modal-overlay').classList.add('show');
+      setTimeout(() => {
+        document.getElementById('topup-choice-modal').classList.add('show');
+      }, 10);
+    }
+    window.openTopupChoiceModal = openTopupChoiceModal;
+
+    function openTopupModalFromChoice() {
       closeModal();
       setTimeout(openTopupModal, 300);
+    }
+    window.openTopupModalFromChoice = openTopupModalFromChoice;
+
+    function startNfcScanFromModal() {
+      closeModal();
+      setTimeout(() => {
+        scanMensaCard();
+      }, 300);
+    }
+    window.startNfcScanFromModal = startNfcScanFromModal;
+
+    function openTopupModalFromInsufficient() {
+      closeModal();
+      setTimeout(openTopupChoiceModal, 300);
     }
 
     function openGpaModal() {

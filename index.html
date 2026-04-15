@@ -344,6 +344,34 @@
       </div>
     </div>
 
+    <div id="topup-choice-modal" class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title" data-translate="topup_choice_title">Aktion wählen</h3>
+      </div>
+      <div class="modal-info">
+        <p style="text-align: center; color: var(--text-sub); margin-bottom: 20px;" data-translate="topup_choice_question">Wie möchten Sie fortfahren?</p>
+      </div>
+      <div class="modal-buttons" style="margin-top: 20px; flex-direction: column; gap: 10px;">
+        <button class="btn btn-primary" onclick="startNfcScanFromModal()" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+            <path d="M9 9h6"></path>
+            <path d="M9 13h6"></path>
+            <path d="M9 17h6"></path>
+          </svg>
+          <span data-translate="topup_choice_nfc">Karte mit NFC scannen</span>
+        </button>
+        <button class="btn btn-primary" onclick="openTopupModalFromChoice()" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+            <line x1="2" y1="10" x2="22" y2="10"></line>
+          </svg>
+          <span data-translate="topup_choice_paypal">Mit PayPal aufladen</span>
+        </button>
+        <button class="btn btn-secondary" onclick="closeModal()" style="width: 100%;" data-translate="cancel_button">Abbrechen</button>
+      </div>
+    </div>
+
     <div id="topup-modal" class="modal">
       <div class="modal-header">
         <h3 class="modal-title" data-translate="topup_modal_title">Guthaben aufladen</h3>
@@ -1204,16 +1232,8 @@
 
        <div class="mensa-card" id="widget-mensa">
           <div class="balance-left">
-  <div class="balance-amount sensitive-data" id="mensa-balance-amount" onclick="openTopupModal()">12,00€</div>
-  <div class="balance-label" style="display: flex; align-items: center; gap: 6px;">
-    <span data-translate="mensa_balance_label">Karten-Guthaben</span>
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="cursor: pointer; opacity: 0.7;" onclick="scanMensaCard()" title="NFC Scan">
-      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-      <path d="M9 9h6"></path>
-      <path d="M9 13h6"></path>
-      <path d="M9 17h6"></path>
-    </svg>
-  </div>
+  <div class="balance-amount sensitive-data" id="mensa-balance-amount" onclick="openTopupChoiceModal()">12,00€</div>
+  <div class="balance-label" data-translate="mensa_balance_label">Karten-Guthaben</div>
   
   <div style="margin-top: 10px; color: var(--accent-blue); font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px;" onclick="openMapForBuilding('F', 'Mensa')">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
