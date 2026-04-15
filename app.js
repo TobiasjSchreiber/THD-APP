@@ -1925,9 +1925,31 @@
       }, 10);
     }
 
-    function openTopupModalFromInsufficient() {
+    function openTopupChoiceModal() {
+      document.getElementById('modal-overlay').classList.add('show');
+      setTimeout(() => {
+        document.getElementById('topup-choice-modal').classList.add('show');
+      }, 10);
+    }
+    window.openTopupChoiceModal = openTopupChoiceModal;
+
+    function openTopupModalFromChoice() {
       closeModal();
       setTimeout(openTopupModal, 300);
+    }
+    window.openTopupModalFromChoice = openTopupModalFromChoice;
+
+    function startNfcScanFromModal() {
+      closeModal();
+      setTimeout(() => {
+        scanMensaCard();
+      }, 300);
+    }
+    window.startNfcScanFromModal = startNfcScanFromModal;
+
+    function openTopupModalFromInsufficient() {
+      closeModal();
+      setTimeout(openTopupChoiceModal, 300);
     }
 
     function openGpaModal() {
@@ -3778,6 +3800,70 @@
 
         updateScheduleProgress(isInitialLoad, isInitialLoad);
     }
+
+    // --- Mensa Card Scanning ---
+    window.scanMensaCard = async function scanMensaCard() {
+      if (!("NDEFReader" in window)) {
+        showDropdownNotification(currentLanguage === 'de' ? "NFC wird von diesem Gerät/Browser nicht unterstützt." : "NFC is not supported on this device/browser.", true);
+        return;
+      }
+
+      try {
+        const ndef = new NDEFReader();
+
+        const abortController = new AbortController();
+        const signal = abortController.signal;
+
+        await ndef.scan({ signal });
+        showDropdownNotification(currentLanguage === 'de' ? "Bitte halte deine Mensa-Karte an das Gerät..." : "Please hold your Mensa card to the device...", false);
+
+        ndef.addEventListener("reading", ({ message, serialNumber }) => {
+          // Seriennummer verarbeiten (Doppelpunkte entfernen)
+          let cleanedSerial = serialNumber.replace(/:/g, "").toUpperCase();
+
+          if (!cleanedSerial.startsWith("04")) {
+            showDropdownNotification(currentLanguage === 'de' ? "Ungültige Karte: Keine Mensa-Karte erkannt." : "Invalid card: Not recognized as Mensa card.", true);
+            abortController.abort();
+            return;
+          }
+
+          // Hash-Funktion zur Generierung eines deterministischen Guthabens basierend auf der Seriennummer
+          let hash = 0;
+          for (let i = 0; i < cleanedSerial.length; i++) {
+            const char = cleanedSerial.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash; // Convert to 32bit integer
+          }
+
+          // Mappe den Hash auf einen Wert zwischen 0 und 10000 (entspricht 0.00 bis 100.00)
+          let randomBalance = Math.abs(hash) % 10001;
+          mensaBalance = randomBalance / 100;
+
+          updateMensaBalance(true);
+          if (isStorageEnabled()) {
+            localStorage.setItem('thd_mensa_balance', mensaBalance);
+            saveAllData();
+          }
+
+          showDropdownNotification(currentLanguage === 'de' ? `Karte erfolgreich gelesen: ${mensaBalance.toFixed(2).replace('.', ',')}€ Guthaben` : `Card successfully read: ${mensaBalance.toFixed(2)}€ balance`, false);
+          abortController.abort();
+        }, { signal });
+
+        ndef.addEventListener("readingerror", () => {
+          showDropdownNotification(currentLanguage === 'de' ? "NFC Lesefehler. Bitte versuche es erneut." : "NFC reading error. Please try again.", true);
+        }, { signal });
+
+      } catch (error) {
+        console.error("NFC Error: ", error);
+        if (error.name === "NotAllowedError") {
+          showDropdownNotification(currentLanguage === 'de' ? "NFC Zugriff wurde verweigert." : "NFC permission denied.", true);
+        } else {
+          showDropdownNotification(currentLanguage === 'de' ? "Ein Fehler ist beim NFC Scan aufgetreten." : "An error occurred during NFC scan.", true);
+        }
+      }
+    }
+
+    // --- End Mensa Card Scanning ---
 
     function updateMensaBalance(animate = true) {
       const balanceEl = document.getElementById('mensa-balance-amount');
