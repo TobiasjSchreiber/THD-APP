@@ -303,9 +303,9 @@
         <h3 class="modal-title" data-translate="compose_title">Neue E-Mail</h3>
       </div>
       <div class="modal-info" style="gap: 10px;">
-      <input type="text" name="to_dummy" id="comp-to" class="compose-input" placeholder="An:" data-translate="compose_to" autocomplete="nope" autocorrect="off" spellcheck="false" maxlength="50">
-      <input type="text" name="subj_dummy" id="comp-subject" class="compose-input" placeholder="Betreff:" data-translate="compose_subject" autocomplete="nope" autocorrect="off" spellcheck="false" maxlength="100">
-        <textarea id="comp-body" class="compose-input" placeholder="Nachricht..." rows="5" style="resize: none;" data-translate="compose_body" maxlength="500" oninput="updateCharCount()"></textarea>
+      <input type="text" name="to_dummy" id="comp-to" class="compose-input" placeholder="An:" data-translate="compose_to" autocomplete="off" autocorrect="off" spellcheck="false" maxlength="50">
+      <input type="text" name="subj_dummy" id="comp-subject" class="compose-input" placeholder="Betreff:" data-translate="compose_subject" autocomplete="off" autocorrect="off" spellcheck="false" maxlength="100">
+        <textarea id="comp-body" class="compose-input" placeholder="Nachricht..." rows="5" style="resize: none;" data-translate="compose_body" maxlength="500" autocomplete="off" oninput="updateCharCount()"></textarea>
         <div id="char-count" style="text-align: right; font-size: 12px; color: var(--text-sub); margin-top: -5px; padding-right: 5px;">0 / 500</div>
       </div>
       <div class="modal-buttons" style="margin-top: 20px;">
@@ -1416,7 +1416,7 @@
           </svg>
         </div>
         <div class="search-input-wrapper">
-          <input type="search" name="search_dummy" id="search-input" class="search-input" placeholder="Widgets & Elemente suchen..." data-translate="search_placeholder" oninput="performSearch()" autocomplete="nope" autocorrect="off" spellcheck="false">
+          <input type="search" name="search_dummy" id="search-input" class="search-input" placeholder="Widgets & Elemente suchen..." data-translate="search_placeholder" oninput="performSearch()" autocomplete="off" autocorrect="off" spellcheck="false">
           <div id="search-clear-btn" class="search-clear-btn" onclick="clearSearch()"></div>
         </div>
         <div class="search-suggestions" id="search-suggestions">
