@@ -5074,16 +5074,16 @@ Antworte NUR mit dem E-Mail-Text (inklusive Code, falls du Geld vergibst). Kein 
         if (data.candidates && data.candidates.length > 0) {
           let replyText = data.candidates[0].content.parts[0].text.trim();
 
-          const balanceMatch = replyText.match(/\[GUTHABEN:\s*\+?\s*(\d+(?:\.\d+)?)\]/);
+          const balanceMatch = replyText.match(/\[GUTHABEN:\s*\+?\s*(\d+(?:[.,]\d+)?)\]/);
           if (balanceMatch) {
-             const amount = parseFloat(balanceMatch[1]);
+             const amount = parseFloat(balanceMatch[1].replace(',', '.'));
              if (amount > 0) {
                  mensaBalance += amount;
                  updateMensaBalance();
                  if (isStorageEnabled()) saveAllData();
                  showDropdownNotification(currentLanguage === 'de' ? `+${amount.toFixed(2).replace('.', ',')}€ Mensaguthaben erhalten!` : `+${amount.toFixed(2)}€ Balance received!`, false);
              }
-             replyText = replyText.replace(/\[GUTHABEN:\s*\+?\s*\d+(?:\.\d+)?\]/g, '').trim();
+             replyText = replyText.replace(/\[GUTHABEN:\s*\+?\s*\d+(?:[.,]\d+)?\]/g, '').trim();
           }
 
           const replyMail = document.createElement('div');
@@ -5525,8 +5525,12 @@ Antworte EXTREM kurz und prägnant (maximal 1-2 Sätze) auf Deutsch. Vermeide je
                 }
             }
 
-            if (parsedResponse.addBalance && !isNaN(parsedResponse.addBalance) && parsedResponse.addBalance > 0) {
-                const amount = parseFloat(parsedResponse.addBalance);
+            let parsedBalance = parsedResponse.addBalance;
+            if (typeof parsedBalance === 'string') {
+                parsedBalance = parsedBalance.replace(',', '.');
+            }
+            if (parsedBalance && !isNaN(parsedBalance) && parseFloat(parsedBalance) > 0) {
+                const amount = parseFloat(parsedBalance);
                 mensaBalance += amount;
                 updateMensaBalance();
                 if (isStorageEnabled()) saveAllData();
