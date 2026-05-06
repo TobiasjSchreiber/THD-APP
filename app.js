@@ -5088,7 +5088,29 @@ Antworte NUR mit dem E-Mail-Text (inklusive Code, falls du Geld vergibst). Kein 
       const replyMail = document.createElement('div');
       replyMail.className = 'mail-item unread';
 
+<<<<<<< HEAD
       replyMail.innerHTML = `
+=======
+        if (data.candidates && data.candidates.length > 0) {
+          let replyText = data.candidates[0].content.parts[0].text.trim();
+
+          const balanceMatch = replyText.match(/\[GUTHABEN:\s*\+?\s*(\d+(?:[.,]\d+)?)\]/);
+          if (balanceMatch) {
+             const amount = parseFloat(balanceMatch[1].replace(',', '.'));
+             if (amount > 0) {
+                 mensaBalance += amount;
+                 updateMensaBalance();
+                 if (isStorageEnabled()) saveAllData();
+                 showDropdownNotification(currentLanguage === 'de' ? `+${amount.toFixed(2).replace('.', ',')}€ Mensaguthaben erhalten!` : `+${amount.toFixed(2)}€ Balance received!`, false);
+             }
+             replyText = replyText.replace(/\[GUTHABEN:\s*\+?\s*\d+(?:[.,]\d+)?\]/g, '').trim();
+          }
+
+          const replyMail = document.createElement('div');
+          replyMail.className = 'mail-item unread';
+
+          replyMail.innerHTML = `
+>>>>>>> 0823694ee83ac0aab159fc87fbafd3634e70955a
             <div class="swipe-zone"></div>
             <div class="selection-indicator">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"></polyline></svg>
@@ -5487,6 +5509,7 @@ Antworte EXTREM kurz und prägnant (maximal 1-2 Sätze) auf Deutsch. Vermeide je
     const data = await response.json();
     loadingMsgDiv.remove();
 
+<<<<<<< HEAD
     if (!response.ok) {
       const errorMsg = data.error?.message || "Unbekannt";
       if (response.status === 429 || errorMsg.includes("retry") || errorMsg.includes("quota")) {
@@ -5498,6 +5521,71 @@ Antworte EXTREM kurz und prägnant (maximal 1-2 Sätze) auf Deutsch. Vermeide je
       inputEl.disabled = false;
       inputEl.focus();
       return;
+=======
+            if (!response.ok) {
+                 const errorMsg = data.error?.message || "Unbekannt";
+                 if (response.status === 429 || errorMsg.includes("retry") || errorMsg.includes("quota")) {
+                     addAiMessage("Entschuldigung, ich bekomme gerade zu viele Anfragen auf einmal (Rate Limit). Bitte warte kurz eine Minute.", "ai_sad");
+                 } else {
+                     addAiMessage("Entschuldigung, mein Backend-Server hat gerade Verbindungsprobleme. Versuche es in ein paar Sekunden noch einmal.", "ai_sad");
+                 }
+                 console.error("AI Error:", data);
+                 inputEl.disabled = false;
+                 inputEl.focus();
+                 return;
+            }
+
+            let responseText = data.candidates[0].content.parts[0].text.trim();
+
+            // Parse JSON
+            if(responseText.startsWith('```json')) responseText = responseText.replace(/^```json/, '').replace(/```$/, '').trim();
+            else if (responseText.startsWith('```')) responseText = responseText.replace(/^```/, '').replace(/```$/, '').trim();
+
+            let parsedResponse;
+            try {
+                parsedResponse = JSON.parse(responseText);
+            } catch (e) {
+                console.error("Failed to parse JSON from AI", responseText);
+                // Fallback: Versuche reines JSON mit Regex zu extrahieren, falls die KI Text drumherum geschrieben hat
+                const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+                if (jsonMatch) {
+                    try {
+                        parsedResponse = JSON.parse(jsonMatch[0]);
+                    } catch(err) {
+                        parsedResponse = { text: responseText, emotion: "ai_neutral", action: null, addBalance: 0 };
+                    }
+                } else {
+                    parsedResponse = { text: responseText, emotion: "ai_neutral", action: null, addBalance: 0 };
+                }
+            }
+
+            let parsedBalance = parsedResponse.addBalance;
+            if (typeof parsedBalance === 'string') {
+                parsedBalance = parsedBalance.replace(',', '.');
+            }
+            if (parsedBalance && !isNaN(parsedBalance) && parseFloat(parsedBalance) > 0) {
+                const amount = parseFloat(parsedBalance);
+                mensaBalance += amount;
+                updateMensaBalance();
+                if (isStorageEnabled()) saveAllData();
+                setTimeout(() => {
+                    showDropdownNotification(currentLanguage === 'de' ? `+${amount.toFixed(2).replace('.', ',')}€ Mensaguthaben!` : `+${amount.toFixed(2)}€ Balance added!`, false);
+                }, 1000);
+            }
+
+            // Animate message
+            addAiMessage(parsedResponse.text, parsedResponse.emotion, parsedResponse.action);
+            aiChatHistory.push({ role: "model", parts: [{ text: parsedResponse.text }] });
+
+        } catch (error) {
+             loadingMsgDiv.remove();
+             addAiMessage("Ein Fehler ist aufgetreten. Bitte versuche es später noch einmal.", "ai_sad");
+             console.error("AI Catch Error:", error);
+        } finally {
+            inputEl.disabled = false;
+            inputEl.focus();
+        }
+>>>>>>> 0823694ee83ac0aab159fc87fbafd3634e70955a
     }
 
     let responseText = data.candidates[0].content.parts[0].text.trim();
