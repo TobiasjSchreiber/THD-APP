@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="de">
+
 <head>
   <meta charset="UTF-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
-  
+
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
+
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="mobile-web-app-capable" content="yes">
@@ -16,14 +18,14 @@
   <link rel="apple-touch-icon" href="icon-192.png">
 
   <title>THD App</title>
-  
+
   <link rel="stylesheet" href="style.css?v=8">
   <link rel="stylesheet" href="animations.css">
 </head>
-  
+
 <body>
   <script>
-    (function() {
+    (function () {
       var savedTheme = localStorage.getItem('thd_theme') || 'dark';
       document.body.classList.add('theme-' + savedTheme);
       var metaThemeColor = document.querySelector('meta[name="theme-color"]');
@@ -39,7 +41,7 @@
   </script>
 
   <div class="app-container">
-    
+
     <div id="modal-overlay" class="overlay" onclick="closeModal()"></div>
 
     <div id="initial-setup-modal" class="modal">
@@ -48,61 +50,109 @@
         <p class="modal-subtitle" data-translate="setup_subtitle">Bitte wähle deine bevorzugten Einstellungen.</p>
       </div>
       <div class="modal-info" style="gap: 15px; margin-bottom: 20px;">
-        
-        <div class="section-title" data-translate="language_label" style="margin-bottom: -5px; text-align: center;">Sprache</div>
-        <div class="segmented-control" id="setup-language-segments" style="display: flex; padding: 4px; position: relative;">
-          <div class="segment-highlight" id="setup-language-segment-highlight" style="width: calc((100% - 8px) / 2); position: absolute; left: 4px; top: 4px; bottom: 4px; transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);"></div>
-          <button id="setup-lang-btn-de" class="segment-btn active" onclick="setLanguage('de')" style="padding: 8px 0; font-size: 13px; flex: 1; z-index: 2; border-radius: 9px;">Deutsch</button>
-          <button id="setup-lang-btn-en" class="segment-btn" onclick="setLanguage('en')" style="padding: 8px 0; font-size: 13px; flex: 1; z-index: 2; border-radius: 9px;">English</button>
+
+        <div class="section-title" data-translate="language_label" style="margin-bottom: -5px; text-align: center;">
+          Sprache</div>
+        <div class="segmented-control" id="setup-language-segments"
+          style="display: flex; padding: 4px; position: relative;">
+          <div class="segment-highlight" id="setup-language-segment-highlight"
+            style="width: calc((100% - 8px) / 2); position: absolute; left: 4px; top: 4px; bottom: 4px; transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);">
+          </div>
+          <button id="setup-lang-btn-de" class="segment-btn active" onclick="setLanguage('de')"
+            style="padding: 8px 0; font-size: 13px; flex: 1; z-index: 2; border-radius: 9px;">Deutsch</button>
+          <button id="setup-lang-btn-en" class="segment-btn" onclick="setLanguage('en')"
+            style="padding: 8px 0; font-size: 13px; flex: 1; z-index: 2; border-radius: 9px;">English</button>
         </div>
-        
-        <div class="section-title" data-translate="settings_theme" style="margin-top: 5px; margin-bottom: -5px; text-align: center;">Design</div>
-        <div class="segmented-control" id="setup-theme-segments" style="display: flex; padding: 4px; position: relative;">
-          <div class="segment-highlight" id="setup-theme-segment-highlight" style="width: calc((100% - 8px) / 3); position: absolute; left: 4px; top: 4px; bottom: 4px; transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);"></div>
-          <button id="setup-theme-btn-light" class="segment-btn" onclick="setTheme('light')" data-translate="theme_light" style="padding: 8px 0; font-size: 13px; flex: 1; z-index: 2; border-radius: 9px;">Hell</button>
-          <button id="setup-theme-btn-dark" class="segment-btn active" onclick="setTheme('dark')" data-translate="theme_dark" style="padding: 8px 0; font-size: 13px; flex: 1; z-index: 2; border-radius: 9px;">Dunkel</button>
-          <button id="setup-theme-btn-oled" class="segment-btn" onclick="setTheme('oled')" data-translate="theme_oled" style="padding: 8px 0; font-size: 13px; flex: 1; z-index: 2; border-radius: 9px;">Anti-Ghosting</button>
+
+        <div class="section-title" data-translate="settings_theme"
+          style="margin-top: 5px; margin-bottom: -5px; text-align: center;">Design</div>
+        <div class="segmented-control" id="setup-theme-segments"
+          style="display: flex; padding: 4px; position: relative;">
+          <div class="segment-highlight" id="setup-theme-segment-highlight"
+            style="width: calc((100% - 8px) / 3); position: absolute; left: 4px; top: 4px; bottom: 4px; transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);">
+          </div>
+          <button id="setup-theme-btn-light" class="segment-btn" onclick="setTheme('light')"
+            data-translate="theme_light"
+            style="padding: 8px 0; font-size: 13px; flex: 1; z-index: 2; border-radius: 9px;">Hell</button>
+          <button id="setup-theme-btn-dark" class="segment-btn active" onclick="setTheme('dark')"
+            data-translate="theme_dark"
+            style="padding: 8px 0; font-size: 13px; flex: 1; z-index: 2; border-radius: 9px;">Dunkel</button>
+          <button id="setup-theme-btn-oled" class="segment-btn" onclick="setTheme('oled')" data-translate="theme_oled"
+            style="padding: 8px 0; font-size: 13px; flex: 1; z-index: 2; border-radius: 9px;">Anti-Ghosting</button>
         </div>
         <hr style="border: 0; border-top: 1px dashed var(--grid-line); margin: 5px 0;">
-        
+
         <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 10px;">
           <div style="display: flex; align-items: center; gap: 8px;">
-            <span data-translate="settings_storage" style="font-size: 15px; font-weight: 500;">Daten lokal speichern</span>
-            <svg viewBox="0 0 24 24" width="16" height="16" stroke="var(--text-sub)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" onclick="showInfoModal('storage')" style="cursor: pointer;"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            <span data-translate="settings_storage" style="font-size: 15px; font-weight: 500;">Daten lokal
+              speichern</span>
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="var(--text-sub)" stroke-width="2" fill="none"
+              stroke-linecap="round" stroke-linejoin="round" onclick="showInfoModal('storage')"
+              style="cursor: pointer;">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
           </div>
           <label class="toggle-switch" style="transform: scale(0.8); transform-origin: right;">
             <input type="checkbox" class="toggle-input" id="setup-storage-toggle" checked>
             <span class="toggle-slider"></span>
           </label>
         </div>
-        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 10px; margin-top: 15px;">
+        <div
+          style="display: flex; justify-content: space-between; align-items: center; padding: 0 10px; margin-top: 15px;">
           <div style="display: flex; align-items: center; gap: 8px;">
-            <span data-translate="settings_real_mode" style="font-size: 15px; font-weight: 500; white-space: pre-line; line-height: 1.2;">Echte Daten
-(Mensa, Stundenplan, KI-Mails, Events)</span>
-            <svg viewBox="0 0 24 24" width="16" height="16" stroke="var(--text-sub)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" onclick="showInfoModal('real_mode')" style="cursor: pointer;"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            <span data-translate="settings_real_mode"
+              style="font-size: 15px; font-weight: 500; white-space: pre-line; line-height: 1.2;">Echte Daten
+              (Mensa, Stundenplan, Parkhaus, KI-Mails, Events)</span>
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="var(--text-sub)" stroke-width="2" fill="none"
+              stroke-linecap="round" stroke-linejoin="round" onclick="showInfoModal('real_mode')"
+              style="cursor: pointer;">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
           </div>
           <label class="toggle-switch" style="transform: scale(0.8); transform-origin: right;">
             <input type="checkbox" class="toggle-input" id="setup-real-mode-toggle" checked>
             <span class="toggle-slider"></span>
           </label>
         </div>
-        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 10px; margin-top: 15px;">
+        <div
+          style="display: flex; justify-content: space-between; align-items: center; padding: 0 10px; margin-top: 15px;">
           <div style="display: flex; align-items: center; gap: 8px;">
-            <span data-translate="setup_show_again" style="font-size: 15px; font-weight: 500; max-width: 160px; line-height: 1.2; display: inline-block;">Beim Start anzeigen</span>
-            <svg viewBox="0 0 24 24" width="16" height="16" stroke="var(--text-sub)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" onclick="showInfoModal('show_again')" style="cursor: pointer;"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            <span data-translate="setup_show_again"
+              style="font-size: 15px; font-weight: 500; max-width: 160px; line-height: 1.2; display: inline-block;">Beim
+              Start anzeigen</span>
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="var(--text-sub)" stroke-width="2" fill="none"
+              stroke-linecap="round" stroke-linejoin="round" onclick="showInfoModal('show_again')"
+              style="cursor: pointer;">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
           </div>
           <label class="toggle-switch" style="transform: scale(0.8); transform-origin: right;">
             <input type="checkbox" class="toggle-input" id="setup-show-again-toggle" checked>
             <span class="toggle-slider"></span>
           </label>
         </div>
-        <div style="margin-top: 20px; padding: 12px; background-color: rgba(58, 130, 247, 0.15); border: 1.5px solid rgba(58, 130, 247, 0.3); box-sizing: border-box; border-radius: 12px; display: flex; gap: 10px; align-items: flex-start;">
-          <svg viewBox="0 0 24 24" width="20" height="20" stroke="var(--accent-blue)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-          <span data-translate="setup_install_hint" style="font-size: 13px; color: var(--text-sub); line-height: 1.4;">Für das beste Erlebnis empfehlen wir, die App unter Android zu installieren oder unter iOS zum Startbildschirm hinzuzufügen.</span>
+        <div
+          style="margin-top: 20px; padding: 12px; background-color: rgba(58, 130, 247, 0.15); border: 1.5px solid rgba(58, 130, 247, 0.3); box-sizing: border-box; border-radius: 12px; display: flex; gap: 10px; align-items: flex-start;">
+          <svg viewBox="0 0 24 24" width="20" height="20" stroke="var(--accent-blue)" stroke-width="2" fill="none"
+            stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+          <span data-translate="setup_install_hint"
+            style="font-size: 13px; color: var(--text-sub); line-height: 1.4;">Für das beste Erlebnis empfehlen wir, die
+            App unter Android zu installieren oder unter iOS zum Startbildschirm hinzuzufügen.</span>
         </div>
       </div>
       <div class="modal-buttons" style="margin-top: 20px;">
-        <button id="setup-continue-btn" class="btn btn-primary" onclick="completeSetup()" style="width: 100%; transition: opacity 0.3s ease;">Weiter</button>
+        <button id="setup-continue-btn" class="btn btn-primary" onclick="completeSetup()"
+          style="width: 100%; transition: opacity 0.3s ease;">Weiter</button>
       </div>
     </div>
 
@@ -114,7 +164,8 @@
         <p id="info-modal-desc" style="text-align: center; color: var(--text-sub); margin: 0; line-height: 1.5;"></p>
       </div>
       <div class="modal-buttons" style="margin-top: 20px;">
-        <button class="btn btn-primary" onclick="closeInfoModal()" data-translate="ok_button" style="width: 100%;">OK</button>
+        <button class="btn btn-primary" onclick="closeInfoModal()" data-translate="ok_button"
+          style="width: 100%;">OK</button>
       </div>
     </div>
 
@@ -133,77 +184,109 @@
           <span class="info-label" data-translate="course_modal_tasks">Aufgaben</span>
           <span id="popup-tasks">Übung 3</span>
         </div>
-        
+
         <div class="minimap">
           <svg viewBox="0 0 340 200" style="width: 100%; height: 100%;">
             <path class="map-road" d="M 210 10 L 210 140 Q 210 155 225 155 L 330 155" />
 
-            <rect id="bldg-A" class="building" x="10" y="20" width="40" height="20" rx="3"/><text class="building-label" x="30" y="31">A</text>
-            <rect id="bldg-B" class="building" x="55" y="20" width="40" height="20" rx="3"/><text class="building-label" x="75" y="31">B</text>
-            <rect id="bldg-C" class="building" x="100" y="20" width="80" height="20" rx="3"/><text class="building-label" x="140" y="31">C</text>
-            
-            <rect id="bldg-F" class="building" x="10" y="50" width="50" height="35" rx="3"/><text class="building-label" x="35" y="68">F</text>
-            <rect id="bldg-G" class="building" x="110" y="50" width="50" height="30" rx="3"/><text class="building-label" x="135" y="66">G</text>
-            
-            <rect id="bldg-D" class="building" x="10" y="95" width="90" height="20" rx="3"/><text class="building-label" x="55" y="106">D</text>
-            <rect id="bldg-E" class="building" x="105" y="95" width="75" height="20" rx="3"/><text class="building-label" x="142" y="106">E</text>
-            
-            <rect id="bldg-H" class="building" x="50" y="125" width="30" height="30" rx="3"/><text class="building-label" x="65" y="141">H</text>
-            <rect id="bldg-I" class="building" x="105" y="125" width="55" height="30" rx="3"/><text class="building-label" x="132" y="141">I</text>
-            
-            <rect id="bldg-J" class="building" x="10" y="165" width="45" height="25" rx="3"/><text class="building-label" x="32" y="178">J</text>
-            <rect id="bldg-K" class="building" x="65" y="165" width="30" height="25" rx="3"/><text class="building-label" x="80" y="178">K</text>
-            <rect id="bldg-L" class="building" x="125" y="165" width="35" height="25" rx="3"/><text class="building-label" x="142" y="178">L</text>
+            <rect id="bldg-A" class="building" x="10" y="20" width="40" height="20" rx="3" /><text
+              class="building-label" x="30" y="31">A</text>
+            <rect id="bldg-B" class="building" x="55" y="20" width="40" height="20" rx="3" /><text
+              class="building-label" x="75" y="31">B</text>
+            <rect id="bldg-C" class="building" x="100" y="20" width="80" height="20" rx="3" /><text
+              class="building-label" x="140" y="31">C</text>
 
-            <rect id="bldg-U-top" class="building" x="235" y="20" width="80" height="20" rx="3"/>
-            <rect id="bldg-U-right" class="building" x="295" y="40" width="20" height="70" rx="3"/>
-            <rect id="bldg-U-bottom" class="building" x="235" y="110" width="80" height="20" rx="3"/>
-            <rect id="bldg-ITC" class="building" x="250" y="55" width="30" height="30" rx="3"/><text class="building-label" x="265" y="71">ITC</text>
+            <rect id="bldg-F" class="building" x="10" y="50" width="50" height="35" rx="3" /><text
+              class="building-label" x="35" y="68">F</text>
+            <rect id="bldg-G" class="building" x="110" y="50" width="50" height="30" rx="3" /><text
+              class="building-label" x="135" y="66">G</text>
+
+            <rect id="bldg-D" class="building" x="10" y="95" width="90" height="20" rx="3" /><text
+              class="building-label" x="55" y="106">D</text>
+            <rect id="bldg-E" class="building" x="105" y="95" width="75" height="20" rx="3" /><text
+              class="building-label" x="142" y="106">E</text>
+
+            <rect id="bldg-H" class="building" x="50" y="125" width="30" height="30" rx="3" /><text
+              class="building-label" x="65" y="141">H</text>
+            <rect id="bldg-I" class="building" x="105" y="125" width="55" height="30" rx="3" /><text
+              class="building-label" x="132" y="141">I</text>
+
+            <rect id="bldg-J" class="building" x="10" y="165" width="45" height="25" rx="3" /><text
+              class="building-label" x="32" y="178">J</text>
+            <rect id="bldg-K" class="building" x="65" y="165" width="30" height="25" rx="3" /><text
+              class="building-label" x="80" y="178">K</text>
+            <rect id="bldg-L" class="building" x="125" y="165" width="35" height="25" rx="3" /><text
+              class="building-label" x="142" y="178">L</text>
+
+            <rect id="bldg-U-top" class="building" x="235" y="20" width="80" height="20" rx="3" />
+            <rect id="bldg-U-right" class="building" x="295" y="40" width="20" height="70" rx="3" />
+            <rect id="bldg-U-bottom" class="building" x="235" y="110" width="80" height="20" rx="3" />
+            <rect id="bldg-ITC" class="building" x="250" y="55" width="30" height="30" rx="3" /><text
+              class="building-label" x="265" y="71">ITC</text>
           </svg>
         </div>
       </div>
 
       <div class="modal-buttons">
-        <button id="course-modal-close-btn" class="btn btn-secondary" onclick="closeModal()" data-translate="close_button">Schließen</button>
-        <button id="course-modal-ilearn-btn" class="btn btn-primary" onclick="window.location.href='https://elearning.th-deg.de'" data-translate="course_modal_to_ilearn">Zu iLearn</button>
+        <button id="course-modal-close-btn" class="btn btn-secondary" onclick="closeModal()"
+          data-translate="close_button">Schließen</button>
+        <button id="course-modal-ilearn-btn" class="btn btn-primary"
+          onclick="window.location.href='https://elearning.th-deg.de'" data-translate="course_modal_to_ilearn">Zu
+          iLearn</button>
       </div>
     </div>
 
     <div id="schedule-modal" class="modal">
       <div class="modal-header" style="position: relative;">
         <h3 class="modal-title" data-translate="schedule_modal_title">Gesamter Stundenplan</h3>
-        <svg id="schedule-settings-gear-icon" class="header-icon-svg" viewBox="0 0 24 24" onclick="openScheduleSettingsModal('schedule')" style="position: absolute; right: 0; top: 0; width: 22px; height: 22px;">
-            <circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        <svg id="schedule-settings-gear-icon" class="header-icon-svg" viewBox="0 0 24 24"
+          onclick="openScheduleSettingsModal('schedule')"
+          style="position: absolute; right: 0; top: 0; width: 22px; height: 22px;">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path
+            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+          </path>
         </svg>
       </div>
       <div class="modal-info">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-            <svg onclick="changeScheduleWeek(-1)" class="schedule-arrow-icon" viewBox="0 0 24 24" fill="none">
-                <polyline points="15 18 9 12 15 6"></polyline>
-            </svg>
-            <h4 id="schedule-week-label" style="margin: 0; font-size: 16px; font-weight: 600;" data-translate="schedule_week_this">Diese Woche</h4>
-            <svg onclick="changeScheduleWeek(1)" class="schedule-arrow-icon" viewBox="0 0 24 24" fill="none">
-                <polyline points="9 18 15 12 9 6"></polyline>
-            </svg>
+          <svg onclick="changeScheduleWeek(-1)" class="schedule-arrow-icon" viewBox="0 0 24 24" fill="none">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+          <h4 id="schedule-week-label" style="margin: 0; font-size: 16px; font-weight: 600;"
+            data-translate="schedule_week_this">Diese Woche</h4>
+          <svg onclick="changeScheduleWeek(1)" class="schedule-arrow-icon" viewBox="0 0 24 24" fill="none">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
         </div>
-        
-        <div class="segmented-control" id="schedule-day-segments" style="margin-bottom: 15px; display: flex; padding: 4px; position: relative;">
-          <div class="segment-highlight" id="schedule-day-highlight" style="width: calc(20% - 1.6px); position: absolute; left: 4px; top: 4px; bottom: 4px; transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);"></div>
-          <button class="segment-btn active" onclick="switchScheduleDay(0, this)" style="padding: 8px 0; font-size: 13px; flex: 1; z-index: 2; border-radius: 9px;">Mo</button>
-          <button class="segment-btn" onclick="switchScheduleDay(1, this)" style="padding: 8px 0; font-size: 13px; flex: 1; z-index: 2; border-radius: 9px;">Di</button>
-          <button class="segment-btn" onclick="switchScheduleDay(2, this)" style="padding: 8px 0; font-size: 13px; flex: 1; z-index: 2; border-radius: 9px;">Mi</button>
-          <button class="segment-btn" onclick="switchScheduleDay(3, this)" style="padding: 8px 0; font-size: 13px; flex: 1; z-index: 2; border-radius: 9px;">Do</button>
-          <button class="segment-btn" onclick="switchScheduleDay(4, this)" style="padding: 8px 0; font-size: 13px; flex: 1; z-index: 2; border-radius: 9px;">Fr</button>
+
+        <div class="segmented-control" id="schedule-day-segments"
+          style="margin-bottom: 15px; display: flex; padding: 4px; position: relative;">
+          <div class="segment-highlight" id="schedule-day-highlight"
+            style="width: calc(20% - 1.6px); position: absolute; left: 4px; top: 4px; bottom: 4px; transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);">
+          </div>
+          <button class="segment-btn active" onclick="switchScheduleDay(0, this)"
+            style="padding: 8px 0; font-size: 13px; flex: 1; z-index: 2; border-radius: 9px;">Mo</button>
+          <button class="segment-btn" onclick="switchScheduleDay(1, this)"
+            style="padding: 8px 0; font-size: 13px; flex: 1; z-index: 2; border-radius: 9px;">Di</button>
+          <button class="segment-btn" onclick="switchScheduleDay(2, this)"
+            style="padding: 8px 0; font-size: 13px; flex: 1; z-index: 2; border-radius: 9px;">Mi</button>
+          <button class="segment-btn" onclick="switchScheduleDay(3, this)"
+            style="padding: 8px 0; font-size: 13px; flex: 1; z-index: 2; border-radius: 9px;">Do</button>
+          <button class="segment-btn" onclick="switchScheduleDay(4, this)"
+            style="padding: 8px 0; font-size: 13px; flex: 1; z-index: 2; border-radius: 9px;">Fr</button>
         </div>
-        
+
         <div id="schedule-viewport" style="overflow: hidden;">
-          <div id="schedule-modal-list" style="display: flex; flex-direction: column; gap: 8px; overflow-y: auto; padding-right: 4px; height: 100%; box-sizing: border-box; scroll-snap-type: y proximity;">
+          <div id="schedule-modal-list"
+            style="display: flex; flex-direction: column; gap: 8px; overflow-y: auto; padding-right: 4px; height: 100%; box-sizing: border-box; scroll-snap-type: y proximity;">
           </div>
         </div>
       </div>
       <div class="modal-buttons" style="margin-top: 20px;">
         <button class="btn btn-secondary" onclick="closeModal()" data-translate="close_button">Schließen</button>
-        <button class="btn btn-primary" onclick="selectDayForWidget()" data-translate="select_day_button">Auswählen</button>
+        <button class="btn btn-primary" onclick="selectDayForWidget()"
+          data-translate="select_day_button">Auswählen</button>
       </div>
     </div>
 
@@ -212,10 +295,13 @@
         <h3 class="modal-title" data-translate="schedule_settings_title">Studiengang</h3>
       </div>
       <div class="modal-info">
-        <input type="text" id="schedule-group-input" class="compose-input" placeholder="z.B. MT-MP4" autocomplete="off" spellcheck="false" style="text-align: center; font-size: 18px; font-weight: 600;" onkeypress="if(event.key === 'Enter') saveStudyGroup()">
+        <input type="text" id="schedule-group-input" class="compose-input" placeholder="z.B. MT-MP4" autocomplete="off"
+          spellcheck="false" style="text-align: center; font-size: 18px; font-weight: 600;"
+          onkeypress="if(event.key === 'Enter') saveStudyGroup()">
       </div>
       <div class="modal-buttons" style="margin-top: 20px;">
-        <button class="btn btn-secondary" onclick="cancelScheduleSettings()" data-translate="cancel_button">Abbrechen</button>
+        <button class="btn btn-secondary" onclick="cancelScheduleSettings()"
+          data-translate="cancel_button">Abbrechen</button>
         <button class="btn btn-primary" onclick="saveStudyGroup()" data-translate="save_button">Speichern</button>
       </div>
     </div>
@@ -226,31 +312,42 @@
       </div>
       <div class="modal-info">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-            <svg onclick="changeMensaWeek(-1)" class="schedule-arrow-icon" viewBox="0 0 24 24" fill="none">
-                <polyline points="15 18 9 12 15 6"></polyline>
-            </svg>
-            <h4 id="mensa-week-label" style="margin: 0; font-size: 16px; font-weight: 600;" data-translate="schedule_week_this">Diese Woche</h4>
-            <svg onclick="changeMensaWeek(1)" class="schedule-arrow-icon" viewBox="0 0 24 24" fill="none">
-                <polyline points="9 18 15 12 9 6"></polyline>
-            </svg>
+          <svg onclick="changeMensaWeek(-1)" class="schedule-arrow-icon" viewBox="0 0 24 24" fill="none">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+          <h4 id="mensa-week-label" style="margin: 0; font-size: 16px; font-weight: 600;"
+            data-translate="schedule_week_this">Diese Woche</h4>
+          <svg onclick="changeMensaWeek(1)" class="schedule-arrow-icon" viewBox="0 0 24 24" fill="none">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
         </div>
-        
-        <div class="segmented-control" id="mensa-day-segments" style="margin-bottom: 15px; display: flex; padding: 4px; position: relative;">
-          <div class="segment-highlight" id="mensa-day-highlight" style="width: calc(20% - 1.6px); position: absolute; left: 4px; top: 4px; bottom: 4px; transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);"></div>
-          <button class="segment-btn active" onclick="switchMensaDay(0, this)" style="padding: 8px 0; font-size: 13px; flex: 1; z-index: 2; border-radius: 9px;">Mo</button>
-          <button class="segment-btn" onclick="switchMensaDay(1, this)" style="padding: 8px 0; font-size: 13px; flex: 1; z-index: 2; border-radius: 9px;">Di</button>
-          <button class="segment-btn" onclick="switchMensaDay(2, this)" style="padding: 8px 0; font-size: 13px; flex: 1; z-index: 2; border-radius: 9px;">Mi</button>
-          <button class="segment-btn" onclick="switchMensaDay(3, this)" style="padding: 8px 0; font-size: 13px; flex: 1; z-index: 2; border-radius: 9px;">Do</button>
-          <button class="segment-btn" onclick="switchMensaDay(4, this)" style="padding: 8px 0; font-size: 13px; flex: 1; z-index: 2; border-radius: 9px;">Fr</button>
+
+        <div class="segmented-control" id="mensa-day-segments"
+          style="margin-bottom: 15px; display: flex; padding: 4px; position: relative;">
+          <div class="segment-highlight" id="mensa-day-highlight"
+            style="width: calc(20% - 1.6px); position: absolute; left: 4px; top: 4px; bottom: 4px; transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);">
+          </div>
+          <button class="segment-btn active" onclick="switchMensaDay(0, this)"
+            style="padding: 8px 0; font-size: 13px; flex: 1; z-index: 2; border-radius: 9px;">Mo</button>
+          <button class="segment-btn" onclick="switchMensaDay(1, this)"
+            style="padding: 8px 0; font-size: 13px; flex: 1; z-index: 2; border-radius: 9px;">Di</button>
+          <button class="segment-btn" onclick="switchMensaDay(2, this)"
+            style="padding: 8px 0; font-size: 13px; flex: 1; z-index: 2; border-radius: 9px;">Mi</button>
+          <button class="segment-btn" onclick="switchMensaDay(3, this)"
+            style="padding: 8px 0; font-size: 13px; flex: 1; z-index: 2; border-radius: 9px;">Do</button>
+          <button class="segment-btn" onclick="switchMensaDay(4, this)"
+            style="padding: 8px 0; font-size: 13px; flex: 1; z-index: 2; border-radius: 9px;">Fr</button>
         </div>
-        
+
         <div id="mensa-viewport" style="overflow: hidden;">
-          <div id="mensa-modal-list" style="display: flex; flex-direction: column; gap: 8px; overflow-y: auto; padding-right: 4px; height: 100%; box-sizing: border-box; scroll-snap-type: y proximity;">
+          <div id="mensa-modal-list"
+            style="display: flex; flex-direction: column; gap: 8px; overflow-y: auto; padding-right: 4px; height: 100%; box-sizing: border-box; scroll-snap-type: y proximity;">
           </div>
         </div>
       </div>
       <div class="modal-buttons" style="margin-top: 20px;">
-        <button class="btn btn-primary" onclick="closeModal()" data-translate="close_button" style="width: 100%;">Schließen</button>
+        <button class="btn btn-primary" onclick="closeModal()" data-translate="close_button"
+          style="width: 100%;">Schließen</button>
       </div>
     </div>
 
@@ -260,17 +357,21 @@
         <p id="food-popup-price" class="modal-subtitle">Preis</p>
       </div>
       <div class="modal-info">
-      <div class="info-row" style="align-items: flex-start;">
+        <div class="info-row" style="align-items: flex-start;">
           <span class="info-label" data-translate="food_desc">Beschreibung</span>
-        <div id="food-popup-desc" style="text-align: right; max-width: 60%; font-size: 14px; max-height: 120px; overflow-y: auto; padding-left: 10px; line-height: 1.4; display: block; word-break: break-word; overscroll-behavior: contain;">Inhalt</div>
+          <div id="food-popup-desc"
+            style="text-align: right; max-width: 60%; font-size: 14px; max-height: 120px; overflow-y: auto; padding-left: 10px; line-height: 1.4; display: block; word-break: break-word; overscroll-behavior: contain;">
+            Inhalt</div>
         </div>
-      <div class="info-row" style="margin-top: 10px; align-items: flex-start;">
+        <div class="info-row" style="margin-top: 10px; align-items: flex-start;">
           <span class="info-label" data-translate="food_allergens">Allergene</span>
-        <span id="food-popup-allergens" style="font-weight: 600; font-size: 14px; text-align: right; max-width: 65%; line-height: 1.4;">A, B</span>
+          <span id="food-popup-allergens"
+            style="font-weight: 600; font-size: 14px; text-align: right; max-width: 65%; line-height: 1.4;">A, B</span>
         </div>
         <div class="info-row" style="margin-top: 10px; align-items: flex-start;">
           <span class="info-label" data-translate="food_prices">Preise</span>
-          <span id="food-popup-all-prices" style="font-weight: 500; font-size: 13px; text-align: right; line-height: 1.5; color: var(--text-main);"></span>
+          <span id="food-popup-all-prices"
+            style="font-weight: 500; font-size: 13px; text-align: right; line-height: 1.5; color: var(--text-main);"></span>
         </div>
       </div>
       <div class="modal-buttons" style="margin-top: 20px;">
@@ -288,13 +389,15 @@
         </div>
       </div>
       <div class="modal-info">
-        <div id="email-popup-body" style="font-size: 14px; line-height: 1.5; color: var(--text-sub); margin: 0; white-space: pre-wrap;">
+        <div id="email-popup-body"
+          style="font-size: 14px; line-height: 1.5; color: var(--text-sub); margin: 0; white-space: pre-wrap;">
           Nachrichteninhalt...
         </div>
       </div>
       <div class="modal-buttons" style="margin-top: 20px;">
         <button class="btn btn-secondary" onclick="closeModal()" data-translate="close_button">Schließen</button>
-        <button id="email-action-btn" class="btn btn-primary" onclick="closeModal()" data-translate="email_detail_reply">Antworten</button>
+        <button id="email-action-btn" class="btn btn-primary" onclick="closeModal()"
+          data-translate="email_detail_reply">Antworten</button>
       </div>
     </div>
 
@@ -303,10 +406,15 @@
         <h3 class="modal-title" data-translate="compose_title">Neue E-Mail</h3>
       </div>
       <div class="modal-info" style="gap: 10px;">
-      <input type="text" name="to_dummy" id="comp-to" class="compose-input" placeholder="An:" data-translate="compose_to" autocomplete="off" autocorrect="off" spellcheck="false" maxlength="50">
-      <input type="text" name="subj_dummy" id="comp-subject" class="compose-input" placeholder="Betreff:" data-translate="compose_subject" autocomplete="off" autocorrect="off" spellcheck="false" maxlength="100">
-        <textarea id="comp-body" class="compose-input" placeholder="Nachricht..." rows="5" style="resize: none;" data-translate="compose_body" maxlength="500" autocomplete="off" oninput="updateCharCount()"></textarea>
-        <div id="char-count" style="text-align: right; font-size: 12px; color: var(--text-sub); margin-top: -5px; padding-right: 5px;">0 / 500</div>
+        <input type="text" name="to_dummy" id="comp-to" class="compose-input" placeholder="An:"
+          data-translate="compose_to" autocomplete="off" autocorrect="off" spellcheck="false" maxlength="50">
+        <input type="text" name="subj_dummy" id="comp-subject" class="compose-input" placeholder="Betreff:"
+          data-translate="compose_subject" autocomplete="off" autocorrect="off" spellcheck="false" maxlength="100">
+        <textarea id="comp-body" class="compose-input" placeholder="Nachricht..." rows="5" style="resize: none;"
+          data-translate="compose_body" maxlength="500" autocomplete="off" oninput="updateCharCount()"></textarea>
+        <div id="char-count"
+          style="text-align: right; font-size: 12px; color: var(--text-sub); margin-top: -5px; padding-right: 5px;">0 /
+          500</div>
       </div>
       <div class="modal-buttons" style="margin-top: 20px;">
         <button class="btn btn-secondary" onclick="closeModal()" data-translate="compose_cancel">Abbrechen</button>
@@ -319,7 +427,8 @@
         <h3 class="modal-title" data-translate="gpa_modal_title">Notenschnitt</h3>
       </div>
       <div class="modal-info">
-        <p style="text-align: center; color: var(--text-sub); margin: 0;" data-translate="gpa_modal_question">Sind Sie zufrieden mit Ihrer Note?</p>
+        <p style="text-align: center; color: var(--text-sub); margin: 0;" data-translate="gpa_modal_question">Sind Sie
+          zufrieden mit Ihrer Note?</p>
       </div>
       <div class="modal-buttons" style="margin-top: 20px;">
         <button class="btn btn-secondary" onclick="closeModal()" data-translate="gpa_modal_yes">Ja</button>
@@ -329,18 +438,22 @@
 
     <div id="insufficient-funds-modal" class="modal">
       <div class="modal-header">
-        <svg class="modal-icon" style="color: var(--accent-orange);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+        <svg class="modal-icon" style="color: var(--accent-orange);" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
           <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-          <line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line>
+          <line x1="12" y1="9" x2="12" y2="13"></line>
+          <line x1="12" y1="17" x2="12.01" y2="17"></line>
         </svg>
         <h3 class="modal-title" data-translate="insufficient_funds_title">Guthaben niedrig</h3>
       </div>
       <div class="modal-info">
-        <p style="text-align: center; color: var(--text-sub); margin: 0;" data-translate="insufficient_funds_text">Dein Mensa-Guthaben reicht für diesen Kauf nicht aus.</p>
+        <p style="text-align: center; color: var(--text-sub); margin: 0;" data-translate="insufficient_funds_text">Dein
+          Mensa-Guthaben reicht für diesen Kauf nicht aus.</p>
       </div>
       <div class="modal-buttons" style="margin-top: 20px;">
         <button class="btn btn-secondary" onclick="closeModal()" data-translate="close_button">Schließen</button>
-        <button class="btn btn-primary" onclick="openTopupModalFromInsufficient()" data-translate="topup_button">Aufladen</button>
+        <button class="btn btn-primary" onclick="openTopupModalFromInsufficient()"
+          data-translate="topup_button">Aufladen</button>
       </div>
     </div>
 
@@ -349,10 +462,12 @@
         <h3 class="modal-title" data-translate="topup_choice_title">Aktion wählen</h3>
       </div>
       <div class="modal-info">
-        <p style="text-align: center; color: var(--text-sub); margin-bottom: 20px;" data-translate="topup_choice_question">Wie möchten Sie fortfahren?</p>
+        <p style="text-align: center; color: var(--text-sub); margin-bottom: 20px;"
+          data-translate="topup_choice_question">Wie möchten Sie fortfahren?</p>
       </div>
       <div class="modal-buttons" style="margin-top: 20px; flex-direction: column; gap: 10px;">
-        <button class="btn btn-primary" onclick="startNfcScanFromModal()" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;">
+        <button class="btn btn-primary" onclick="startNfcScanFromModal()"
+          style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
             <path d="M9 9h6"></path>
@@ -361,14 +476,16 @@
           </svg>
           <span data-translate="topup_choice_nfc">Karte mit NFC scannen</span>
         </button>
-        <button class="btn btn-primary" onclick="openTopupModalFromChoice()" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;">
+        <button class="btn btn-primary" onclick="openTopupModalFromChoice()"
+          style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="2" y="5" width="20" height="14" rx="2"></rect>
             <line x1="2" y1="10" x2="22" y2="10"></line>
           </svg>
           <span data-translate="topup_choice_paypal">Mit PayPal aufladen</span>
         </button>
-        <button class="btn btn-secondary" onclick="closeModal()" style="width: 100%;" data-translate="cancel_button">Abbrechen</button>
+        <button class="btn btn-secondary" onclick="closeModal()" style="width: 100%;"
+          data-translate="cancel_button">Abbrechen</button>
       </div>
     </div>
 
@@ -377,13 +494,18 @@
         <h3 class="modal-title" data-translate="topup_modal_title">Guthaben aufladen</h3>
       </div>
       <div class="modal-info">
-        <p style="text-align: center; color: var(--text-sub); margin-bottom: 20px;" data-translate="topup_modal_question">Möchten Sie Ihr Mensa-Guthaben aufladen?</p>
-        <div style="text-align: center; font-size: 32px; font-weight: 600; color: var(--accent-blue); margin-bottom: 15px;" id="topup-amount-display">50,00€</div>
-        <input type="range" id="topup-slider" class="custom-slider" min="5" max="100" step="5" value="50" oninput="updateTopupDisplay()">
+        <p style="text-align: center; color: var(--text-sub); margin-bottom: 20px;"
+          data-translate="topup_modal_question">Möchten Sie Ihr Mensa-Guthaben aufladen?</p>
+        <div
+          style="text-align: center; font-size: 32px; font-weight: 600; color: var(--accent-blue); margin-bottom: 15px;"
+          id="topup-amount-display">50,00€</div>
+        <input type="range" id="topup-slider" class="custom-slider" min="5" max="100" step="5" value="50"
+          oninput="updateTopupDisplay()">
       </div>
       <div class="modal-buttons" style="margin-top: 20px;">
         <button class="btn btn-secondary" onclick="closeModal()" data-translate="cancel_button">Abbrechen</button>
-        <button class="btn btn-primary" onclick="openTopupConfirmModal()" data-translate="continue_button">Weiter</button>
+        <button class="btn btn-primary" onclick="openTopupConfirmModal()"
+          data-translate="continue_button">Weiter</button>
       </div>
     </div>
 
@@ -421,7 +543,8 @@
         <h3 class="modal-title" data-translate="tow_modal_title">Parkplatz freiräumen</h3>
       </div>
       <div class="modal-info">
-        <p style="text-align: center; color: var(--text-sub); margin: 0;" data-translate="tow_modal_question">Möchten Sie ein Auto verschwinden lassen?</p>
+        <p style="text-align: center; color: var(--text-sub); margin: 0;" data-translate="tow_modal_question">Möchten
+          Sie ein Auto verschwinden lassen?</p>
       </div>
       <div class="modal-buttons" style="margin-top: 20px;">
         <button class="btn btn-secondary" onclick="closeModal()" data-translate="cancel_button">Abbrechen</button>
@@ -439,25 +562,50 @@
           <div class="chart-grid-line" style="bottom: 20%;"></div>
           <div class="chart-grid-line" style="bottom: 50%;"></div>
           <div class="chart-grid-line" style="bottom: 80%;"></div>
-          
-          <div class="chart-bar-wrapper"><div class="chart-bar low" style="height: 15%;"></div><span class="chart-label">08</span></div>
-          <div class="chart-bar-wrapper"><div class="chart-bar low" style="height: 25%;"></div><span class="chart-label">09</span></div>
-          <div class="chart-bar-wrapper"><div class="chart-bar medium" style="height: 45%;"></div><span class="chart-label">10</span></div>
-          <div class="chart-bar-wrapper"><div class="chart-bar high" style="height: 70%;"></div><span class="chart-label">11</span></div>
-          <div class="chart-bar-wrapper"><div class="chart-bar high" style="height: 90%;"></div><span class="chart-label">12</span></div>
-          <div class="chart-bar-wrapper"><div class="chart-bar high" style="height: 85%;"></div><span class="chart-label">13</span></div>
-          <div class="chart-bar-wrapper"><div class="chart-bar future" style="height: 75%;"></div><span class="chart-label">14</span></div>
-          <div class="chart-bar-wrapper"><div class="chart-bar future" style="height: 60%;"></div><span class="chart-label">15</span></div>
-          <div class="chart-bar-wrapper"><div class="chart-bar future" style="height: 40%;"></div><span class="chart-label">16</span></div>
-          <div class="chart-bar-wrapper"><div class="chart-bar future" style="height: 20%;"></div><span class="chart-label">17</span></div>
-          <div class="chart-bar-wrapper"><div class="chart-bar future" style="height: 10%;"></div><span class="chart-label">18</span></div>
+
+          <div class="chart-bar-wrapper">
+            <div class="chart-bar low" style="height: 15%;"></div><span class="chart-label">08</span>
+          </div>
+          <div class="chart-bar-wrapper">
+            <div class="chart-bar low" style="height: 25%;"></div><span class="chart-label">09</span>
+          </div>
+          <div class="chart-bar-wrapper">
+            <div class="chart-bar medium" style="height: 45%;"></div><span class="chart-label">10</span>
+          </div>
+          <div class="chart-bar-wrapper">
+            <div class="chart-bar high" style="height: 70%;"></div><span class="chart-label">11</span>
+          </div>
+          <div class="chart-bar-wrapper">
+            <div class="chart-bar high" style="height: 90%;"></div><span class="chart-label">12</span>
+          </div>
+          <div class="chart-bar-wrapper">
+            <div class="chart-bar high" style="height: 85%;"></div><span class="chart-label">13</span>
+          </div>
+          <div class="chart-bar-wrapper">
+            <div class="chart-bar future" style="height: 75%;"></div><span class="chart-label">14</span>
+          </div>
+          <div class="chart-bar-wrapper">
+            <div class="chart-bar future" style="height: 60%;"></div><span class="chart-label">15</span>
+          </div>
+          <div class="chart-bar-wrapper">
+            <div class="chart-bar future" style="height: 40%;"></div><span class="chart-label">16</span>
+          </div>
+          <div class="chart-bar-wrapper">
+            <div class="chart-bar future" style="height: 20%;"></div><span class="chart-label">17</span>
+          </div>
+          <div class="chart-bar-wrapper">
+            <div class="chart-bar future" style="height: 10%;"></div><span class="chart-label">18</span>
+          </div>
         </div>
         <div style="text-align: center; margin-top: 5px; font-size: 11px; color: var(--text-sub);">
-          <span style="display: inline-block; width: 10px; height: 10px; background: repeating-linear-gradient(45deg, var(--chart-future-1), var(--chart-future-1) 2px, var(--chart-future-2) 2px, var(--chart-future-2) 4px); margin-right: 4px; border-radius: 2px; vertical-align: middle;"></span> <span data-translate="parking_forecast">Prognose</span>
+          <span
+            style="display: inline-block; width: 10px; height: 10px; background: repeating-linear-gradient(45deg, var(--chart-future-1), var(--chart-future-1) 2px, var(--chart-future-2) 2px, var(--chart-future-2) 4px); margin-right: 4px; border-radius: 2px; vertical-align: middle;"></span>
+          <span data-translate="parking_forecast">Prognose</span>
         </div>
       </div>
       <div class="modal-buttons" style="margin-top: 20px;">
-        <button class="btn btn-primary" onclick="closeModal()" data-translate="close_button" style="width: 100%;">Schließen</button>
+        <button class="btn btn-primary" onclick="closeModal()" data-translate="close_button"
+          style="width: 100%;">Schließen</button>
       </div>
     </div>
 
@@ -477,33 +625,48 @@
         </div>
         <div class="info-row" style="margin-top: 10px; flex-direction: column; gap: 6px;">
           <span class="info-label" data-translate="rental_modal_notes">Zubehör / Notizen</span>
-          <span id="rental-popup-notes" style="text-align: left; margin-left: 15px; padding-left: 10px; border-left: 2px solid var(--text-sub); font-size: 14px; color: var(--text-main);">Notizen</span>
+          <span id="rental-popup-notes"
+            style="text-align: left; margin-left: 15px; padding-left: 10px; border-left: 2px solid var(--text-sub); font-size: 14px; color: var(--text-main);">Notizen</span>
         </div>
-        
+
         <div class="minimap" style="margin-top: 20px;">
           <svg viewBox="0 0 340 200" style="width: 100%; height: 100%;">
             <path class="map-road" d="M 210 10 L 210 140 Q 210 155 225 155 L 330 155" />
-            <rect class="building rental-bldg-A" x="10" y="20" width="40" height="20" rx="3"/><text class="building-label" x="30" y="31">A</text>
-            <rect class="building rental-bldg-B" x="55" y="20" width="40" height="20" rx="3"/><text class="building-label" x="75" y="31">B</text>
-            <rect class="building rental-bldg-C" x="100" y="20" width="80" height="20" rx="3"/><text class="building-label" x="140" y="31">C</text>
-            <rect class="building rental-bldg-F" x="10" y="50" width="50" height="35" rx="3"/><text class="building-label" x="35" y="68">F</text>
-            <rect class="building rental-bldg-G" x="110" y="50" width="50" height="30" rx="3"/><text class="building-label" x="135" y="66">G</text>
-            <rect class="building rental-bldg-D" x="10" y="95" width="90" height="20" rx="3"/><text class="building-label" x="55" y="106">D</text>
-            <rect class="building rental-bldg-E" x="105" y="95" width="75" height="20" rx="3"/><text class="building-label" x="142" y="106">E</text>
-            <rect class="building rental-bldg-H" x="50" y="125" width="30" height="30" rx="3"/><text class="building-label" x="65" y="141">H</text>
-            <rect class="building rental-bldg-I" x="105" y="125" width="55" height="30" rx="3"/><text class="building-label" x="132" y="141">I</text>
-            <rect class="building rental-bldg-J" x="10" y="165" width="45" height="25" rx="3"/><text class="building-label" x="32" y="178">J</text>
-            <rect class="building rental-bldg-K" x="65" y="165" width="30" height="25" rx="3"/><text class="building-label" x="80" y="178">K</text>
-            <rect class="building rental-bldg-L" x="125" y="165" width="35" height="25" rx="3"/><text class="building-label" x="142" y="178">L</text>
-            <rect class="building rental-bldg-U-top" x="235" y="20" width="80" height="20" rx="3"/>
-            <rect class="building rental-bldg-U-right" x="295" y="40" width="20" height="70" rx="3"/>
-            <rect class="building rental-bldg-U-bottom" x="235" y="110" width="80" height="20" rx="3"/>
-            <rect class="building rental-bldg-ITC" x="250" y="55" width="30" height="30" rx="3"/><text class="building-label" x="265" y="71">ITC</text>
+            <rect class="building rental-bldg-A" x="10" y="20" width="40" height="20" rx="3" /><text
+              class="building-label" x="30" y="31">A</text>
+            <rect class="building rental-bldg-B" x="55" y="20" width="40" height="20" rx="3" /><text
+              class="building-label" x="75" y="31">B</text>
+            <rect class="building rental-bldg-C" x="100" y="20" width="80" height="20" rx="3" /><text
+              class="building-label" x="140" y="31">C</text>
+            <rect class="building rental-bldg-F" x="10" y="50" width="50" height="35" rx="3" /><text
+              class="building-label" x="35" y="68">F</text>
+            <rect class="building rental-bldg-G" x="110" y="50" width="50" height="30" rx="3" /><text
+              class="building-label" x="135" y="66">G</text>
+            <rect class="building rental-bldg-D" x="10" y="95" width="90" height="20" rx="3" /><text
+              class="building-label" x="55" y="106">D</text>
+            <rect class="building rental-bldg-E" x="105" y="95" width="75" height="20" rx="3" /><text
+              class="building-label" x="142" y="106">E</text>
+            <rect class="building rental-bldg-H" x="50" y="125" width="30" height="30" rx="3" /><text
+              class="building-label" x="65" y="141">H</text>
+            <rect class="building rental-bldg-I" x="105" y="125" width="55" height="30" rx="3" /><text
+              class="building-label" x="132" y="141">I</text>
+            <rect class="building rental-bldg-J" x="10" y="165" width="45" height="25" rx="3" /><text
+              class="building-label" x="32" y="178">J</text>
+            <rect class="building rental-bldg-K" x="65" y="165" width="30" height="25" rx="3" /><text
+              class="building-label" x="80" y="178">K</text>
+            <rect class="building rental-bldg-L" x="125" y="165" width="35" height="25" rx="3" /><text
+              class="building-label" x="142" y="178">L</text>
+            <rect class="building rental-bldg-U-top" x="235" y="20" width="80" height="20" rx="3" />
+            <rect class="building rental-bldg-U-right" x="295" y="40" width="20" height="70" rx="3" />
+            <rect class="building rental-bldg-U-bottom" x="235" y="110" width="80" height="20" rx="3" />
+            <rect class="building rental-bldg-ITC" x="250" y="55" width="30" height="30" rx="3" /><text
+              class="building-label" x="265" y="71">ITC</text>
           </svg>
         </div>
       </div>
       <div class="modal-buttons" style="margin-top: 20px;">
-        <button class="btn btn-primary" onclick="closeModal()" data-translate="close_button" style="width: 100%;">Schließen</button>
+        <button class="btn btn-primary" onclick="closeModal()" data-translate="close_button"
+          style="width: 100%;">Schließen</button>
       </div>
     </div>
 
@@ -516,7 +679,8 @@
       </div>
       <div class="modal-buttons" style="margin-top: 20px;">
         <button class="btn btn-secondary" onclick="closeModal()" data-translate="cancel_button">Abbrechen</button>
-        <button class="btn btn-primary" onclick="confirmDelete()" style="background-color: #FF3B30;" data-translate="delete_button">Löschen</button>
+        <button class="btn btn-primary" onclick="confirmDelete()" style="background-color: #FF3B30;"
+          data-translate="delete_button">Löschen</button>
       </div>
     </div>
 
@@ -525,18 +689,21 @@
         <h3 class="modal-title" data-translate="clear_search_title">Suchverlauf leeren</h3>
       </div>
       <div class="modal-info">
-        <p style="text-align: center; color: var(--text-sub); margin: 0;" data-translate="clear_search_confirm">Möchtest du deinen gesamten Suchverlauf löschen?</p>
+        <p style="text-align: center; color: var(--text-sub); margin: 0;" data-translate="clear_search_confirm">Möchtest
+          du deinen gesamten Suchverlauf löschen?</p>
       </div>
       <div class="modal-buttons" style="margin-top: 20px;">
         <button class="btn btn-secondary" onclick="closeModal()" data-translate="cancel_button">Abbrechen</button>
-        <button class="btn btn-primary" onclick="confirmClearSearch()" style="background-color: #FF3B30;" data-translate="delete_button">Löschen</button>
+        <button class="btn btn-primary" onclick="confirmClearSearch()" style="background-color: #FF3B30;"
+          data-translate="delete_button">Löschen</button>
       </div>
     </div>
 
     <div id="grade-modal" class="modal">
       <div class="modal-header">
         <h3 id="grade-popup-title" class="modal-title">Fach</h3>
-        <p id="grade-popup-grade" class="modal-subtitle sensitive-data" style="color: var(--accent-blue); font-size: 24px; font-weight: 600; margin-top: 5px;">1,3</p>
+        <p id="grade-popup-grade" class="modal-subtitle sensitive-data"
+          style="color: var(--accent-blue); font-size: 24px; font-weight: 600; margin-top: 5px;">1,3</p>
       </div>
       <div class="modal-info">
         <div class="info-row">
@@ -556,13 +723,16 @@
           <span class="info-label" data-translate="grade_modal_average">Notendurchschnitt</span>
           <span id="grade-popup-average" style="font-weight: 500;">2,4</span>
         </div>
-        
-        <div class="section-title" style="margin-top: 15px; margin-bottom: 5px; font-size: 14px; text-align: center;" data-translate="grade_modal_distribution">Notenverteilung</div>
-        <div class="chart-container" id="grade-chart-container" style="height: 140px; padding-bottom: 25px; margin-top: 0;">
+
+        <div class="section-title" style="margin-top: 15px; margin-bottom: 5px; font-size: 14px; text-align: center;"
+          data-translate="grade_modal_distribution">Notenverteilung</div>
+        <div class="chart-container" id="grade-chart-container"
+          style="height: 140px; padding-bottom: 25px; margin-top: 0;">
         </div>
       </div>
       <div class="modal-buttons" style="margin-top: 10px;">
-        <button class="btn btn-primary" onclick="closeModal()" data-translate="close_button" style="width: 100%;">Schließen</button>
+        <button class="btn btn-primary" onclick="closeModal()" data-translate="close_button"
+          style="width: 100%;">Schließen</button>
       </div>
     </div>
 
@@ -571,7 +741,9 @@
         <h3 class="modal-title" data-translate="edit_name_title">Name bearbeiten</h3>
       </div>
       <div class="modal-info">
-      <input type="text" id="edit-name-input" class="compose-input" placeholder="Name" autocomplete="off" spellcheck="false" maxlength="20" style="text-align: center; font-size: 18px; font-weight: 600;" onkeypress="if(event.key === 'Enter') saveProfileName()">
+        <input type="text" id="edit-name-input" class="compose-input" placeholder="Name" autocomplete="off"
+          spellcheck="false" maxlength="20" style="text-align: center; font-size: 18px; font-weight: 600;"
+          onkeypress="if(event.key === 'Enter') saveProfileName()">
       </div>
       <div class="modal-buttons" style="margin-top: 20px;">
         <button class="btn btn-secondary" onclick="closeModal()" data-translate="cancel_button">Abbrechen</button>
@@ -584,73 +756,119 @@
         <h3 class="modal-title" data-translate="settings_title">Einstellungen</h3>
       </div>
       <div class="modal-info" style="gap: 10px; margin-bottom: 20px;">
-        <div class="section-title" data-translate="language_label" style="margin-bottom: 5px; text-align: center;">Sprache</div>
+        <div class="section-title" data-translate="language_label" style="margin-bottom: 5px; text-align: center;">
+          Sprache</div>
         <div class="segmented-control" id="language-segments" style="display: flex; padding: 4px; position: relative;">
-          <div class="segment-highlight" id="language-segment-highlight" style="width: calc((100% - 8px) / 2); position: absolute; left: 4px; top: 4px; bottom: 4px; transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);"></div>
-          <button id="lang-btn-de" class="segment-btn active" onclick="setLanguage('de')" style="padding: 8px 0; font-size: 13px; flex: 1; z-index: 2; border-radius: 9px;">Deutsch</button>
-          <button id="lang-btn-en" class="segment-btn" onclick="setLanguage('en')" style="padding: 8px 0; font-size: 13px; flex: 1; z-index: 2; border-radius: 9px;">English</button>
-        </div>
-        
-        <div class="section-title" data-translate="settings_theme" style="margin-top: 15px; margin-bottom: 5px; text-align: center;">Design</div>
-        <div class="segmented-control" id="theme-segments" style="display: flex; padding: 4px; position: relative;">
-          <div class="segment-highlight" id="theme-segment-highlight" style="width: calc((100% - 8px) / 3); position: absolute; left: 4px; top: 4px; bottom: 4px; transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);"></div>
-          <button id="theme-btn-light" class="segment-btn" onclick="setTheme('light')" data-translate="theme_light" style="padding: 8px 0; font-size: 13px; flex: 1; z-index: 2; border-radius: 9px;">Hell</button>
-          <button id="theme-btn-dark" class="segment-btn active" onclick="setTheme('dark')" data-translate="theme_dark" style="padding: 8px 0; font-size: 13px; flex: 1; z-index: 2; border-radius: 9px;">Dunkel</button>
-          <button id="theme-btn-oled" class="segment-btn" onclick="setTheme('oled')" data-translate="theme_oled" style="padding: 8px 0; font-size: 13px; flex: 1; z-index: 2; border-radius: 9px;">Anti-Ghosting</button>
+          <div class="segment-highlight" id="language-segment-highlight"
+            style="width: calc((100% - 8px) / 2); position: absolute; left: 4px; top: 4px; bottom: 4px; transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);">
+          </div>
+          <button id="lang-btn-de" class="segment-btn active" onclick="setLanguage('de')"
+            style="padding: 8px 0; font-size: 13px; flex: 1; z-index: 2; border-radius: 9px;">Deutsch</button>
+          <button id="lang-btn-en" class="segment-btn" onclick="setLanguage('en')"
+            style="padding: 8px 0; font-size: 13px; flex: 1; z-index: 2; border-radius: 9px;">English</button>
         </div>
 
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding: 0 10px;">
+        <div class="section-title" data-translate="settings_theme"
+          style="margin-top: 15px; margin-bottom: 5px; text-align: center;">Design</div>
+        <div class="segmented-control" id="theme-segments" style="display: flex; padding: 4px; position: relative;">
+          <div class="segment-highlight" id="theme-segment-highlight"
+            style="width: calc((100% - 8px) / 3); position: absolute; left: 4px; top: 4px; bottom: 4px; transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);">
+          </div>
+          <button id="theme-btn-light" class="segment-btn" onclick="setTheme('light')" data-translate="theme_light"
+            style="padding: 8px 0; font-size: 13px; flex: 1; z-index: 2; border-radius: 9px;">Hell</button>
+          <button id="theme-btn-dark" class="segment-btn active" onclick="setTheme('dark')" data-translate="theme_dark"
+            style="padding: 8px 0; font-size: 13px; flex: 1; z-index: 2; border-radius: 9px;">Dunkel</button>
+          <button id="theme-btn-oled" class="segment-btn" onclick="setTheme('oled')" data-translate="theme_oled"
+            style="padding: 8px 0; font-size: 13px; flex: 1; z-index: 2; border-radius: 9px;">Anti-Ghosting</button>
+        </div>
+
+        <div
+          style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding: 0 10px;">
           <div style="display: flex; align-items: center; gap: 8px;">
-            <span data-translate="settings_storage" style="font-size: 15px; font-weight: 500;">Daten lokal speichern</span>
-            <svg viewBox="0 0 24 24" width="16" height="16" stroke="var(--text-sub)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" onclick="showInfoModal('storage')" style="cursor: pointer;"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            <span data-translate="settings_storage" style="font-size: 15px; font-weight: 500;">Daten lokal
+              speichern</span>
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="var(--text-sub)" stroke-width="2" fill="none"
+              stroke-linecap="round" stroke-linejoin="round" onclick="showInfoModal('storage')"
+              style="cursor: pointer;">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
           </div>
           <label class="toggle-switch" style="transform: scale(0.8); transform-origin: right;">
             <input type="checkbox" class="toggle-input" id="storage-toggle" onchange="toggleStorage(this.checked)">
             <span class="toggle-slider"></span>
           </label>
         </div>
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding: 0 10px;">
+        <div
+          style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding: 0 10px;">
           <div style="display: flex; align-items: center; gap: 8px;">
-            <span data-translate="settings_real_mode" style="font-size: 15px; font-weight: 500; white-space: pre-line; line-height: 1.2;">Echte Daten
-(Mensa, Stundenplan, KI-Mails, Events)</span>
-            <svg viewBox="0 0 24 24" width="16" height="16" stroke="var(--text-sub)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" onclick="showInfoModal('real_mode')" style="cursor: pointer;"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            <span data-translate="settings_real_mode"
+              style="font-size: 15px; font-weight: 500; white-space: pre-line; line-height: 1.2;">Echte Daten
+              (Mensa, Stundenplan, Parkhaus, KI-Mails, Events)</span>
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="var(--text-sub)" stroke-width="2" fill="none"
+              stroke-linecap="round" stroke-linejoin="round" onclick="showInfoModal('real_mode')"
+              style="cursor: pointer;">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
           </div>
           <label class="toggle-switch" style="transform: scale(0.8); transform-origin: right;">
             <input type="checkbox" class="toggle-input" id="real-mode-toggle" onchange="toggleRealMode(this.checked)">
             <span class="toggle-slider"></span>
           </label>
         </div>
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding: 0 10px;">
+        <div
+          style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding: 0 10px;">
           <div style="display: flex; align-items: center; gap: 8px;">
             <span data-translate="settings_privacy" style="font-size: 15px; font-weight: 500;">Privatmodus</span>
-            <svg viewBox="0 0 24 24" width="16" height="16" stroke="var(--text-sub)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" onclick="showInfoModal('privacy')" style="cursor: pointer;"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="var(--text-sub)" stroke-width="2" fill="none"
+              stroke-linecap="round" stroke-linejoin="round" onclick="showInfoModal('privacy')"
+              style="cursor: pointer;">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
           </div>
           <label class="toggle-switch" style="transform: scale(0.8); transform-origin: right;">
-            <input type="checkbox" class="toggle-input" id="privacy-mode-toggle" onchange="togglePrivacyMode(this.checked)">
+            <input type="checkbox" class="toggle-input" id="privacy-mode-toggle"
+              onchange="togglePrivacyMode(this.checked)">
             <span class="toggle-slider"></span>
           </label>
         </div>
         <div style="margin-top: 15px; padding: 0 10px;">
-          <button id="ai-generate-btn" class="btn btn-secondary" onclick="generateAiData()" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 0; background-color: rgba(58, 130, 247, 0.15); color: var(--accent-blue); border: 1.5px solid rgba(58, 130, 247, 0.3); box-sizing: border-box;">
+          <button id="ai-generate-btn" class="btn btn-secondary" onclick="generateAiData()"
+            style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 0; background-color: rgba(58, 130, 247, 0.15); color: var(--accent-blue); border: 1.5px solid rgba(58, 130, 247, 0.3); box-sizing: border-box;">
             <span data-translate="settings_ai_generate">KI Daten generieren</span>
-            <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" onclick="event.stopPropagation(); showInfoModal('ai_generate')" style="cursor: pointer; flex-shrink: 0;"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"
+              stroke-linecap="round" stroke-linejoin="round"
+              onclick="event.stopPropagation(); showInfoModal('ai_generate')" style="cursor: pointer; flex-shrink: 0;">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
           </button>
         </div>
-        <button class="btn btn-secondary" onclick="openAboutModal()" data-translate="settings_about" style="width: 100%; margin-top: 20px;">Über diese App</button>
+        <button class="btn btn-secondary" onclick="openAboutModal()" data-translate="settings_about"
+          style="width: 100%; margin-top: 20px;">Über diese App</button>
       </div>
-      <button class="btn btn-primary" onclick="closeSettingsModal()" data-translate="settings_close" style="width: 100%;">Schließen</button>
+      <button class="btn btn-primary" onclick="closeSettingsModal()" data-translate="settings_close"
+        style="width: 100%;">Schließen</button>
     </div>
-    
+
     <div id="webcam-modal" class="modal">
       <div class="modal-header">
         <h3 class="modal-title">Campus Webcam</h3>
         <p class="modal-subtitle">Live-Ansicht</p>
       </div>
       <div class="modal-info" style="display: flex; justify-content: center; align-items: center; padding: 0;">
-        <img id="webcam-img-full" src="https://th-deg.de/static/images/webcam.jpg" style="width: 100%; height: auto; max-height: 50vh; border-radius: 12px; border: 1px solid var(--border-color); object-fit: cover; background-color: var(--item-bg);">
+        <img id="webcam-img-full" src="https://th-deg.de/static/images/webcam.jpg"
+          style="width: 100%; height: auto; max-height: 50vh; border-radius: 12px; border: 1px solid var(--border-color); object-fit: cover; background-color: var(--item-bg);">
       </div>
       <div class="modal-buttons" style="margin-top: 20px;">
-        <button class="btn btn-primary" onclick="closeModal()" data-translate="close_button" style="width: 100%;">Schließen</button>
+        <button class="btn btn-primary" onclick="closeModal()" data-translate="close_button"
+          style="width: 100%;">Schließen</button>
       </div>
     </div>
 
@@ -659,17 +877,24 @@
         <h3 class="modal-title" data-translate="about_title">Über die App</h3>
       </div>
       <div class="modal-info" style="text-align: center; gap: 15px;">
-        <p style="color: var(--text-sub); margin: 0; line-height: 1.5;" data-translate="about_desc">Eine moderne THD APP für Studierende, entwickelt im Medientechnik-Studium.</p>
+        <p style="color: var(--text-sub); margin: 0; line-height: 1.5;" data-translate="about_desc">Eine moderne THD APP
+          für Studierende, entwickelt im Medientechnik-Studium.</p>
         <div style="display: flex; justify-content: center; margin: 10px 0;">
-          <a href="https://tobiasjschreiber.github.io/THD-APP/" target="_blank" style="display: inline-block; background: white; padding: 10px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://tobiasjschreiber.github.io/THD-APP/" alt="Web App QR Code" style="display: block; width: 150px; height: 150px;">
+          <a href="https://tobiasjschreiber.github.io/THD-APP/" target="_blank"
+            style="display: inline-block; background: white; padding: 10px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+            <img
+              src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://tobiasjschreiber.github.io/THD-APP/"
+              alt="Web App QR Code" style="display: block; width: 150px; height: 150px;">
           </a>
         </div>
-        <a href="https://github.com/TobiasjSchreiber/THD-APP" target="_blank" style="color: var(--accent-blue); text-decoration: none; font-weight: 600; font-size: 15px;" data-translate="about_github">GitHub Repository ansehen</a>
+        <a href="https://github.com/TobiasjSchreiber/THD-APP" target="_blank"
+          style="color: var(--accent-blue); text-decoration: none; font-weight: 600; font-size: 15px;"
+          data-translate="about_github">GitHub Repository ansehen</a>
         <p style="color: var(--text-sub); font-size: 12px; margin: 0;">Made by Tobias Schreiber</p>
       </div>
       <div class="modal-buttons" style="margin-top: 20px;">
-        <button class="btn btn-primary" onclick="closeModal()" data-translate="close_button" style="width: 100%;">Schließen</button>
+        <button class="btn btn-primary" onclick="closeModal()" data-translate="close_button"
+          style="width: 100%;">Schließen</button>
       </div>
     </div>
 
@@ -686,11 +911,13 @@
           <div class="chart-grid-line" style="bottom: 25%;"></div>
           <div class="chart-grid-line" style="bottom: 50%;"></div>
           <div class="chart-grid-line" style="bottom: 75%;"></div>
-          <canvas id="vpn-chart" width="300" height="120" style="position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; border-radius: 12px;"></canvas>
+          <canvas id="vpn-chart" width="300" height="120"
+            style="position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; border-radius: 12px;"></canvas>
         </div>
       </div>
       <div class="modal-buttons" style="margin-top: 20px;">
-        <button class="btn btn-primary" onclick="closeModal()" data-translate="close_button" style="width: 100%;">Schließen</button>
+        <button class="btn btn-primary" onclick="closeModal()" data-translate="close_button"
+          style="width: 100%;">Schließen</button>
       </div>
     </div>
 
@@ -701,38 +928,71 @@
       <div class="modal-info" style="margin-bottom: 20px;">
         <div class="services-page-grid" style="padding: 0 12px; overflow-y: visible;">
           <a href="https://th-deg.de/de/mythdeg/it-services" target="_blank" class="service-card color-tech">
-            <div class="service-icon-wrapper"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg></div>
+            <div class="service-icon-wrapper"><svg viewBox="0 0 24 24">
+                <path
+                  d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z">
+                </path>
+              </svg></div>
             <span class="service-name" data-translate="service_tech">IT-Service</span>
           </a>
-          <a href="#" onclick="openIframeModal('https://docs.google.com/gview?embedded=true&url=' + encodeURIComponent('https://thabella.th-deg.de/thabella/opn/pdf/page/' + currentStudyGroup), 'Stundenplan (' + currentStudyGroup + ')', true); return false;" class="service-card color-schedule">
-            <div class="service-icon-wrapper"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div>
+          <a href="#"
+            onclick="openIframeModal('https://docs.google.com/gview?embedded=true&url=' + encodeURIComponent('https://thabella.th-deg.de/thabella/opn/pdf/page/' + currentStudyGroup), 'Stundenplan (' + currentStudyGroup + ')', true); return false;"
+            class="service-card color-schedule">
+            <div class="service-icon-wrapper"><svg viewBox="0 0 24 24">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg></div>
             <span class="service-name" data-translate="service_schedule">Stundenplan</span>
           </a>
-          <a href="https://www.th-deg.de/de/studierende/antraege-und-organisatorisches" target="_blank" class="service-card color-requests">
-            <div class="service-icon-wrapper"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg></div>
+          <a href="https://www.th-deg.de/de/studierende/antraege-und-organisatorisches" target="_blank"
+            class="service-card color-requests">
+            <div class="service-icon-wrapper"><svg viewBox="0 0 24 24">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+              </svg></div>
             <span class="service-name" data-translate="service_requests">Anträge</span>
           </a>
           <a href="https://ilearn.th-deg.de" class="service-card color-ilearn">
-            <div class="service-icon-wrapper"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg></div>
+            <div class="service-icon-wrapper"><svg viewBox="0 0 24 24">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+              </svg></div>
             <span class="service-name" data-translate="service_ilearn">iLearn</span>
           </a>
           <a href="https://opac.th-deg.de" target="_blank" class="service-card color-library">
-            <div class="service-icon-wrapper"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg></div>
+            <div class="service-icon-wrapper"><svg viewBox="0 0 24 24">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+              </svg></div>
             <span class="service-name" data-translate="service_library">Bibliothek</span>
           </a>
           <a href="https://github.com/TobiasjSchreiber/THD-APP" target="_blank" class="service-card color-faq">
-            <div class="service-icon-wrapper"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></div>
+            <div class="service-icon-wrapper"><svg viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+              </svg></div>
             <span class="service-name" data-translate="service_faq">Hilfe & FAQ</span>
           </a>
         </div>
       </div>
-      <button class="btn btn-primary" onclick="closeModal()" data-translate="close_button" style="width: 100%;">Schließen</button>
+      <button class="btn btn-primary" onclick="closeModal()" data-translate="close_button"
+        style="width: 100%;">Schließen</button>
     </div>
 
     <div id="contact-modal" class="modal">
       <div class="modal-header" style="text-align: center; margin-bottom: 25px;">
-        <div id="contact-pic-container" style="width: 80px; height: 80px; margin: 0 auto 10px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background-color: var(--card-bg);">
-          <svg id="contact-pic-svg" width="80" height="80" viewBox="0 0 24 24" stroke="var(--text-sub)" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        <div id="contact-pic-container"
+          style="width: 80px; height: 80px; margin: 0 auto 10px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background-color: var(--card-bg);">
+          <svg id="contact-pic-svg" width="80" height="80" viewBox="0 0 24 24" stroke="var(--text-sub)" fill="none"
+            stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
         </div>
         <h3 id="contact-popup-name" class="modal-title">Kontaktname</h3>
         <p id="contact-popup-faculty" class="modal-subtitle">Fakultät</p>
@@ -746,15 +1006,22 @@
     <div id="iframe-modal" class="modal" style="height: 85vh; max-width: 600px; display: flex; flex-direction: column;">
       <div class="modal-header" style="flex-shrink: 0; margin-bottom: 15px; position: relative;">
         <h3 id="iframe-modal-title" class="modal-title">Dokument</h3>
-        <svg id="iframe-settings-gear-icon" class="header-icon-svg" viewBox="0 0 24 24" onclick="openScheduleSettingsModal('iframe')" style="position: absolute; right: 0; top: 0; width: 22px; height: 22px; display: none;">
-            <circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        <svg id="iframe-settings-gear-icon" class="header-icon-svg" viewBox="0 0 24 24"
+          onclick="openScheduleSettingsModal('iframe')"
+          style="position: absolute; right: 0; top: 0; width: 22px; height: 22px; display: none;">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path
+            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+          </path>
         </svg>
       </div>
-      <div class="modal-info" style="flex: 1; padding: 0; margin-bottom: 20px; overflow: hidden; border-radius: 12px; background-color: #fff;">
+      <div class="modal-info"
+        style="flex: 1; padding: 0; margin-bottom: 20px; overflow: hidden; border-radius: 12px; background-color: #fff;">
         <iframe id="iframe-modal-content" src="" style="width: 100%; height: 100%; border: none;"></iframe>
       </div>
       <div class="modal-buttons" style="flex-shrink: 0;">
-        <button class="btn btn-primary" onclick="closeModal()" data-translate="close_button" style="width: 100%;">Schließen</button>
+        <button class="btn btn-primary" onclick="closeModal()" data-translate="close_button"
+          style="width: 100%;">Schließen</button>
       </div>
     </div>
 
@@ -762,11 +1029,13 @@
       <div class="modal-header">
         <h3 class="modal-title" data-translate="widget_settings_title">Widgets anpassen</h3>
       </div>
-      <div class="modal-info" style="margin-bottom: 20px; max-height: 60vh; overflow-y: auto; overflow-x: hidden; padding-right: 5px;">
+      <div class="modal-info"
+        style="margin-bottom: 20px; max-height: 60vh; overflow-y: auto; overflow-x: hidden; padding-right: 5px;">
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px;">
 
           <!-- Statistiken -->
-          <div class="widget-preview-card" style="background: var(--card-bg); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 10px; border: 1px solid var(--border-color); position: relative;">
+          <div class="widget-preview-card"
+            style="background: var(--card-bg); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 10px; border: 1px solid var(--border-color); position: relative;">
             <div style="display: flex; justify-content: space-between; align-items: center; z-index: 2;">
               <span data-translate="widget_ects" style="font-size: 13px; font-weight: 600;">Statistiken</span>
               <label class="toggle-switch" style="transform: scale(0.65); transform-origin: right; margin: -5px 0;">
@@ -774,14 +1043,16 @@
                 <span class="toggle-slider"></span>
               </label>
             </div>
-            <div style="background: var(--item-bg); border-radius: 10px; height: 50px; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.7;">
+            <div
+              style="background: var(--item-bg); border-radius: 10px; height: 50px; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.7;">
               <div style="font-size: 20px; font-weight: 300; line-height: 1;">78</div>
               <div style="font-size: 8px; color: var(--text-sub); margin-top: 2px;">ECTS</div>
             </div>
           </div>
 
           <!-- Stundenplan -->
-          <div class="widget-preview-card" style="background: var(--card-bg); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 10px; border: 1px solid var(--border-color); position: relative;">
+          <div class="widget-preview-card"
+            style="background: var(--card-bg); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 10px; border: 1px solid var(--border-color); position: relative;">
             <div style="display: flex; justify-content: space-between; align-items: center; z-index: 2;">
               <span data-translate="widget_schedule" style="font-size: 13px; font-weight: 600;">Stundenplan</span>
               <label class="toggle-switch" style="transform: scale(0.65); transform-origin: right; margin: -5px 0;">
@@ -789,15 +1060,21 @@
                 <span class="toggle-slider"></span>
               </label>
             </div>
-            <div style="background: var(--item-bg); border-radius: 10px; height: 50px; display: flex; flex-direction: column; justify-content: center; padding: 0 10px; opacity: 0.7; position: relative; overflow: hidden;">
-              <div style="position: absolute; left: 0; top: 0; bottom: 0; width: 60%; background: var(--accent-blue); opacity: 0.1;"></div>
-              <div style="width: 70%; height: 6px; background: var(--text-main); border-radius: 3px; margin-bottom: 4px; z-index: 1;"></div>
+            <div
+              style="background: var(--item-bg); border-radius: 10px; height: 50px; display: flex; flex-direction: column; justify-content: center; padding: 0 10px; opacity: 0.7; position: relative; overflow: hidden;">
+              <div
+                style="position: absolute; left: 0; top: 0; bottom: 0; width: 60%; background: var(--accent-blue); opacity: 0.1;">
+              </div>
+              <div
+                style="width: 70%; height: 6px; background: var(--text-main); border-radius: 3px; margin-bottom: 4px; z-index: 1;">
+              </div>
               <div style="width: 40%; height: 4px; background: var(--text-sub); border-radius: 2px; z-index: 1;"></div>
             </div>
           </div>
 
           <!-- Mensa -->
-          <div class="widget-preview-card" style="background: var(--card-bg); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 10px; border: 1px solid var(--border-color); position: relative;">
+          <div class="widget-preview-card"
+            style="background: var(--card-bg); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 10px; border: 1px solid var(--border-color); position: relative;">
             <div style="display: flex; justify-content: space-between; align-items: center; z-index: 2;">
               <span data-translate="widget_mensa" style="font-size: 13px; font-weight: 600;">Mensa</span>
               <label class="toggle-switch" style="transform: scale(0.65); transform-origin: right; margin: -5px 0;">
@@ -805,7 +1082,8 @@
                 <span class="toggle-slider"></span>
               </label>
             </div>
-            <div style="background: var(--item-bg); border-radius: 10px; height: 50px; display: flex; flex-direction: column; justify-content: center; padding: 0 10px; opacity: 0.7;">
+            <div
+              style="background: var(--item-bg); border-radius: 10px; height: 50px; display: flex; flex-direction: column; justify-content: center; padding: 0 10px; opacity: 0.7;">
               <div style="font-size: 14px; font-weight: 600; margin-bottom: 2px;">12,00€</div>
               <div style="display: flex; justify-content: space-between; align-items: center;">
                 <div style="width: 50%; height: 4px; background: var(--text-sub); border-radius: 2px;"></div>
@@ -815,24 +1093,29 @@
           </div>
 
           <!-- Parkplatz -->
-          <div class="widget-preview-card" style="background: var(--card-bg); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 10px; border: 1px solid var(--border-color); position: relative;">
+          <div class="widget-preview-card"
+            style="background: var(--card-bg); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 10px; border: 1px solid var(--border-color); position: relative;">
             <div style="display: flex; justify-content: space-between; align-items: center; z-index: 2;">
-              <span data-translate="widget_parking" style="font-size: 13px; font-weight: 600;">Parkplatz</span>
+              <span data-translate="widget_parking" style="font-size: 13px; font-weight: 600;">Parkhaus</span>
               <label class="toggle-switch" style="transform: scale(0.65); transform-origin: right; margin: -5px 0;">
                 <input type="checkbox" class="toggle-input" checked onchange="toggleWidget('widget-parking', this)">
                 <span class="toggle-slider"></span>
               </label>
             </div>
-            <div style="background: var(--item-bg); border-radius: 10px; height: 50px; display: flex; flex-direction: column; justify-content: center; padding: 0 10px; opacity: 0.7;">
-               <div style="width: 100%; height: 6px; background: var(--progress-bg); border-radius: 3px; overflow: hidden;">
-                 <div style="width: 85%; height: 100%; background: #FF3B30;"></div>
-               </div>
-               <div style="width: 60%; height: 4px; background: var(--text-sub); border-radius: 2px; margin-top: 6px;"></div>
+            <div
+              style="background: var(--item-bg); border-radius: 10px; height: 50px; display: flex; flex-direction: column; justify-content: center; padding: 0 10px; opacity: 0.7;">
+              <div
+                style="width: 100%; height: 6px; background: var(--progress-bg); border-radius: 3px; overflow: hidden;">
+                <div style="width: 85%; height: 100%; background: #FF3B30;"></div>
+              </div>
+              <div style="width: 60%; height: 4px; background: var(--text-sub); border-radius: 2px; margin-top: 6px;">
+              </div>
             </div>
           </div>
 
           <!-- Verleih -->
-          <div class="widget-preview-card" style="background: var(--card-bg); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 10px; border: 1px solid var(--border-color); position: relative;">
+          <div class="widget-preview-card"
+            style="background: var(--card-bg); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 10px; border: 1px solid var(--border-color); position: relative;">
             <div style="display: flex; justify-content: space-between; align-items: center; z-index: 2;">
               <span data-translate="widget_rental" style="font-size: 13px; font-weight: 600;">Verleih</span>
               <label class="toggle-switch" style="transform: scale(0.65); transform-origin: right; margin: -5px 0;">
@@ -840,7 +1123,8 @@
                 <span class="toggle-slider"></span>
               </label>
             </div>
-            <div style="background: var(--item-bg); border-radius: 10px; height: 50px; display: flex; flex-direction: column; justify-content: center; padding: 0 10px; opacity: 0.7;">
+            <div
+              style="background: var(--item-bg); border-radius: 10px; height: 50px; display: flex; flex-direction: column; justify-content: center; padding: 0 10px; opacity: 0.7;">
               <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
                 <div style="width: 40%; height: 4px; background: var(--text-main); border-radius: 2px;"></div>
                 <div style="width: 25%; height: 4px; background: var(--accent-orange); border-radius: 2px;"></div>
@@ -853,7 +1137,8 @@
           </div>
 
           <!-- Wetter -->
-          <div class="widget-preview-card" style="background: var(--card-bg); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 10px; border: 1px solid var(--border-color); position: relative;">
+          <div class="widget-preview-card"
+            style="background: var(--card-bg); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 10px; border: 1px solid var(--border-color); position: relative;">
             <div style="display: flex; justify-content: space-between; align-items: center; z-index: 2;">
               <span data-translate="widget_weather" style="font-size: 13px; font-weight: 600;">Wetter</span>
               <label class="toggle-switch" style="transform: scale(0.65); transform-origin: right; margin: -5px 0;">
@@ -861,21 +1146,25 @@
                 <span class="toggle-slider"></span>
               </label>
             </div>
-            <div style="background: var(--item-bg); border-radius: 10px; height: 50px; display: flex; flex-direction: column; justify-content: center; padding: 0 10px; opacity: 0.7; position: relative;">
-              <div id="settings-weather-icon-container" style="position: absolute; right: 10px; top: 12px; width: 24px; height: 24px;">
-                <svg viewBox="0 0 24 24" width="100%" height="100%" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="color: #FF9500; overflow: visible;">
-                    <g class="weather-sun">
-                        <circle cx="12" cy="12" r="5"></circle>
-                        <line x1="12" y1="1" x2="12" y2="3"></line>
-                        <line x1="12" y1="21" x2="12" y2="23"></line>
-                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                        <line x1="1" y1="12" x2="3" y2="12"></line>
-                        <line x1="21" y1="12" x2="23" y2="12"></line>
-                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-                    </g>
-                  <path class="weather-cloud" style="fill: var(--card-bg); stroke: var(--text-main);" d="M7 19h10a4.5 4.5 0 0 0 .68-8.95a6 6 0 0 0-11.36 0A4.5 4.5 0 0 0 7 19Z"></path>
+            <div
+              style="background: var(--item-bg); border-radius: 10px; height: 50px; display: flex; flex-direction: column; justify-content: center; padding: 0 10px; opacity: 0.7; position: relative;">
+              <div id="settings-weather-icon-container"
+                style="position: absolute; right: 10px; top: 12px; width: 24px; height: 24px;">
+                <svg viewBox="0 0 24 24" width="100%" height="100%" stroke="currentColor" stroke-width="1.5" fill="none"
+                  stroke-linecap="round" stroke-linejoin="round" style="color: #FF9500; overflow: visible;">
+                  <g class="weather-sun">
+                    <circle cx="12" cy="12" r="5"></circle>
+                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                  </g>
+                  <path class="weather-cloud" style="fill: var(--card-bg); stroke: var(--text-main);"
+                    d="M7 19h10a4.5 4.5 0 0 0 .68-8.95a6 6 0 0 0-11.36 0A4.5 4.5 0 0 0 7 19Z"></path>
                 </svg>
               </div>
               <div style="font-size: 14px; font-weight: 600; margin-bottom: 2px;">24°C</div>
@@ -884,7 +1173,8 @@
           </div>
 
           <!-- To-Do Liste -->
-          <div class="widget-preview-card" style="background: var(--card-bg); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 10px; border: 1px solid var(--border-color); position: relative;">
+          <div class="widget-preview-card"
+            style="background: var(--card-bg); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 10px; border: 1px solid var(--border-color); position: relative;">
             <div style="display: flex; justify-content: space-between; align-items: center; z-index: 2;">
               <span data-translate="widget_todo" style="font-size: 13px; font-weight: 600;">To-Do Liste</span>
               <label class="toggle-switch" style="transform: scale(0.65); transform-origin: right; margin: -5px 0;">
@@ -892,22 +1182,30 @@
                 <span class="toggle-slider"></span>
               </label>
             </div>
-            <div style="background: var(--item-bg); border-radius: 10px; height: 50px; display: flex; flex-direction: column; justify-content: center; padding: 0 10px; gap: 6px; opacity: 0.7;">
+            <div
+              style="background: var(--item-bg); border-radius: 10px; height: 50px; display: flex; flex-direction: column; justify-content: center; padding: 0 10px; gap: 6px; opacity: 0.7;">
               <div style="display: flex; align-items: center; gap: 6px;">
-                 <div style="width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid var(--accent-blue); box-sizing: border-box;"></div>
-                 <div style="width: 60%; height: 4px; background: var(--text-main); border-radius: 2px;"></div>
+                <div
+                  style="width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid var(--accent-blue); box-sizing: border-box;">
+                </div>
+                <div style="width: 60%; height: 4px; background: var(--text-main); border-radius: 2px;"></div>
               </div>
               <div style="display: flex; align-items: center; gap: 6px;">
-                 <div style="width: 10px; height: 10px; border-radius: 50%; background: var(--accent-blue); position: relative; box-sizing: border-box;">
-                    <svg viewBox="0 0 24 24" width="6" height="6" style="position: absolute; top: 2px; left: 2px; stroke: white; stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round;"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                 </div>
-                 <div style="width: 40%; height: 4px; background: var(--text-sub); border-radius: 2px;"></div>
+                <div
+                  style="width: 10px; height: 10px; border-radius: 50%; background: var(--accent-blue); position: relative; box-sizing: border-box;">
+                  <svg viewBox="0 0 24 24" width="6" height="6"
+                    style="position: absolute; top: 2px; left: 2px; stroke: white; stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round;">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+                <div style="width: 40%; height: 4px; background: var(--text-sub); border-radius: 2px;"></div>
               </div>
             </div>
           </div>
 
           <!-- VPN -->
-          <div class="widget-preview-card" style="background: var(--card-bg); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 10px; border: 1px solid var(--border-color); position: relative;">
+          <div class="widget-preview-card"
+            style="background: var(--card-bg); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 10px; border: 1px solid var(--border-color); position: relative;">
             <div style="display: flex; justify-content: space-between; align-items: center; z-index: 2;">
               <span data-translate="widget_vpn" style="font-size: 13px; font-weight: 600;">VPN</span>
               <label class="toggle-switch" style="transform: scale(0.65); transform-origin: right; margin: -5px 0;">
@@ -915,36 +1213,51 @@
                 <span class="toggle-slider"></span>
               </label>
             </div>
-            <div style="background: var(--item-bg); border-radius: 10px; height: 50px; display: flex; flex-direction: column; justify-content: center; padding: 0 10px; opacity: 0.7;">
-               <div style="display: flex; align-items: center; justify-content: space-between;">
-                 <div>
-                   <div style="width: 24px; height: 6px; background: var(--text-main); border-radius: 3px; margin-bottom: 4px;"></div>
-                   <div style="width: 40px; height: 4px; background: #34C759; border-radius: 2px;"></div>
-                 </div>
-                 <div style="width: 20px; height: 12px; background: #34C759; border-radius: 6px; position: relative;">
-                    <div style="width: 10px; height: 10px; background: white; border-radius: 50%; position: absolute; right: 1px; top: 1px;"></div>
-                 </div>
-               </div>
+            <div
+              style="background: var(--item-bg); border-radius: 10px; height: 50px; display: flex; flex-direction: column; justify-content: center; padding: 0 10px; opacity: 0.7;">
+              <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                  <div
+                    style="width: 24px; height: 6px; background: var(--text-main); border-radius: 3px; margin-bottom: 4px;">
+                  </div>
+                  <div style="width: 40px; height: 4px; background: #34C759; border-radius: 2px;"></div>
+                </div>
+                <div style="width: 20px; height: 12px; background: #34C759; border-radius: 6px; position: relative;">
+                  <div
+                    style="width: 10px; height: 10px; background: white; border-radius: 50%; position: absolute; right: 1px; top: 1px;">
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
           <!-- Dienste -->
-          <div class="widget-preview-card" style="background: rgba(58, 130, 247, 0.05); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 10px; border: 1px solid rgba(58, 130, 247, 0.2); position: relative;">
+          <div class="widget-preview-card"
+            style="background: rgba(58, 130, 247, 0.05); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 10px; border: 1px solid rgba(58, 130, 247, 0.2); position: relative;">
             <div style="display: flex; justify-content: space-between; align-items: center; z-index: 2;">
-              <span data-translate="widget_services" style="font-size: 13px; font-weight: 600; color: var(--accent-blue);">Dienste</span>
+              <span data-translate="widget_services"
+                style="font-size: 13px; font-weight: 600; color: var(--accent-blue);">Dienste</span>
               <label class="toggle-switch" style="transform: scale(0.65); transform-origin: right; margin: -5px 0;">
                 <input type="checkbox" class="toggle-input" checked onchange="toggleWidget('widget-services', this)">
                 <span class="toggle-slider"></span>
               </label>
             </div>
-            <div style="background: rgba(58, 130, 247, 0.1); border-radius: 10px; height: 50px; display: flex; align-items: center; justify-content: center; opacity: 0.7;">
-              <svg viewBox="0 0 24 24" width="20" height="20" style="stroke: var(--accent-blue); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;"><rect x="3" y="3" width="7" height="7" rx="2"></rect><rect x="14" y="3" width="7" height="7" rx="2"></rect><rect x="14" y="14" width="7" height="7" rx="2"></rect><rect x="3" y="14" width="7" height="7" rx="2"></rect></svg>
+            <div
+              style="background: rgba(58, 130, 247, 0.1); border-radius: 10px; height: 50px; display: flex; align-items: center; justify-content: center; opacity: 0.7;">
+              <svg viewBox="0 0 24 24" width="20" height="20"
+                style="stroke: var(--accent-blue); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;">
+                <rect x="3" y="3" width="7" height="7" rx="2"></rect>
+                <rect x="14" y="3" width="7" height="7" rx="2"></rect>
+                <rect x="14" y="14" width="7" height="7" rx="2"></rect>
+                <rect x="3" y="14" width="7" height="7" rx="2"></rect>
+              </svg>
             </div>
           </div>
 
         </div>
       </div>
-      <button class="btn btn-primary" onclick="closeModal()" data-translate="close_button" style="width: 100%;">Schließen</button>
+      <button class="btn btn-primary" onclick="closeModal()" data-translate="close_button"
+        style="width: 100%;">Schließen</button>
     </div>
 
     <div class="content-area" id="swipe-area">
@@ -952,225 +1265,286 @@
         <div class="header">
           <div class="segmented-control" id="mail-segments">
             <div class="segment-highlight"></div>
-            <button class="segment-btn active" onclick="switchNotificationView('mails', this)" data-translate="mails_header">Mail</button>
-            <button class="segment-btn" onclick="switchNotificationView('ilearn', this)" data-translate="ilearn_header">iLearn</button>
+            <button class="segment-btn active" onclick="switchNotificationView('mails', this)"
+              data-translate="mails_header">Mail</button>
+            <button class="segment-btn" onclick="switchNotificationView('ilearn', this)"
+              data-translate="ilearn_header">iLearn</button>
           </div>
           <div class="selection-header">
             <button class="btn-text" onclick="toggleSelectionMode()" data-translate="cancel_button">Abbrechen</button>
             <span id="selection-count" style="font-size: 16px; font-weight: 600;"></span>
-            <button class="btn-text" id="delete-selected-btn" onclick="requestDeleteConfirmation()" data-translate="delete_button" style="cursor: default; color: var(--text-sub);">Löschen</button>
+            <button class="btn-text" id="delete-selected-btn" onclick="requestDeleteConfirmation()"
+              data-translate="delete_button" style="cursor: default; color: var(--text-sub);">Löschen</button>
           </div>
           <svg class="header-icon-svg" id="mails-trash-icon" viewBox="0 0 24 24" onclick="toggleSelectionMode()">
-            <g class="trash-lid-group"><polyline class="trash-lid" points="3 6 5 6 21 6"></polyline><path class="trash-handle" d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></g>
+            <g class="trash-lid-group">
+              <polyline class="trash-lid" points="3 6 5 6 21 6"></polyline>
+              <path class="trash-handle" d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </g>
             <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
           </svg>
         </div>
-        
+
         <div class="notification-views-wrapper" style="flex: 1; overflow: hidden; width: 100%; position: relative;">
-          <div class="notification-views-container" id="notification-container" style="display: flex; height: 100%; width: 200%; transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);">
-        <div id="mails-view" class="notification-view active" style="flex: 1 0 50%; display: flex; flex-direction: column; height: 100%; overflow: hidden;">
-          <div class="mail-list">
-            <div class="mail-item unread">
-              <div class="swipe-zone"></div> <div class="selection-indicator">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          <div class="notification-views-container" id="notification-container"
+            style="display: flex; height: 100%; width: 200%; transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);">
+            <div id="mails-view" class="notification-view active"
+              style="flex: 1 0 50%; display: flex; flex-direction: column; height: 100%; overflow: hidden;">
+              <div class="mail-list">
+                <div class="mail-item unread">
+                  <div class="swipe-zone"></div>
+                  <div class="selection-indicator">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                  </div>
+                  <div class="mail-top">
+                    <span class="mail-sender">Prof. Dr. Schmidt</span>
+                    <span class="mail-time">09:41</span>
+                  </div>
+                  <div class="mail-subject">Ausfall der heutigen Vorlesung</div>
+                  <div class="mail-preview">Liebe Studierende, leider muss die Vorlesung in Mathematik heute
+                    krankheitsbedingt entfallen.</div>
+                </div>
+
+                <div class="mail-item unread">
+                  <div class="swipe-zone"></div>
+                  <div class="selection-indicator">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                  </div>
+                  <div class="mail-top">
+                    <span class="mail-sender">Prüfungsamt</span>
+                    <span class="mail-time">Gestern</span>
+                  </div>
+                  <div class="mail-subject">Prüfungsanmeldung freigeschaltet</div>
+                  <div class="mail-preview">Der Zeitraum für die Prüfungsanmeldung im Sommersemester hat begonnen. Bitte
+                    melden Sie sich zeitnah im Portal an.</div>
+                </div>
+
+                <div class="mail-item">
+                  <div class="selection-indicator">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                  </div>
+                  <div class="mail-top">
+                    <span class="mail-sender">Bibliothek</span>
+                    <span class="mail-time">Mo.</span>
+                  </div>
+                  <div class="mail-subject">Erinnerung: Rückgabefrist läuft ab</div>
+                  <div class="mail-preview">Die Leihfrist für Ihre ausgeliehenen Medien (2) läuft in 3 Tagen ab. Sie
+                    können diese online verlängern.</div>
+                </div>
+
+                <div class="mail-item">
+                  <div class="selection-indicator">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                  </div>
+                  <div class="mail-top">
+                    <span class="mail-sender">Mensa-Team</span>
+                    <span class="mail-time">Fr.</span>
+                  </div>
+                  <div class="mail-subject">Neuer Speiseplan für nächste Woche</div>
+                  <div class="mail-preview">Hallo zusammen, der neue Speiseplan ist online. Nächste Woche gibt es wieder
+                    Burger!</div>
+                </div>
+
+                <div class="mail-item">
+                  <div class="selection-indicator">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                  </div>
+                  <div class="mail-top">
+                    <span class="mail-sender">iLearn-System</span>
+                    <span class="mail-time">12. Mai</span>
+                  </div>
+                  <div class="mail-subject">Neue Bewertung in "Mediengestaltung"</div>
+                  <div class="mail-preview">Ihre Abgabe wurde bewertet. Sie haben 15/15 Punkten erreicht.</div>
+                </div>
+
+                <div class="mail-item">
+                  <div class="selection-indicator">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                  </div>
+                  <div class="mail-top">
+                    <span class="mail-sender">Hochschulsport</span>
+                    <span class="mail-time">11. Mai</span>
+                  </div>
+                  <div class="mail-subject">Anmeldung für Sommerkurse</div>
+                  <div class="mail-preview">Die Anmeldung für die Sommerkurse ist ab sofort möglich. Es sind noch Plätze
+                    frei!</div>
+                </div>
+
+                <div class="mail-item">
+                  <div class="selection-indicator">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                  </div>
+                  <div class="mail-top">
+                    <span class="mail-sender">IT-Support</span>
+                    <span class="mail-time">08. Mai</span>
+                  </div>
+                  <div class="mail-subject">Wartungsarbeiten am Wochenende</div>
+                  <div class="mail-preview">Am kommenden Samstag werden wir zwischen 8 und 12 Uhr Wartungsarbeiten am
+                    Netzwerk durchführen.</div>
+                </div>
+
+                <div class="mail-item">
+                  <div class="selection-indicator">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                  </div>
+                  <div class="mail-top">
+                    <span class="mail-sender">Career Service</span>
+                    <span class="mail-time">05. Mai</span>
+                  </div>
+                  <div class="mail-subject">Einladung zum Online-Bewerbungscheck</div>
+                  <div class="mail-preview">Lassen Sie Ihre Bewerbungsunterlagen von Profis prüfen. Nächster Termin am
+                    Donnerstag.</div>
+                </div>
+
+                <div class="mail-item unread">
+                  <div class="selection-indicator">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                  </div>
+                  <div class="mail-top">
+                    <span class="mail-sender">Tutorium Programmieren</span>
+                    <span class="mail-time">04. Mai</span>
+                  </div>
+                  <div class="mail-subject">Zusätzlicher Termin vor der Klausur</div>
+                  <div class="mail-preview">Wegen hoher Nachfrage bieten wir einen weiteren Tutoriumstermin an.</div>
+                </div>
+
+                <div class="mail-item">
+                  <div class="selection-indicator">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                  </div>
+                  <div class="mail-top">
+                    <span class="mail-sender">AStA</span>
+                    <span class="mail-time">02. Mai</span>
+                  </div>
+                  <div class="mail-subject">Sommerfest der Hochschule</div>
+                  <div class="mail-preview">Wir laden euch herzlich zum diesjährigen Sommerfest auf dem Campus ein!
+                  </div>
+                </div>
+
+                <div class="mail-item">
+                  <div class="selection-indicator">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                  </div>
+                  <div class="mail-top">
+                    <span class="mail-sender">Dekanat</span>
+                    <span class="mail-time">30. Apr</span>
+                  </div>
+                  <div class="mail-subject">Evaluation der Lehre</div>
+                  <div class="mail-preview">Bitte nehmen Sie sich kurz Zeit, um die Lehrveranstaltungen des aktuellen
+                    Semesters zu bewerten.</div>
+                </div>
               </div>
-              <div class="mail-top">
-                <span class="mail-sender">Prof. Dr. Schmidt</span>
-                <span class="mail-time">09:41</span>
-              </div>
-              <div class="mail-subject">Ausfall der heutigen Vorlesung</div>
-              <div class="mail-preview">Liebe Studierende, leider muss die Vorlesung in Mathematik heute krankheitsbedingt entfallen.</div>
-            </div>
-            
-            <div class="mail-item unread">
-              <div class="swipe-zone"></div> <div class="selection-indicator">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"></polyline></svg>
-              </div>
-              <div class="mail-top">
-                <span class="mail-sender">Prüfungsamt</span>
-                <span class="mail-time">Gestern</span>
-              </div>
-              <div class="mail-subject">Prüfungsanmeldung freigeschaltet</div>
-              <div class="mail-preview">Der Zeitraum für die Prüfungsanmeldung im Sommersemester hat begonnen. Bitte melden Sie sich zeitnah im Portal an.</div>
-            </div>
-            
-            <div class="mail-item">
-              <div class="selection-indicator">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"></polyline></svg>
-              </div>
-              <div class="mail-top">
-                <span class="mail-sender">Bibliothek</span>
-                <span class="mail-time">Mo.</span>
-              </div>
-              <div class="mail-subject">Erinnerung: Rückgabefrist läuft ab</div>
-              <div class="mail-preview">Die Leihfrist für Ihre ausgeliehenen Medien (2) läuft in 3 Tagen ab. Sie können diese online verlängern.</div>
             </div>
 
-            <div class="mail-item">
-              <div class="selection-indicator">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <div id="ilearn-view" class="notification-view"
+              style="flex: 1 0 50%; display: flex; flex-direction: column; height: 100%; overflow: hidden;">
+              <div class="mail-list">
+                <div class="mail-item unread">
+                  <div class="swipe-zone"></div>
+                  <div class="selection-indicator">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                  </div>
+                  <div class="mail-top">
+                    <span class="mail-sender">System</span>
+                    <span class="mail-time">Vor 5 Min</span>
+                  </div>
+                  <div class="mail-subject">Übungsblatt 4 hochgeladen</div>
+                  <div class="mail-preview">In "Mathematik" wurde "Übungsblatt_4.pdf" hinzugefügt.</div>
+                </div>
+
+                <div class="mail-item unread">
+                  <div class="swipe-zone"></div>
+                  <div class="selection-indicator">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                  </div>
+                  <div class="mail-top">
+                    <span class="mail-sender">Prof. Weber</span>
+                    <span class="mail-time">Heute, 08:30</span>
+                  </div>
+                  <div class="mail-subject">Erinnerung: Skizzenbuch abgeben</div>
+                  <div class="mail-preview">Die Abgabe für das Skizzenbuch endet heute um 23:59 Uhr. Bitte rechtzeitig
+                    hochladen.</div>
+                </div>
+
+                <div class="mail-item">
+                  <div class="selection-indicator">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                  </div>
+                  <div class="mail-top">
+                    <span class="mail-sender">System</span>
+                    <span class="mail-time">Gestern</span>
+                  </div>
+                  <div class="mail-subject">Note veröffentlicht</div>
+                  <div class="mail-preview">Deine Bewertung für die Abgabe in "Mediengestaltung" ist jetzt verfügbar.
+                  </div>
+                </div>
               </div>
-              <div class="mail-top">
-                <span class="mail-sender">Mensa-Team</span>
-                <span class="mail-time">Fr.</span>
-              </div>
-              <div class="mail-subject">Neuer Speiseplan für nächste Woche</div>
-              <div class="mail-preview">Hallo zusammen, der neue Speiseplan ist online. Nächste Woche gibt es wieder Burger!</div>
             </div>
-
-            <div class="mail-item">
-              <div class="selection-indicator">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"></polyline></svg>
-              </div>
-              <div class="mail-top">
-                <span class="mail-sender">iLearn-System</span>
-                <span class="mail-time">12. Mai</span>
-              </div>
-              <div class="mail-subject">Neue Bewertung in "Mediengestaltung"</div>
-              <div class="mail-preview">Ihre Abgabe wurde bewertet. Sie haben 15/15 Punkten erreicht.</div>
-            </div>
-
-          <div class="mail-item">
-            <div class="selection-indicator">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"></polyline></svg>
-            </div>
-            <div class="mail-top">
-              <span class="mail-sender">Hochschulsport</span>
-              <span class="mail-time">11. Mai</span>
-            </div>
-            <div class="mail-subject">Anmeldung für Sommerkurse</div>
-            <div class="mail-preview">Die Anmeldung für die Sommerkurse ist ab sofort möglich. Es sind noch Plätze frei!</div>
-          </div>
-
-          <div class="mail-item">
-            <div class="selection-indicator">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"></polyline></svg>
-            </div>
-            <div class="mail-top">
-              <span class="mail-sender">IT-Support</span>
-              <span class="mail-time">08. Mai</span>
-            </div>
-            <div class="mail-subject">Wartungsarbeiten am Wochenende</div>
-            <div class="mail-preview">Am kommenden Samstag werden wir zwischen 8 und 12 Uhr Wartungsarbeiten am Netzwerk durchführen.</div>
-          </div>
-
-          <div class="mail-item">
-            <div class="selection-indicator">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"></polyline></svg>
-            </div>
-            <div class="mail-top">
-              <span class="mail-sender">Career Service</span>
-              <span class="mail-time">05. Mai</span>
-            </div>
-            <div class="mail-subject">Einladung zum Online-Bewerbungscheck</div>
-            <div class="mail-preview">Lassen Sie Ihre Bewerbungsunterlagen von Profis prüfen. Nächster Termin am Donnerstag.</div>
-          </div>
-
-          <div class="mail-item unread">
-            <div class="selection-indicator">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"></polyline></svg>
-            </div>
-            <div class="mail-top">
-              <span class="mail-sender">Tutorium Programmieren</span>
-              <span class="mail-time">04. Mai</span>
-            </div>
-            <div class="mail-subject">Zusätzlicher Termin vor der Klausur</div>
-            <div class="mail-preview">Wegen hoher Nachfrage bieten wir einen weiteren Tutoriumstermin an.</div>
-          </div>
-
-          <div class="mail-item">
-            <div class="selection-indicator">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"></polyline></svg>
-            </div>
-            <div class="mail-top">
-              <span class="mail-sender">AStA</span>
-              <span class="mail-time">02. Mai</span>
-            </div>
-            <div class="mail-subject">Sommerfest der Hochschule</div>
-            <div class="mail-preview">Wir laden euch herzlich zum diesjährigen Sommerfest auf dem Campus ein!</div>
-          </div>
-
-          <div class="mail-item">
-            <div class="selection-indicator">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"></polyline></svg>
-            </div>
-            <div class="mail-top">
-              <span class="mail-sender">Dekanat</span>
-              <span class="mail-time">30. Apr</span>
-            </div>
-            <div class="mail-subject">Evaluation der Lehre</div>
-            <div class="mail-preview">Bitte nehmen Sie sich kurz Zeit, um die Lehrveranstaltungen des aktuellen Semesters zu bewerten.</div>
-          </div>
           </div>
         </div>
 
-        <div id="ilearn-view" class="notification-view" style="flex: 1 0 50%; display: flex; flex-direction: column; height: 100%; overflow: hidden;">
-          <div class="mail-list">
-            <div class="mail-item unread">
-              <div class="swipe-zone"></div> <div class="selection-indicator">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"></polyline></svg>
-              </div>
-              <div class="mail-top">
-                <span class="mail-sender">System</span>
-                <span class="mail-time">Vor 5 Min</span>
-              </div>
-              <div class="mail-subject">Übungsblatt 4 hochgeladen</div>
-              <div class="mail-preview">In "Mathematik" wurde "Übungsblatt_4.pdf" hinzugefügt.</div>
-            </div>
-            
-            <div class="mail-item unread">
-              <div class="swipe-zone"></div> <div class="selection-indicator">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"></polyline></svg>
-              </div>
-              <div class="mail-top">
-                <span class="mail-sender">Prof. Weber</span>
-                <span class="mail-time">Heute, 08:30</span>
-              </div>
-              <div class="mail-subject">Erinnerung: Skizzenbuch abgeben</div>
-              <div class="mail-preview">Die Abgabe für das Skizzenbuch endet heute um 23:59 Uhr. Bitte rechtzeitig hochladen.</div>
-            </div>
-            
-            <div class="mail-item">
-              <div class="selection-indicator">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"></polyline></svg>
-              </div>
-              <div class="mail-top">
-                <span class="mail-sender">System</span>
-                <span class="mail-time">Gestern</span>
-              </div>
-              <div class="mail-subject">Note veröffentlicht</div>
-              <div class="mail-preview">Deine Bewertung für die Abgabe in "Mediengestaltung" ist jetzt verfügbar.</div>
-            </div>
-          </div>
+        <div class="fab-button" onclick="openComposeModal()">
+          <svg width="24" height="24" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
         </div>
-          </div>
-        </div>
-
-      <div class="fab-button" onclick="openComposeModal()">
-        <svg width="24" height="24" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="12" y1="5" x2="12" y2="19"></line>
-          <line x1="5" y1="12" x2="19" y2="12"></line>
-        </svg>
-      </div>
       </div>
 
       <div id="page-home" class="page active">
         <div class="header">
           <span data-translate="dashboard_header">Dashboard</span>
-          <svg class="header-icon-svg" viewBox="0 0 24 24" onclick="openWidgetSettingsModal()"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+          <svg class="header-icon-svg" viewBox="0 0 24 24" onclick="openWidgetSettingsModal()">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="16"></line>
+            <line x1="8" y1="12" x2="16" y2="12"></line>
+          </svg>
         </div>
 
-        <div id="empty-dashboard-msg" style="display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0; align-items: center; justify-content: center; font-size: 80px; font-weight: 800; color: var(--text-sub); opacity: 0.15; letter-spacing: -4px; z-index: 0; pointer-events: none;">
+        <div id="empty-dashboard-msg"
+          style="display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0; align-items: center; justify-content: center; font-size: 80px; font-weight: 800; color: var(--text-sub); opacity: 0.15; letter-spacing: -4px; z-index: 0; pointer-events: none;">
           fr?
         </div>
-        
+
         <!-- margin-top: auto drückt die Widgets bei viel Platz nach unten -->
         <div id="dashboard-top-spacer" style="height: 15px; flex-shrink: 0; margin-top: auto;"></div>
 
         <div class="top-widgets-row" id="widget-top-row">
           <div class="ects-free" id="widget-ects">
-            <div class="ects-item" onclick="openAiAssistantModal()" style="cursor: pointer; position: relative; overflow: hidden;">
-              <img id="ai-assistant-thumb" src="ai_neutral.png" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; object-position: top; transform: scaleX(-1) scale(1.15) translateY(-6%); z-index: 0;" onerror="this.src='data:image/svg+xml;utf8,<svg viewBox=\'0 0 24 24\' width=\'100%\' height=\'100%\' stroke=\'%23999\' fill=\'none\' stroke-width=\'1.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><circle cx=\'12\' cy=\'12\' r=\'10\'/><path d=\'M8 14s1.5 2 4 2 4-2 4-2\'/><line x1=\'9\' y1=\'9\' x2=\'9.01\' y2=\'9\'/><line x1=\'15\' y1=\'9\' x2=\'15.01\' y2=\'9\'/></svg>'">
+            <div class="ects-item" onclick="openAiAssistantModal()"
+              style="cursor: pointer; position: relative; overflow: hidden;">
+              <img id="ai-assistant-thumb" src="ai_neutral.png"
+                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; object-position: top; transform: scaleX(-1) scale(1.15) translateY(-6%); z-index: 0;"
+                onerror="this.src='data:image/svg+xml;utf8,<svg viewBox=\'0 0 24 24\' width=\'100%\' height=\'100%\' stroke=\'%23999\' fill=\'none\' stroke-width=\'1.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><circle cx=\'12\' cy=\'12\' r=\'10\'/><path d=\'M8 14s1.5 2 4 2 4-2 4-2\'/><line x1=\'9\' y1=\'9\' x2=\'9.01\' y2=\'9\'/><line x1=\'15\' y1=\'9\' x2=\'15.01\' y2=\'9\'/></svg>'">
               <div id="deggster-speech-bubble" class="deggster-bubble">Frag mich was!</div>
             </div>
             <div class="ects-item" onclick="jumpToElement('page-profil', 'profile-ects-card')" style="cursor: pointer;">
@@ -1181,20 +1555,23 @@
               <div class="ects-number sensitive-data" id="home-gpa-number">2,1</div>
               <div class="ects-label" data-translate="stats_gpa">Notenschnitt</div>
             </div>
-            <div class="ects-item" onclick="jumpToElement('page-profil', 'profile-study-time-card')" style="cursor: pointer;">
+            <div class="ects-item" onclick="jumpToElement('page-profil', 'profile-study-time-card')"
+              style="cursor: pointer;">
               <div class="ects-number ects-number-medium sensitive-data" id="home-studied-number">460</div>
               <div class="ects-label" data-translate="home_studied_label">Tage studiert</div>
             </div>
-            <div class="ects-item" onclick="jumpToElement('page-profil', 'profile-study-time-card')" style="cursor: pointer;">
+            <div class="ects-item" onclick="jumpToElement('page-profil', 'profile-study-time-card')"
+              style="cursor: pointer;">
               <div class="ects-number ects-number-medium sensitive-data" id="home-remaining-number">635</div>
               <div class="ects-label" data-translate="home_remaining_label">Tage übrig</div>
             </div>
             <div class="ects-item" onclick="openWebcamModal()" style="cursor: pointer;">
-              <img id="webcam-img-thumb" src="https://th-deg.de/static/images/webcam.jpg" style="width: 120px; height: 75px; object-fit: cover; border-radius: 16px; margin-bottom: 5px; border: 1px solid var(--border-color); background-color: var(--item-bg);">
+              <img id="webcam-img-thumb" src="https://th-deg.de/static/images/webcam.jpg"
+                style="width: 120px; height: 75px; object-fit: cover; border-radius: 16px; margin-bottom: 5px; border: 1px solid var(--border-color); background-color: var(--item-bg);">
               <div class="ects-label">Campus Webcam</div>
             </div>
           </div>
-          
+
           <div class="schedule-box" id="widget-schedule" onclick="openScheduleModal()" style="cursor: pointer;">
             <div class="schedule-item">
               <div class="schedule-progress-fill" style="width: 100%;"></div>
@@ -1230,40 +1607,52 @@
           </div>
         </div>
 
-       <div class="mensa-card" id="widget-mensa">
+        <div class="mensa-card" id="widget-mensa">
           <div class="balance-left">
-  <div class="balance-amount sensitive-data" id="mensa-balance-amount" onclick="openTopupChoiceModal()">12,00€</div>
-  <div class="balance-label" data-translate="mensa_balance_label">Karten-Guthaben</div>
-  
-  <div style="margin-top: 10px; color: var(--accent-blue); font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px;" onclick="openMapForBuilding('F', 'Mensa')">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-      <circle cx="12" cy="10" r="3"></circle>
-    </svg>
-    Gebäude F (1. Stock)
-  </div>
-</div>
-          
+            <div class="balance-amount sensitive-data" id="mensa-balance-amount" onclick="openTopupChoiceModal()">12,00€
+            </div>
+            <div class="balance-label" data-translate="mensa_balance_label">Karten-Guthaben</div>
+
+            <div
+              style="margin-top: 10px; color: var(--accent-blue); font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px;"
+              onclick="openMapForBuilding('F', 'Mensa')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+              </svg>
+              Gebäude F (1. Stock)
+            </div>
+          </div>
+
           <div class="scroll-list">
-            <div class="list-item" style="cursor: pointer;" onclick="openMensaMenuModal()"><span>Schnitzel</span><span class="item-value">5,60€</span></div>
-            <div class="list-item" style="cursor: pointer;" onclick="openMensaMenuModal()"><span>Eintopf</span><span class="item-value">3,80€</span></div>
-            <div class="list-item" style="cursor: pointer;" onclick="openMensaMenuModal()"><span>Veganer Burger</span><span class="item-value">4,90€</span></div>
-            <div class="list-item" style="cursor: pointer;" onclick="openMensaMenuModal()"><span>Pommes</span><span class="item-value">2,50€</span></div>
-            <div class="list-item" style="cursor: pointer;" onclick="openMensaMenuModal()"><span>Salatbowl</span><span class="item-value">4,20€</span></div>
-            <div class="list-item" style="cursor: pointer;" onclick="openMensaMenuModal()"><span>Schokopudding</span><span class="item-value">1,50€</span></div>
-            <div class="list-item" style="cursor: pointer;" onclick="openMensaMenuModal()"><span>Obstsalat</span><span class="item-value">1,80€</span></div>
+            <div class="list-item" style="cursor: pointer;" onclick="openMensaMenuModal()"><span>Schnitzel</span><span
+                class="item-value">5,60€</span></div>
+            <div class="list-item" style="cursor: pointer;" onclick="openMensaMenuModal()"><span>Eintopf</span><span
+                class="item-value">3,80€</span></div>
+            <div class="list-item" style="cursor: pointer;" onclick="openMensaMenuModal()"><span>Veganer
+                Burger</span><span class="item-value">4,90€</span></div>
+            <div class="list-item" style="cursor: pointer;" onclick="openMensaMenuModal()"><span>Pommes</span><span
+                class="item-value">2,50€</span></div>
+            <div class="list-item" style="cursor: pointer;" onclick="openMensaMenuModal()"><span>Salatbowl</span><span
+                class="item-value">4,20€</span></div>
+            <div class="list-item" style="cursor: pointer;" onclick="openMensaMenuModal()">
+              <span>Schokopudding</span><span class="item-value">1,50€</span>
+            </div>
+            <div class="list-item" style="cursor: pointer;" onclick="openMensaMenuModal()"><span>Obstsalat</span><span
+                class="item-value">1,80€</span></div>
           </div>
         </div>
 
         <div class="parking-card" id="widget-parking" style="cursor: pointer;" onclick="handleParkingClick(event)">
           <div class="parking-header">
-            <span class="parking-title" data-translate="parking_title">Studierendenparkplatz</span>
-            <span class="parking-status" data-translate="parking_status_full" onclick="event.stopPropagation(); openTowModal();">Fast voll</span>
+            <span class="parking-title" data-translate="parking_title">Parkhaus</span>
+            <span class="parking-status" data-translate="parking_status_full"
+              onclick="event.stopPropagation(); openTowModal();">Fast voll</span>
           </div>
           <div class="parking-bar-bg">
             <div class="parking-bar-fill" id="parking-bar"></div>
           </div>
-          <div class="parking-text" data-translate="parking_text">Ca. 170 von 200 Plätzen belegt</div>
+          <div class="parking-text" data-translate="parking_text">Ca. 170 von 435 Plätzen belegt</div>
         </div>
 
         <div class="rental-card" id="widget-rental">
@@ -1271,21 +1660,29 @@
             <span class="rental-title" data-translate="rental_title">Verleih</span>
             <div class="segmented-control index-1" id="rental-segments" style="padding: 2px;">
               <div class="segment-highlight"></div>
-              <button class="segment-btn" onclick="switchRentalView('books', this)" data-translate="rental_books" style="padding: 6px 12px; font-size: 12px;">Bücher</button>
-              <button class="segment-btn active" onclick="switchRentalView('tech', this)" data-translate="rental_tech" style="padding: 6px 12px; font-size: 12px;">Technik</button>
+              <button class="segment-btn" onclick="switchRentalView('books', this)" data-translate="rental_books"
+                style="padding: 6px 12px; font-size: 12px;">Bücher</button>
+              <button class="segment-btn active" onclick="switchRentalView('tech', this)" data-translate="rental_tech"
+                style="padding: 6px 12px; font-size: 12px;">Technik</button>
             </div>
           </div>
-          <div id="rental-views-viewport" style="overflow: hidden; transition: height 0.4s cubic-bezier(0.25, 1, 0.5, 1); width: 100%;">
-            <div id="rental-views-container" style="display: flex; width: 200%; transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1); align-items: flex-start; transform: translateX(-50%);">
-              <div id="rental-books-view" class="rental-view" style="flex: 1 0 50%; width: 50%; opacity: 0; pointer-events: none; transition: opacity 0.3s;">
+          <div id="rental-views-viewport"
+            style="overflow: hidden; transition: height 0.4s cubic-bezier(0.25, 1, 0.5, 1); width: 100%;">
+            <div id="rental-views-container"
+              style="display: flex; width: 200%; transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1); align-items: flex-start; transform: translateX(-50%);">
+              <div id="rental-books-view" class="rental-view"
+                style="flex: 1 0 50%; width: 50%; opacity: 0; pointer-events: none; transition: opacity 0.3s;">
                 <div class="rental-empty" data-translate="rental_books_empty">Keine Bücher ausgeliehen.</div>
               </div>
-              <div id="rental-tech-view" class="rental-view active" style="flex: 1 0 50%; width: 50%; opacity: 1; transition: opacity 0.3s;">
-                <div class="rental-item" style="cursor: pointer;" onclick="openRentalModal('Sony Alpha 7 IV', this.querySelector('.rental-item-due').innerText, 'J Gebäude (Grafiklabor)', 'Herr Bauer', 'Inkl. Tasche, 2 Akkus, 64GB SD', this)">
+              <div id="rental-tech-view" class="rental-view active"
+                style="flex: 1 0 50%; width: 50%; opacity: 1; transition: opacity 0.3s;">
+                <div class="rental-item" style="cursor: pointer;"
+                  onclick="openRentalModal('Sony Alpha 7 IV', this.querySelector('.rental-item-due').innerText, 'J Gebäude (Grafiklabor)', 'Herr Bauer', 'Inkl. Tasche, 2 Akkus, 64GB SD', this)">
                   <span class="rental-item-title">Sony Alpha 7 IV</span>
                   <span class="rental-item-due soon" data-translate="rental_tech_due">In 2 Tagen</span>
                 </div>
-                <div class="rental-item" style="cursor: pointer;" onclick="openRentalModal('XLR Kabel (5m)', this.querySelector('.rental-item-due').innerText, 'J Gebäude (Audiolabor)', 'Frau Weber', 'Bitte ordentlich aufwickeln', this)">
+                <div class="rental-item" style="cursor: pointer;"
+                  onclick="openRentalModal('XLR Kabel (5m)', this.querySelector('.rental-item-due').innerText, 'J Gebäude (Audiolabor)', 'Frau Weber', 'Bitte ordentlich aufwickeln', this)">
                   <span class="rental-item-title">XLR Kabel (5m)</span>
                   <span class="rental-item-due urgent" data-translate="rental_tech_due_today">Heute</span>
                 </div>
@@ -1294,93 +1691,121 @@
           </div>
         </div>
 
-      <div class="weather-card widget-hidden" id="widget-weather" style="cursor: grab;">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <div style="display: flex; flex-direction: column; pointer-events: none;">
-            <span style="font-size: 14px; font-weight: 600; color: var(--text-sub);" data-translate="widget_weather_city">Deggendorf</span>
-            <span style="font-size: 32px; font-weight: 300;" id="weather-temp">18°C</span>
-            <span style="font-size: 12px; color: var(--text-sub);" id="weather-desc" data-translate="widget_weather_desc">Leicht bewölkt</span>
-          </div>
-          <div id="weather-icon-container" style="width: 48px; height: 48px; cursor: pointer; z-index: 10;" onclick="triggerWeatherAnimation(event)">
-                  <svg viewBox="0 0 24 24" width="100%" height="100%" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="color: #FF9500; overflow: visible;">
-                  <g class="weather-sun">
-                      <circle cx="12" cy="12" r="5"></circle>
-                      <line x1="12" y1="1" x2="12" y2="3"></line>
-                      <line x1="12" y1="21" x2="12" y2="23"></line>
-                      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                      <line x1="1" y1="12" x2="3" y2="12"></line>
-                      <line x1="21" y1="12" x2="23" y2="12"></line>
-                      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-                  </g>
-                  <path class="weather-cloud" style="fill: var(--card-bg); stroke: var(--text-main);" d="M7 19h10a4.5 4.5 0 0 0 .68-8.95a6 6 0 0 0-11.36 0A4.5 4.5 0 0 0 7 19Z"></path>
+        <div class="weather-card widget-hidden" id="widget-weather" style="cursor: grab;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; flex-direction: column; pointer-events: none;">
+              <span style="font-size: 14px; font-weight: 600; color: var(--text-sub);"
+                data-translate="widget_weather_city">Deggendorf</span>
+              <span style="font-size: 32px; font-weight: 300;" id="weather-temp">18°C</span>
+              <span style="font-size: 12px; color: var(--text-sub);" id="weather-desc"
+                data-translate="widget_weather_desc">Leicht bewölkt</span>
+            </div>
+            <div id="weather-icon-container" style="width: 48px; height: 48px; cursor: pointer; z-index: 10;"
+              onclick="triggerWeatherAnimation(event)">
+              <svg viewBox="0 0 24 24" width="100%" height="100%" stroke="currentColor" stroke-width="1.5" fill="none"
+                stroke-linecap="round" stroke-linejoin="round" style="color: #FF9500; overflow: visible;">
+                <g class="weather-sun">
+                  <circle cx="12" cy="12" r="5"></circle>
+                  <line x1="12" y1="1" x2="12" y2="3"></line>
+                  <line x1="12" y1="21" x2="12" y2="23"></line>
+                  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                  <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                  <line x1="1" y1="12" x2="3" y2="12"></line>
+                  <line x1="21" y1="12" x2="23" y2="12"></line>
+                  <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                  <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </g>
+                <path class="weather-cloud" style="fill: var(--card-bg); stroke: var(--text-main);"
+                  d="M7 19h10a4.5 4.5 0 0 0 .68-8.95a6 6 0 0 0-11.36 0A4.5 4.5 0 0 0 7 19Z"></path>
               </svg>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="todo-card widget-hidden" id="widget-todo">
-        <div class="rental-header" style="margin-bottom: 10px;">
-          <span class="rental-title" data-translate="widget_todo">To-Do Liste</span>
-          <button class="btn-text" onclick="addTodoItem()" style="padding: 0; font-size: 24px; line-height: 1;">+</button>
-        </div>
-        <div id="todo-list" style="display: flex; flex-direction: column; gap: 0px; max-height: 150px; overflow-y: auto; overflow-x: hidden; padding-right: 4px;">
-          <!-- ToDos will be injected here -->
-        </div>
-      </div>
-
-      <div class="bottom-widgets-row" id="widget-bottom-row">
-        <div class="vpn-card" id="widget-vpn" onclick="openVpnStatsModal()" style="cursor: pointer;">
-          <div class="vpn-info">
-            <span class="vpn-title" style="font-size: 14px;">VPN</span>
-            <span class="vpn-status active" id="vpn-status-text" data-translate="vpn_status_connected" style="font-size: 11px;">Verbunden</span>
+        <div class="todo-card widget-hidden" id="widget-todo">
+          <div class="rental-header" style="margin-bottom: 10px;">
+            <span class="rental-title" data-translate="widget_todo">To-Do Liste</span>
+            <button class="btn-text" onclick="addTodoItem()"
+              style="padding: 0; font-size: 24px; line-height: 1;">+</button>
           </div>
-        <label class="toggle-switch" style="transform: scale(0.8); transform-origin: right;" 
-               onclick="event.stopPropagation();"
-               onmousedown="this.parentElement.classList.add('no-squish');"
-               ontouchstart="this.parentElement.classList.add('no-squish');"
-               onmouseup="this.parentElement.classList.remove('no-squish');"
-               ontouchend="this.parentElement.classList.remove('no-squish');"
-               onmouseleave="this.parentElement.classList.remove('no-squish');"
-               ontouchcancel="this.parentElement.classList.remove('no-squish');">
-            <input type="checkbox" class="toggle-input" id="vpn-toggle" checked onchange="toggleVPN()">
-            <span class="toggle-slider"></span>
-          </label>
+          <div id="todo-list"
+            style="display: flex; flex-direction: column; gap: 0px; max-height: 150px; overflow-y: auto; overflow-x: hidden; padding-right: 4px;">
+            <!-- ToDos will be injected here -->
+          </div>
         </div>
 
-        <div class="services-card" id="widget-services" onclick="openServicesModal()">
-          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"></rect><rect x="14" y="3" width="7" height="7" rx="2"></rect><rect x="14" y="14" width="7" height="7" rx="2"></rect><rect x="3" y="14" width="7" height="7" rx="2"></rect></svg>
-          <span data-translate="widget_services" style="font-weight: 600; font-size: 15px;">Dienste</span>
+        <div class="bottom-widgets-row" id="widget-bottom-row">
+          <div class="vpn-card" id="widget-vpn" onclick="openVpnStatsModal()" style="cursor: pointer;">
+            <div class="vpn-info">
+              <span class="vpn-title" style="font-size: 14px;">VPN</span>
+              <span class="vpn-status active" id="vpn-status-text" data-translate="vpn_status_connected"
+                style="font-size: 11px;">Verbunden</span>
+            </div>
+            <label class="toggle-switch" style="transform: scale(0.8); transform-origin: right;"
+              onclick="event.stopPropagation();" onmousedown="this.parentElement.classList.add('no-squish');"
+              ontouchstart="this.parentElement.classList.add('no-squish');"
+              onmouseup="this.parentElement.classList.remove('no-squish');"
+              ontouchend="this.parentElement.classList.remove('no-squish');"
+              onmouseleave="this.parentElement.classList.remove('no-squish');"
+              ontouchcancel="this.parentElement.classList.remove('no-squish');">
+              <input type="checkbox" class="toggle-input" id="vpn-toggle" checked onchange="toggleVPN()">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="services-card" id="widget-services" onclick="openServicesModal()">
+            <svg viewBox="0 0 24 24">
+              <rect x="3" y="3" width="7" height="7" rx="2"></rect>
+              <rect x="14" y="3" width="7" height="7" rx="2"></rect>
+              <rect x="14" y="14" width="7" height="7" rx="2"></rect>
+              <rect x="3" y="14" width="7" height="7" rx="2"></rect>
+            </svg>
+            <span data-translate="widget_services" style="font-weight: 600; font-size: 15px;">Dienste</span>
+          </div>
         </div>
-      </div> 
-      
-      <!-- margin-bottom: auto drückt die Widgets bei viel Platz nach oben, wodurch sie exakt zentriert werden -->
-      <div id="dashboard-bottom-spacer" style="height: 15px; flex-shrink: 0; margin-bottom: auto;"></div>
-      </div> 
+
+        <!-- margin-bottom: auto drückt die Widgets bei viel Platz nach oben, wodurch sie exakt zentriert werden -->
+        <div id="dashboard-bottom-spacer" style="height: 15px; flex-shrink: 0; margin-bottom: auto;"></div>
+      </div>
       <div id="page-profil" class="page">
         <div class="header">
           <span data-translate="profile_header">Profil</span>
           <svg class="header-icon-svg" id="settings-gear-icon" viewBox="0 0 24 24" onclick="openSettingsModal()">
             <circle cx="12" cy="12" r="3"></circle>
-            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            <path
+              d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+            </path>
           </svg>
         </div>
-        
+
         <div class="profile-scroll-area">
           <!-- Drückt das Profil nach unten, wenn viel Platz ist -->
           <div id="profile-top-spacer" style="height: 15px; flex-shrink: 0; margin-top: auto;"></div>
-          
+
           <div class="profile-content-wrapper">
             <div class="profile-left">
               <div class="profile-header-info">
-                <div id="profile-pic-container" style="width: 80px; height: 80px; margin: 0 auto 10px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; cursor: pointer;" onclick="document.getElementById('profile-pic-upload').click()">
-                  <img id="profile-pic-img" class="sensitive-data" style="width: 100%; height: 100%; object-fit: cover; display: none;" />
-                  <svg id="profile-pic-svg" width="80" height="80" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                <div id="profile-pic-container"
+                  style="width: 80px; height: 80px; margin: 0 auto 10px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; cursor: pointer;"
+                  onclick="document.getElementById('profile-pic-upload').click()">
+                  <img id="profile-pic-img" class="sensitive-data"
+                    style="width: 100%; height: 100%; object-fit: cover; display: none;" />
+                  <svg id="profile-pic-svg" width="80" height="80" viewBox="0 0 24 24" stroke="currentColor" fill="none"
+                    stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
                 </div>
-                <input type="file" id="profile-pic-upload" accept="image/*" style="display: none;" onchange="handleProfilePicUpload(event)">
-              <div class="profile-name sensitive-data" id="profile-name-display" onclick="editProfileName()" style="cursor: pointer; display: inline-block; transition: transform 0.2s;" onpointerdown="this.style.transform='scale(0.95)'" onpointerup="this.style.transform='scale(1)'" onpointercancel="this.style.transform='scale(1)'">Tobias</div>
-                <div class="profile-sub" data-translate="profile_major" onclick="openScheduleSettingsModal('profile')" style="cursor: pointer; display: inline-block; width: 100%; transition: transform 0.2s;" onpointerdown="this.style.transform='scale(0.95)'" onpointerup="this.style.transform='scale(1)'" onpointercancel="this.style.transform='scale(1)'">Medientechnik</div>
+                <input type="file" id="profile-pic-upload" accept="image/*" style="display: none;"
+                  onchange="handleProfilePicUpload(event)">
+                <div class="profile-name sensitive-data" id="profile-name-display" onclick="editProfileName()"
+                  style="cursor: pointer; display: inline-block; transition: transform 0.2s;"
+                  onpointerdown="this.style.transform='scale(0.95)'" onpointerup="this.style.transform='scale(1)'"
+                  onpointercancel="this.style.transform='scale(1)'">Tobias</div>
+                <div class="profile-sub" data-translate="profile_major" onclick="openScheduleSettingsModal('profile')"
+                  style="cursor: pointer; display: inline-block; width: 100%; transition: transform 0.2s;"
+                  onpointerdown="this.style.transform='scale(0.95)'" onpointerup="this.style.transform='scale(1)'"
+                  onpointercancel="this.style.transform='scale(1)'">Medientechnik</div>
                 <div class="profile-sub" data-translate="profile_semester">4. Semester</div>
               </div>
 
@@ -1395,7 +1820,8 @@
                 </div>
               </div>
 
-              <div class="progress-section" onclick="openStudyTimeModal()" style="cursor: pointer;" id="profile-study-time-card">
+              <div class="progress-section" onclick="openStudyTimeModal()" style="cursor: pointer;"
+                id="profile-study-time-card">
                 <div class="section-title" data-translate="study_time_title">Studienzeit</div>
                 <div class="progress-bar-container sensitive-data">
                   <div class="progress-bar-fill"></div>
@@ -1406,26 +1832,51 @@
                   <span class="sensitive-data" data-translate="study_time_remaining">635 Tage übrig</span>
                 </div>
                 <div class="progress-labels" style="margin-top: 5px; justify-content: flex-end;">
-                  <span class="sensitive-data" style="color: var(--accent-orange);" data-translate="study_time_extra">+180 Tage (1 Extra-Semester)</span>
+                  <span class="sensitive-data" style="color: var(--accent-orange);"
+                    data-translate="study_time_extra">+180 Tage (1 Extra-Semester)</span>
                 </div>
               </div>
             </div>
-            
+
             <div class="profile-right">
               <div class="section-title" style="margin-left: 5px;" data-translate="all_grades_title">Alle Noten</div>
               <div class="grades-list">
-                <div class="list-item" style="cursor: pointer;" onclick="openGradeModal('Mediengestaltung', '1,3')"><span>Mediengestaltung</span><span class="grade-value sensitive-data">1,3</span></div>
-                <div class="list-item" style="cursor: pointer;" onclick="openGradeModal('Programmieren 1', '2,0')"><span>Programmieren 1</span><span class="grade-value sensitive-data">2,0</span></div>
-                <div class="list-item" style="cursor: pointer;" onclick="openGradeModal('Audio- & Videotechnik', '1,7')"><span>Audio- & Videotechnik</span><span class="grade-value sensitive-data">1,7</span></div>
-                <div class="list-item" style="cursor: pointer;" onclick="openGradeModal('Mathematik', '2,3')"><span>Mathematik</span><span class="grade-value sensitive-data">2,3</span></div>
-                <div class="list-item" style="cursor: pointer;" onclick="openGradeModal('Medienrecht', '1,0')"><span>Medienrecht</span><span class="grade-value sensitive-data">1,0</span></div>
-                <div class="list-item" style="cursor: pointer;" onclick="openGradeModal('Webentwicklung', '1,3')"><span>Webentwicklung</span><span class="grade-value sensitive-data">1,3</span></div>
-                <div class="list-item" style="cursor: pointer;" onclick="openGradeModal('Computergrafik', '2,7')"><span>Computergrafik</span><span class="grade-value sensitive-data">2,7</span></div>
-                <div class="list-item" style="cursor: pointer;" onclick="openGradeModal('Datenbanksysteme', '2,0')"><span>Datenbanksysteme</span><span class="grade-value sensitive-data">2,0</span></div>
-                <div class="list-item" style="cursor: pointer;" onclick="openGradeModal('Projektmanagement', '1,3')"><span>Projektmanagement</span><span class="grade-value sensitive-data">1,3</span></div>
-                <div class="list-item" style="cursor: pointer;" onclick="openGradeModal('Englisch B2', '1,7')"><span>Englisch B2</span><span class="grade-value sensitive-data">1,7</span></div>
-                <div class="list-item" style="cursor: pointer;" onclick="openGradeModal('Physik', '3,0')"><span>Physik</span><span class="grade-value sensitive-data">3,0</span></div>
-                <div class="list-item" style="cursor: pointer;" onclick="openGradeModal('Algorithmen & Datenstrukturen', '2,3')"><span>Algorithmen & Datenstrukturen</span><span class="grade-value sensitive-data">2,3</span></div>
+                <div class="list-item" style="cursor: pointer;" onclick="openGradeModal('Mediengestaltung', '1,3')">
+                  <span>Mediengestaltung</span><span class="grade-value sensitive-data">1,3</span>
+                </div>
+                <div class="list-item" style="cursor: pointer;" onclick="openGradeModal('Programmieren 1', '2,0')">
+                  <span>Programmieren 1</span><span class="grade-value sensitive-data">2,0</span>
+                </div>
+                <div class="list-item" style="cursor: pointer;"
+                  onclick="openGradeModal('Audio- & Videotechnik', '1,7')"><span>Audio- & Videotechnik</span><span
+                    class="grade-value sensitive-data">1,7</span></div>
+                <div class="list-item" style="cursor: pointer;" onclick="openGradeModal('Mathematik', '2,3')">
+                  <span>Mathematik</span><span class="grade-value sensitive-data">2,3</span>
+                </div>
+                <div class="list-item" style="cursor: pointer;" onclick="openGradeModal('Medienrecht', '1,0')">
+                  <span>Medienrecht</span><span class="grade-value sensitive-data">1,0</span>
+                </div>
+                <div class="list-item" style="cursor: pointer;" onclick="openGradeModal('Webentwicklung', '1,3')">
+                  <span>Webentwicklung</span><span class="grade-value sensitive-data">1,3</span>
+                </div>
+                <div class="list-item" style="cursor: pointer;" onclick="openGradeModal('Computergrafik', '2,7')">
+                  <span>Computergrafik</span><span class="grade-value sensitive-data">2,7</span>
+                </div>
+                <div class="list-item" style="cursor: pointer;" onclick="openGradeModal('Datenbanksysteme', '2,0')">
+                  <span>Datenbanksysteme</span><span class="grade-value sensitive-data">2,0</span>
+                </div>
+                <div class="list-item" style="cursor: pointer;" onclick="openGradeModal('Projektmanagement', '1,3')">
+                  <span>Projektmanagement</span><span class="grade-value sensitive-data">1,3</span>
+                </div>
+                <div class="list-item" style="cursor: pointer;" onclick="openGradeModal('Englisch B2', '1,7')">
+                  <span>Englisch B2</span><span class="grade-value sensitive-data">1,7</span>
+                </div>
+                <div class="list-item" style="cursor: pointer;" onclick="openGradeModal('Physik', '3,0')">
+                  <span>Physik</span><span class="grade-value sensitive-data">3,0</span>
+                </div>
+                <div class="list-item" style="cursor: pointer;"
+                  onclick="openGradeModal('Algorithmen & Datenstrukturen', '2,3')"><span>Algorithmen &
+                    Datenstrukturen</span><span class="grade-value sensitive-data">2,3</span></div>
               </div>
             </div>
           </div>
@@ -1438,77 +1889,117 @@
       <div id="page-search" class="page">
         <div class="header">
           <span data-translate="search_header">Suche</span>
-          <svg class="header-icon-svg" id="search-trash-icon" viewBox="0 0 24 24" onclick="requestSearchClearConfirmation()">
-            <g class="trash-lid-group"><polyline class="trash-lid" points="3 6 5 6 21 6"></polyline><path class="trash-handle" d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></g>
+          <svg class="header-icon-svg" id="search-trash-icon" viewBox="0 0 24 24"
+            onclick="requestSearchClearConfirmation()">
+            <g class="trash-lid-group">
+              <polyline class="trash-lid" points="3 6 5 6 21 6"></polyline>
+              <path class="trash-handle" d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </g>
             <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
           </svg>
         </div>
         <div class="search-input-wrapper">
-          <input type="search" name="search_dummy" id="search-input" class="search-input" placeholder="Widgets & Elemente suchen..." data-translate="search_placeholder" oninput="performSearch()" autocomplete="off" autocorrect="off" spellcheck="false">
+          <input type="search" name="search_dummy" id="search-input" class="search-input"
+            placeholder="Widgets & Elemente suchen..." data-translate="search_placeholder" oninput="performSearch()"
+            autocomplete="off" autocorrect="off" spellcheck="false">
           <div id="search-clear-btn" class="search-clear-btn" onclick="clearSearch()"></div>
         </div>
         <div class="search-suggestions" id="search-suggestions">
-        <div class="search-suggestions-wrapper">
-          <div class="search-col-left">
-            <div class="section-title" style="margin: 0 15px 10px;" data-translate="search_suggestions">Vorschläge</div>
-            <div class="suggestions-grid">
-              <div class="suggestion-tile" onclick="document.getElementById('search-input').value='Prof.'; performSearch();">
-                <svg viewBox="0 0 24 24" width="20" height="20" stroke="var(--accent-blue)" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                <span data-translate="search_sugg_prof">Dozierende</span>
+          <div class="search-suggestions-wrapper">
+            <div class="search-col-left">
+              <div class="section-title" style="margin: 0 15px 10px;" data-translate="search_suggestions">Vorschläge
               </div>
-              <div class="suggestion-tile" onclick="addToHistory({id: 'widget-mensa', title: 'Mensa & Guthaben', page: 'page-home', loc: 'Home'}); jumpToElement('page-home', 'widget-mensa')">
-                <svg viewBox="0 0 24 24" width="20" height="20" stroke="var(--accent-orange)" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"></path><path d="M7 2v20"></path><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"></path></svg>
-                <span data-translate="search_sugg_mensa">Mensa</span>
+              <div class="suggestions-grid">
+                <div class="suggestion-tile"
+                  onclick="document.getElementById('search-input').value='Prof.'; performSearch();">
+                  <svg viewBox="0 0 24 24" width="20" height="20" stroke="var(--accent-blue)" fill="none"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
+                  <span data-translate="search_sugg_prof">Dozierende</span>
+                </div>
+                <div class="suggestion-tile"
+                  onclick="addToHistory({id: 'widget-mensa', title: 'Mensa & Guthaben', page: 'page-home', loc: 'Home'}); jumpToElement('page-home', 'widget-mensa')">
+                  <svg viewBox="0 0 24 24" width="20" height="20" stroke="var(--accent-orange)" fill="none"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"></path>
+                    <path d="M7 2v20"></path>
+                    <path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"></path>
+                  </svg>
+                  <span data-translate="search_sugg_mensa">Mensa</span>
+                </div>
+                <div class="suggestion-tile"
+                  onclick="addToHistory({id: 'widget-vpn', title: 'VPN', page: 'page-home', loc: 'Home'}); jumpToElement('page-home', 'widget-vpn')">
+                  <svg viewBox="0 0 24 24" width="20" height="20" stroke="var(--accent-blue)" fill="none"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                  </svg>
+                  <span data-translate="search_sugg_vpn">VPN</span>
+                </div>
+                <div class="suggestion-tile"
+                  onclick="addToHistory({id: 'profile-ects-card', title: 'Notenschnitt', page: 'page-profil', loc: 'Profil'}); jumpToElement('page-profil', 'profile-ects-card')">
+                  <svg viewBox="0 0 24 24" width="20" height="20" stroke="#34C759" fill="none" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                  </svg>
+                  <span data-translate="search_sugg_grades">Noten</span>
+                </div>
               </div>
-              <div class="suggestion-tile" onclick="addToHistory({id: 'widget-vpn', title: 'VPN', page: 'page-home', loc: 'Home'}); jumpToElement('page-home', 'widget-vpn')">
-                <svg viewBox="0 0 24 24" width="20" height="20" stroke="var(--accent-blue)" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                <span data-translate="search_sugg_vpn">VPN</span>
+            </div>
+            <div class="search-col-right">
+              <div class="section-title" style="margin: 20px 15px 10px;" data-translate="search_history">Zuletzt gesucht
               </div>
-            <div class="suggestion-tile" onclick="addToHistory({id: 'profile-ects-card', title: 'Notenschnitt', page: 'page-profil', loc: 'Profil'}); jumpToElement('page-profil', 'profile-ects-card')">
-                <svg viewBox="0 0 24 24" width="20" height="20" stroke="#34C759" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-                <span data-translate="search_sugg_grades">Noten</span>
+              <div id="search-history-list" style="padding: 0 15px; display: flex; flex-direction: column; gap: 10px;">
+                <div style="color: var(--text-sub); font-size: 13px; text-align: center; padding: 40px 10px;"
+                  data-translate="search_history_empty">Noch keine Suchanfragen</div>
               </div>
             </div>
           </div>
-          <div class="search-col-right">
-            <div class="section-title" style="margin: 20px 15px 10px;" data-translate="search_history">Zuletzt gesucht</div>
-            <div id="search-history-list" style="padding: 0 15px; display: flex; flex-direction: column; gap: 10px;">
-              <div style="color: var(--text-sub); font-size: 13px; text-align: center; padding: 40px 10px;" data-translate="search_history_empty">Noch keine Suchanfragen</div>
-            </div>
-          </div>
-        </div>
         </div>
         <div class="search-results" id="search-results-container">
-          </div>
-          </div>
+        </div>
+      </div>
 
-          <div id="page-news" class="page">
-            <div class="header">
-              <span data-translate="news_header">Veranstaltungen</span>
-              <svg class="header-icon-svg" id="news-filter-star" viewBox="0 0 24 24" onclick="toggleEventFilter(this)">
-                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-              </svg>
-            </div>
-            <div id="news-list" class="mail-list">
-              <div style="color: var(--text-sub); text-align: center; padding: 20px;">Lade Termine...</div>
-            </div>
-            <div id="no-favorites-msg" style="display: none; position: absolute; top: 50%; left: 0; right: 0; text-align: center; color: var(--text-sub); transform: translateY(-50%); padding: 20px; font-size: 14px; animation: none !important;" data-translate="news_no_favorites">Keine Favoriten markiert.</div>
-          </div>
+      <div id="page-news" class="page">
+        <div class="header">
+          <span data-translate="news_header">Veranstaltungen</span>
+          <svg class="header-icon-svg" id="news-filter-star" viewBox="0 0 24 24" onclick="toggleEventFilter(this)">
+            <polygon
+              points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
+            </polygon>
+          </svg>
+        </div>
+        <div id="news-list" class="mail-list">
+          <div style="color: var(--text-sub); text-align: center; padding: 20px;">Lade Termine...</div>
+        </div>
+        <div id="no-favorites-msg"
+          style="display: none; position: absolute; top: 50%; left: 0; right: 0; text-align: center; color: var(--text-sub); transform: translateY(-50%); padding: 20px; font-size: 14px; animation: none !important;"
+          data-translate="news_no_favorites">Keine Favoriten markiert.</div>
+      </div>
 
     </div>
 
     <div id="ai-assistant-modal" class="modal" style="height: 85dvh; display: flex; flex-direction: column;">
-      <div class="modal-header" style="flex-shrink: 0; margin-bottom: 10px; display: flex; flex-direction: column; align-items: center;">
+      <div class="modal-header"
+        style="flex-shrink: 0; margin-bottom: 10px; display: flex; flex-direction: column; align-items: center;">
         <div style="width: 220px; height: 130px; overflow: hidden; margin-bottom: 5px; position: relative;">
-          <img id="ai-assistant-face" src="ai_neutral.png" onclick="pokeDeggster()" style="cursor: pointer; width: 100%; height: 100%; object-fit: cover; object-position: top; transform: scale(1.4) translateY(-20%); transition: transform 0.2s;" onerror="this.src='data:image/svg+xml;utf8,<svg viewBox=\'0 0 24 24\' width=\'100%\' height=\'100%\' stroke=\'%23999\' fill=\'none\' stroke-width=\'1.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><circle cx=\'12\' cy=\'12\' r=\'10\'/><path d=\'M8 14s1.5 2 4 2 4-2 4-2\'/><line x1=\'9\' y1=\'9\' x2=\'9.01\' y2=\'9\'/><line x1=\'15\' y1=\'9\' x2=\'15.01\' y2=\'9\'/></svg>'">
+          <img id="ai-assistant-face" src="ai_neutral.png" onclick="pokeDeggster()"
+            style="cursor: pointer; width: 100%; height: 100%; object-fit: cover; object-position: top; transform: scale(1.4) translateY(-20%); transition: transform 0.2s;"
+            onerror="this.src='data:image/svg+xml;utf8,<svg viewBox=\'0 0 24 24\' width=\'100%\' height=\'100%\' stroke=\'%23999\' fill=\'none\' stroke-width=\'1.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><circle cx=\'12\' cy=\'12\' r=\'10\'/><path d=\'M8 14s1.5 2 4 2 4-2 4-2\'/><line x1=\'9\' y1=\'9\' x2=\'9.01\' y2=\'9\'/><line x1=\'15\' y1=\'9\' x2=\'15.01\' y2=\'9\'/></svg>'">
         </div>
         <h3 class="modal-title" data-translate="ai_assistant_title">Deggster</h3>
       </div>
-      <div class="modal-info" style="flex: 1; padding: 0; margin-bottom: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; scroll-behavior: smooth;" id="ai-chat-history">
+      <div class="modal-info"
+        style="flex: 1; padding: 0; margin-bottom: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; scroll-behavior: smooth;"
+        id="ai-chat-history">
         <!-- Chat messages will be appended here -->
       </div>
       <div style="flex-shrink: 0; margin-bottom: 10px;">
-        <input type="text" id="ai-chat-input" class="compose-input" placeholder="Frag mich etwas..." autocomplete="off" spellcheck="false" onkeypress="if(event.key === 'Enter') sendAiChatMessage()">
+        <input type="text" id="ai-chat-input" class="compose-input" placeholder="Frag mich etwas..." autocomplete="off"
+          spellcheck="false" onkeypress="if(event.key === 'Enter') sendAiChatMessage()">
       </div>
       <div class="modal-buttons" style="flex-shrink: 0;">
         <button class="btn btn-secondary" onclick="closeModal()" data-translate="close_button">Schließen</button>
@@ -1529,7 +2020,9 @@
         <hr style="border: 0; border-top: 1px dashed var(--grid-line); margin: 5px 0;">
         <div class="info-row" style="flex-direction: column; gap: 8px;">
           <span class="info-label" data-translate="event_desc">Beschreibung</span>
-          <div id="event-popup-desc" style="font-size: 14px; line-height: 1.4; color: var(--text-main); max-height: 250px; overflow-y: auto; overscroll-behavior: contain; padding-right: 5px;"></div>
+          <div id="event-popup-desc"
+            style="font-size: 14px; line-height: 1.4; color: var(--text-main); max-height: 250px; overflow-y: auto; overscroll-behavior: contain; padding-right: 5px;">
+          </div>
         </div>
       </div>
       <div class="modal-buttons" style="margin-top: 20px;">
@@ -1544,15 +2037,21 @@
       </div>
       <div class="modal-info" style="flex-direction: row; justify-content: space-between; gap: 5px;">
         <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
-          <span class="info-label" style="font-size: 11px; text-align: center; height: 28px; display: flex; align-items: flex-end; justify-content: center; margin-bottom: 10px;" data-translate="study_time_current">Aktuelles Semester</span>
+          <span class="info-label"
+            style="font-size: 11px; text-align: center; height: 28px; display: flex; align-items: flex-end; justify-content: center; margin-bottom: 10px;"
+            data-translate="study_time_current">Aktuelles Semester</span>
           <div class="number-picker-container" id="picker-study-current" style="width: 100%;"></div>
         </div>
         <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
-          <span class="info-label" style="font-size: 11px; text-align: center; height: 28px; display: flex; align-items: flex-end; justify-content: center; margin-bottom: 10px;" data-translate="study_time_total">Regelstudienzeit</span>
+          <span class="info-label"
+            style="font-size: 11px; text-align: center; height: 28px; display: flex; align-items: flex-end; justify-content: center; margin-bottom: 10px;"
+            data-translate="study_time_total">Regelstudienzeit</span>
           <div class="number-picker-container" id="picker-study-total" style="width: 100%;"></div>
         </div>
         <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
-          <span class="info-label" style="font-size: 11px; text-align: center; height: 28px; display: flex; align-items: flex-end; justify-content: center; margin-bottom: 10px;" data-translate="study_time_extra_input">Zusätzliche Semester</span>
+          <span class="info-label"
+            style="font-size: 11px; text-align: center; height: 28px; display: flex; align-items: flex-end; justify-content: center; margin-bottom: 10px;"
+            data-translate="study_time_extra_input">Zusätzliche Semester</span>
           <div class="number-picker-container" id="picker-study-extra" style="width: 100%;"></div>
         </div>
       </div>
@@ -1566,41 +2065,59 @@
     <div class="navbar">
       <div class="nav-item active" onclick="switchTab('page-home', this)">
         <div class="nav-icon-wrapper">
-          <svg class="nav-icon" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+          <svg class="nav-icon" viewBox="0 0 24 24">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          </svg>
         </div>
         <span data-translate="home_nav">Home</span>
       </div>
       <div class="nav-item" onclick="switchTab('page-mails', this)">
         <div class="nav-icon-wrapper">
           <div class="nav-badge" id="unread-badge"></div>
-          <svg class="nav-icon" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+          <svg class="nav-icon" viewBox="0 0 24 24">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+            <polyline points="22,6 12,13 2,6"></polyline>
+          </svg>
         </div>
         <span data-translate="mails_nav">Mails</span>
       </div>
-          <div class="nav-item" onclick="switchTab('page-news', this)">
-            <div class="nav-icon-wrapper">
-          <svg class="nav-icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-            </div>
-            <span data-translate="news_nav">News</span>
-          </div>
+      <div class="nav-item" onclick="switchTab('page-news', this)">
+        <div class="nav-icon-wrapper">
+          <svg class="nav-icon" viewBox="0 0 24 24">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+          </svg>
+        </div>
+        <span data-translate="news_nav">News</span>
+      </div>
       <div class="nav-item" onclick="switchTab('page-search', this)">
         <div class="nav-icon-wrapper">
-          <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <svg class="nav-icon" viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
         </div>
         <span data-translate="search_nav">Suche</span>
       </div>
       <div class="nav-item" onclick="switchTab('page-profil', this)">
         <div class="nav-icon-wrapper">
-          <svg class="nav-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          <svg class="nav-icon" viewBox="0 0 24 24">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
         </div>
         <span data-translate="profile_nav">Profil</span>
       </div>
     </div>
   </div>
 
-    <!-- Hier werden nun die ausgelagerten JS-Dateien eingebunden -->
+  <!-- Hier werden nun die ausgelagerten JS-Dateien eingebunden -->
   <script src="app.js"></script>
   <script src="animations.js"></script>
 
 </body>
+
 </html>

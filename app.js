@@ -854,6 +854,8 @@ window.addEventListener('DOMContentLoaded', () => {
   if (mensaList) dummyMensaHTML = mensaList.innerHTML;
   const scheduleBox = document.getElementById('widget-schedule');
   if (scheduleBox) dummyScheduleHTML = scheduleBox.innerHTML;
+  const parkingChart = document.getElementById('parking-chart-container');
+  if (parkingChart) window.dummyParkingHTML = parkingChart.innerHTML;
 
   // Wecke das kostenlose Render-Backend lautlos im Hintergrund auf (Cold Start umgehen)
   fetch('https://thd-app-backend.onrender.com/').catch(() => { });
@@ -988,6 +990,7 @@ window.addEventListener('DOMContentLoaded', () => {
       if (isRealModeEnabled) {
         loadRealMensaData();
         updateScheduleWidget(false);
+        loadRealParkingData();
       }
     }
   });
@@ -1032,6 +1035,7 @@ window.addEventListener('DOMContentLoaded', () => {
     if (isRealModeEnabled) {
       loadRealMensaData(); // Lädt den Live-Speiseplan über OpenMensa beim App-Start
       loadSchedule(); // Lädt den iCal Stundenplan beim App-Start
+      loadRealParkingData();
     } else {
       updateScheduleProgress(true, true); // Synchronisiert Dummy-Daten mit der aktuellen echten Zeit beim Start
     }
@@ -2389,7 +2393,7 @@ const searchData = [
   { id: 'widget-schedule', title: 'Stundenplan', page: 'page-home', loc: 'Home' },
   { id: 'widget-ects', title: 'Statistiken', page: 'page-home', loc: 'Home' },
   { id: 'widget-mensa', title: 'Mensa & Guthaben', page: 'page-home', loc: 'Home' },
-  { id: 'widget-parking', title: 'Parkplatz', page: 'page-home', loc: 'Home' },
+  { id: 'widget-parking', title: 'Parkhaus', page: 'page-home', loc: 'Home' },
   { id: 'widget-rental', title: 'Verleih', page: 'page-home', loc: 'Home' },
   { id: 'widget-vpn', title: 'VPN', page: 'page-home', loc: 'Home' },
   { id: 'page-services', title: 'Dienste', page: 'page-services', loc: 'Menü' },
@@ -2590,11 +2594,11 @@ const translations = {
     dashboard_header: "Dashboard",
     ects_label: "ECTS",
     mensa_balance_label: "Karten-Guthaben",
-    parking_title: "Studierendenparkplatz",
+    parking_title: "Parkhaus",
     parking_status_full: "Fast voll",
     parking_status_medium: "Gut besucht",
     parking_status_low: "Viele frei",
-    parking_text: "Ca. {spots} von 200 Plätzen belegt",
+    parking_text: "Ca. {spots} von {total} Plätzen belegt",
     parking_modal_title: "Auslastung",
     parking_modal_subtitle: "Heute",
     parking_forecast: "Prognose",
@@ -2607,7 +2611,7 @@ const translations = {
     widget_ects: "Statistiken",
     widget_schedule: "Stundenplan",
     widget_mensa: "Mensa",
-    widget_parking: "Parkplatz",
+    widget_parking: "Parkhaus",
     widget_rental: "Verleih",
     widget_vpn: "VPN",
     services_modal_title: "Dienste",
@@ -2715,7 +2719,7 @@ const translations = {
     theme_oled: "Anti-Ghosting",
     language_label: "Sprache",
     settings_storage: "Daten lokal speichern",
-    settings_real_mode: "Echte Daten\n(Mensa, Stundenplan, KI-Mails, Events)",
+    settings_real_mode: "Echte Daten\n(Mensa, Stundenplan, Parkhaus, KI-Mails, Events)",
     ok_button: "OK",
     settings_privacy: "Privatmodus",
     info_privacy_title: "Privatmodus",
@@ -2725,7 +2729,7 @@ const translations = {
     info_storage_title: "Daten lokal speichern",
     info_storage_desc: "Speichert deine Einstellungen, Änderungen am Dashboard und andere Daten lokal auf deinem Gerät. Wenn deaktiviert, wird alles beim Schließen der App zurückgesetzt.",
     info_real_mode_title: "Echte Daten",
-    info_real_mode_desc: "Lädt den echten Speiseplan der Mensa Deggendorf, den aktuellen iCal-Stundenplan, echte Hochschul-Veranstaltungen und aktiviert die KI-Antworten bei E-Mails. Wenn deaktiviert, werden Dummy-Daten zu Demonstrationszwecken angezeigt.",
+    info_real_mode_desc: "Lädt den echten Speiseplan der Mensa Deggendorf, den aktuellen iCal-Stundenplan, die Parkhaus-Auslastung, echte Hochschul-Veranstaltungen und aktiviert die KI-Antworten bei E-Mails. Wenn deaktiviert, werden Dummy-Daten zu Demonstrationszwecken angezeigt.",
     setup_show_again: "Beim Start anzeigen",
     info_show_again_title: "Dialog anzeigen",
     info_show_again_desc: "Wenn aktiviert, erscheint dieser Willkommensbildschirm bei jedem App-Start erneut. So kannst du schnell zwischen dem Offline- und Live-Modus wechseln.",
@@ -2810,7 +2814,7 @@ const translations = {
     parking_status_full: "Almost full",
     parking_status_medium: "Busy",
     parking_status_low: "Many free",
-    parking_text: "Approx. {spots} of 200 spots taken",
+    parking_text: "Approx. {spots} of {total} spots taken",
     parking_modal_title: "Utilization",
     parking_modal_subtitle: "Today",
     parking_forecast: "Forecast",
@@ -2931,7 +2935,7 @@ const translations = {
     theme_oled: "Anti-Ghosting",
     language_label: "Language",
     settings_storage: "Save data locally",
-    settings_real_mode: "Real Data\n(Mensa, Schedule, AI Mails, Events)",
+    settings_real_mode: "Real Data\n(Mensa, Schedule, Parking, AI Mails, Events)",
     ok_button: "OK",
     settings_privacy: "Privacy Mode",
     info_privacy_title: "Privacy Mode",
@@ -2941,7 +2945,7 @@ const translations = {
     info_storage_title: "Save data locally",
     info_storage_desc: "Saves your settings, dashboard modifications, and other data locally on your device. If disabled, everything resets when you close the app.",
     info_real_mode_title: "Real Data",
-    info_real_mode_desc: "Loads the real cafeteria menu for Deggendorf, the current iCal schedule, real university events, and enables AI email replies. If disabled, dummy data is shown for demonstration purposes.",
+    info_real_mode_desc: "Loads the real cafeteria menu for Deggendorf, the current iCal schedule, parking occupancy, real university events, and enables AI email replies. If disabled, dummy data is shown for demonstration purposes.",
     setup_show_again: "Show on startup",
     info_show_again_title: "Show dialog",
     info_show_again_desc: "If enabled, this welcome screen will appear on every app startup. Useful to quickly switch between offline and live modes.",
@@ -3026,7 +3030,7 @@ const translations = {
     parking_status_full: "Melkein täynnä",
     parking_status_medium: "Varattu",
     parking_status_low: "Paljon vapaita",
-    parking_text: "Noin {spots}/200 paikkaa varattu",
+    parking_text: "Noin {spots}/{total} paikkaa varattu",
     parking_modal_title: "Käyttöaste",
     parking_modal_subtitle: "Tänään",
     parking_forecast: "Ennuste",
@@ -3147,7 +3151,7 @@ const translations = {
     theme_oled: "Anti-Ghosting",
     language_label: "Kieli",
     settings_storage: "Tallenna tiedot paikallisesti",
-    settings_real_mode: "Oikeat tiedot\n(Ruokala, Lukujärjestys, AI-postit, Tapahtumat)",
+    settings_real_mode: "Oikeat tiedot\n(Ruokala, Lukujärjestys, Parkkihalli, AI-postit, Tapahtumat)",
     ok_button: "OK",
     settings_privacy: "Yksityisyystila",
     info_privacy_title: "Yksityisyystila",
@@ -3157,7 +3161,7 @@ const translations = {
     info_storage_title: "Tallenna tiedot paikallisesti",
     info_storage_desc: "Tallentaa asetuksesi, kojelaudan muokkaukset ja muut tiedot paikallisesti laitteellesi. Jos tämä on pois päältä, kaikki nollautuu, kun suljet sovelluksen.",
     info_real_mode_title: "Oikeat tiedot",
-    info_real_mode_desc: "Lataa Deggendorfin todellisen ruokalistan, nykyisen iCal-lukujärjestyksen, todelliset yliopiston tapahtumat ja ottaa käyttöön tekoälyn sähköpostivastaukset. Jos pois päältä, näytetään demotietoja esittelytarkoituksessa.",
+    info_real_mode_desc: "Lataa Deggendorfin todellisen ruokalistan, nykyisen iCal-lukujärjestyksen, parkkihallin täyttöasteen, todelliset yliopiston tapahtumat ja ottaa käyttöön tekoälyn sähköpostivastaukset. Jos pois päältä, näytetään demotietoja esittelytarkoituksessa.",
     setup_show_again: "Näytä käynnistettäessä",
     info_show_again_title: "Näytä valintaikkuna",
     info_show_again_desc: "Jos otettu käyttöön, tämä tervetulonäyttö tulee näkyviin joka kerta, kun sovellus käynnistetään. Hyödyllinen vaihdettaessa offline- ja live-tilojen välillä.",
@@ -3210,7 +3214,9 @@ const translations = {
 
 let currentLanguage = 'de';
 let occupiedParkingSpots = 170;
+let totalParkingSpots = 435;
 let currentParkingSpots = 0;
+let parkingDailyCache = {};
 let mensaBalance = 12.00;
 let displayedMensaBalance = 12.00;
 let currentGPA = 2.1;
@@ -4018,12 +4024,12 @@ function updateParkingDisplay(animate = true) {
 }
 
 function applyParkingVisuals(spots, bar, statusText) {
-  const percentage = (spots / 200) * 100;
+  const percentage = (spots / totalParkingSpots) * 100;
   bar.style.width = percentage + '%';
 
   const el = document.querySelector('[data-translate="parking_text"]');
   if (el) {
-    el.innerText = translations[currentLanguage].parking_text.replace('{spots}', Math.round(spots));
+    el.innerText = translations[currentLanguage].parking_text.replace('{spots}', Math.round(spots)).replace('{total}', totalParkingSpots);
   }
 
   let r, g, b;
@@ -4060,15 +4066,18 @@ function initParkingChartInteraction() {
   const chartContainer = document.getElementById('parking-chart-container');
   if (!chartContainer) return;
 
-  const tooltip = document.createElement('div');
-  tooltip.className = 'chart-tooltip';
-  tooltip.id = 'chart-tooltip';
-  chartContainer.appendChild(tooltip);
-
   let isInteracting = false;
 
   const handleInteraction = (e) => {
     if (e.cancelable) e.preventDefault(); // Verhindert Scrollen beim Wischen über das Diagramm
+
+    let tooltip = document.getElementById('chart-tooltip');
+    if (!tooltip) {
+      tooltip = document.createElement('div');
+      tooltip.className = 'chart-tooltip';
+      tooltip.id = 'chart-tooltip';
+      chartContainer.appendChild(tooltip);
+    }
 
     isInteracting = true;
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
@@ -4095,7 +4104,7 @@ function initParkingChartInteraction() {
 
       const bar = closestWrapper.querySelector('.chart-bar');
       const heightPercent = parseInt(bar.style.height);
-      const cars = Math.round((heightPercent / 100) * 200); // 200 ist die maximale Auslastung
+      const cars = Math.round((heightPercent / 100) * totalParkingSpots);
 
       tooltip.innerText = translations[currentLanguage].chart_cars_tooltip.replace('{n}', cars);
 
@@ -4113,9 +4122,28 @@ function initParkingChartInteraction() {
 
   const stopInteraction = () => {
     isInteracting = false;
-    chartContainer.classList.remove('has-active');
-    chartContainer.querySelectorAll('.chart-bar-wrapper').forEach(w => w.classList.remove('active'));
-    tooltip.style.opacity = '0';
+    let tooltip = document.getElementById('chart-tooltip');
+
+    if (isRealModeEnabled) {
+      const now = new Date();
+      let currentHour = now.getHours();
+      if (currentHour >= 8 && currentHour <= 18) {
+        const currentIdx = currentHour - 8;
+        chartContainer.querySelectorAll('.chart-bar-wrapper').forEach((w, idx) => {
+          if (idx === currentIdx) w.classList.add('active');
+          else w.classList.remove('active');
+        });
+        chartContainer.classList.add('has-active');
+      } else {
+        chartContainer.classList.remove('has-active');
+        chartContainer.querySelectorAll('.chart-bar-wrapper').forEach(w => w.classList.remove('active'));
+      }
+    } else {
+      chartContainer.classList.remove('has-active');
+      chartContainer.querySelectorAll('.chart-bar-wrapper').forEach(w => w.classList.remove('active'));
+    }
+
+    if (tooltip) tooltip.style.opacity = '0';
   };
 
   chartContainer.addEventListener('touchstart', handleInteraction, { passive: false });
@@ -4126,6 +4154,111 @@ function initParkingChartInteraction() {
   chartContainer.addEventListener('mousedown', (e) => { if (e.button === 0) handleInteraction(e); });
   chartContainer.addEventListener('mousemove', (e) => { if (isInteracting) handleInteraction(e); });
   document.addEventListener('mouseup', () => { if (isInteracting) stopInteraction(); });
+}
+
+function approximateParkingChart(used, total) {
+  const currentPercent = Math.min(100, Math.max(0, Math.round((used / total) * 100)));
+  const now = new Date();
+  let currentHour = now.getHours();
+
+  const isClosed = currentHour < 8 || currentHour > 18;
+  const activeHour = isClosed ? 18 : currentHour;
+  const currentIdx = activeHour - 8;
+
+  // Basis-Kurve für das Parkhaus (08:00 - 18:00)
+  const baseCurve = [15, 30, 50, 75, 90, 85, 70, 50, 35, 20, 10];
+
+  // Skalierungsfaktor basierend auf dem aktuellen Wert
+  const baseCurrent = Math.max(1, baseCurve[currentIdx]);
+  let scaleFactor = currentPercent / baseCurrent;
+
+  // Begrenze extreme Skalierung
+  if (scaleFactor > 2) scaleFactor = 2;
+  if (scaleFactor < 0.2) scaleFactor = 0.2;
+
+  const chartContainer = document.getElementById('parking-chart-container');
+  if (!chartContainer) return;
+
+  const chartWrappers = chartContainer.querySelectorAll('.chart-bar-wrapper');
+  chartWrappers.forEach((wrapper, idx) => {
+    const bar = wrapper.querySelector('.chart-bar');
+    if (bar) {
+      const barHour = 8 + idx;
+
+      let h = baseCurve[idx] * scaleFactor;
+
+      if (barHour === currentHour) {
+        h = currentPercent; // Exakter Wert für die aktuelle Stunde
+      } else if (parkingDailyCache[barHour] !== undefined) {
+        h = parkingDailyCache[barHour]; // Echt-gemerkter Wert aus der Vergangenheit!
+      } else {
+        // Leichtes Rauschen
+        h = h + (Math.random() * 10 - 5);
+      }
+
+      h = Math.max(2, Math.min(100, h)); // Mindestens 2%, maximal 100%
+
+      bar.style.height = h + '%';
+
+      if (barHour <= currentHour) {
+        bar.className = 'chart-bar ' + (h >= 80 ? 'high' : h >= 50 ? 'medium' : 'low');
+      } else {
+        bar.className = 'chart-bar future';
+      }
+
+      // Highlight the current hour
+      if (idx === currentIdx && !isClosed) {
+        wrapper.classList.add('active');
+      } else {
+        wrapper.classList.remove('active');
+      }
+    }
+  });
+
+  if (!isClosed) {
+    chartContainer.classList.add('has-active');
+  } else {
+    chartContainer.classList.remove('has-active');
+  }
+}
+
+async function loadRealParkingData() {
+  try {
+    const directUrl = 'https://tfs.stadtparken-deggendorf.de/api/parking/';
+    const proxyUrl = 'https://thd-app-backend.onrender.com/api/proxy?url=' + encodeURIComponent(directUrl);
+
+    let response;
+    try {
+      response = await fetch(directUrl);
+    } catch (e) {
+      response = await fetch(proxyUrl);
+    }
+
+    if (!response.ok) throw new Error('Network error');
+    const data = await response.json();
+
+    // Finde "PH Donau" (ID 11)
+    const donau = data.result.find(p => p.id === 11 || p.name.includes('Donau'));
+    if (donau) {
+      occupiedParkingSpots = donau.used;
+      totalParkingSpots = 435; // Wie im Prompt vorgegeben
+
+      // Werte pro Stunde dauerhaft cachen
+      if (isStorageEnabled()) {
+        const today = new Date().toISOString().split('T')[0];
+        const currentHour = new Date().getHours();
+        const currentPercent = Math.min(100, Math.max(0, Math.round((occupiedParkingSpots / totalParkingSpots) * 100)));
+        
+        parkingDailyCache[currentHour] = currentPercent;
+        localStorage.setItem('thd_parking_daily_cache', JSON.stringify({ date: today, hours: parkingDailyCache }));
+      }
+
+      approximateParkingChart(occupiedParkingSpots, totalParkingSpots);
+      updateParkingDisplay(true);
+    }
+  } catch (error) {
+    console.error("Fehler beim Laden der Parkdaten:", error);
+  }
 }
 
 function initGradeChartInteraction() {
@@ -4299,7 +4432,7 @@ function setLanguage(lang) {
     if (translations[lang] && translations[lang][key]) {
       let text = translations[lang][key];
       if (key === 'parking_text') {
-        text = text.replace('{spots}', occupiedParkingSpots);
+        text = text.replace('{spots}', Math.round(currentParkingSpots)).replace('{total}', totalParkingSpots);
       }
 
       if (el.hasAttribute('placeholder')) {
@@ -4362,7 +4495,7 @@ function setLanguage(lang) {
     if (translations[lang] && translations[lang][key]) {
       let text = translations[lang][key];
       if (key === 'parking_text') {
-        text = text.replace('{spots}', occupiedParkingSpots);
+        text = text.replace('{spots}', Math.round(currentParkingSpots)).replace('{total}', totalParkingSpots);
       }
 
       const isPlaceholder = el.hasAttribute('placeholder');
@@ -5195,7 +5328,7 @@ Struktur:
 }
 Variiere die Werte realistisch und zufällig!
 Regeln für rentals: Max 3 Items pro Array (können auch leer sein). Für 'loc' nutze NUR diese Orte: A, B, C, D, E, F, G, H, I, J, K, L, ITC, Bibliothek. WICHTIG: Alles was mit Medien, Kameras, Audio, Video oder Grafiklabor zu tun hat, MUSS zwingend als loc "J Gebäude" haben!
-parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
+parkingSpots: 0-435. parkingHistory: 11 Prozentwerte von 0-100.`;
 
   try {
     const response = await fetch(url, {
@@ -5224,7 +5357,7 @@ parkingSpots: 0-200. parkingHistory: 11 Prozentwerte von 0-100.`;
     updateStudyTimeDisplay(true);
 
     if (aiData.parkingSpots !== undefined) {
-      occupiedParkingSpots = Math.max(0, Math.min(200, parseInt(aiData.parkingSpots) || 0));
+      occupiedParkingSpots = Math.max(0, Math.min(totalParkingSpots, parseInt(aiData.parkingSpots) || 0));
       updateParkingDisplay(true);
     }
 
@@ -6266,8 +6399,9 @@ function toggleStorage(enabled) {
   } else {
     localStorage.setItem('thd_storage_enabled', 'false');
     // Alle Daten löschen, außer der Einstellung selbst
-    const keysToRemove = ['thd_widget_order', 'thd_mensa_balance', 'thd_gpa', 'thd_parking_spots', 'thd_ects', 'thd_ects_scroll_index', 'thd_study_current', 'thd_study_total', 'thd_study_extra', 'thd_mails_html', 'thd_ilearn_html', 'thd_search_history', 'thd_profile_pic', 'thd_profile_name', 'thd_schedule_cache', 'thd_mensa_cache', 'thd_news_cache', 'thd_favorite_events', 'thd_real_mode', 'thd_privacy_mode', 'thd_theme', 'thd_language', 'thd_widget_visibility', 'thd_vpn_state', 'thd_setup_completed', 'thd_study_group', 'thd_grades_html', 'thd_profile_semester', 'thd_rental_books_html', 'thd_rental_tech_html', 'thd_parking_history_html', 'thd_rental_view'];
+    const keysToRemove = ['thd_widget_order', 'thd_mensa_balance', 'thd_gpa', 'thd_parking_spots', 'thd_ects', 'thd_ects_scroll_index', 'thd_study_current', 'thd_study_total', 'thd_study_extra', 'thd_mails_html', 'thd_ilearn_html', 'thd_search_history', 'thd_profile_pic', 'thd_profile_name', 'thd_schedule_cache', 'thd_mensa_cache', 'thd_news_cache', 'thd_favorite_events', 'thd_real_mode', 'thd_privacy_mode', 'thd_theme', 'thd_language', 'thd_widget_visibility', 'thd_vpn_state', 'thd_setup_completed', 'thd_study_group', 'thd_grades_html', 'thd_profile_semester', 'thd_rental_books_html', 'thd_rental_tech_html', 'thd_parking_history_html', 'thd_rental_view', 'thd_parking_daily_cache'];
     keysToRemove.forEach(k => localStorage.removeItem(k));
+    parkingDailyCache = {};
   }
 }
 
@@ -6281,6 +6415,7 @@ function toggleRealMode(enabled) {
     loadRealMensaData();
     loadSchedule();
     loadNewsEvents();
+    loadRealParkingData();
   } else {
     // Dummy-Daten wiederherstellen ohne Reload
     const mensaList = document.querySelector('#widget-mensa .scroll-list');
@@ -6291,6 +6426,12 @@ function toggleRealMode(enabled) {
       window.allScheduleEvents = []; // Echte Kalender-Events löschen
       widgetSelectedDay = -1;
       updateScheduleProgress(true, true); // Fortschrittsbalken und Scroll-Pos aktualisieren
+    }
+    const parkingChart = document.getElementById('parking-chart-container');
+    if (parkingChart && window.dummyParkingHTML) {
+      parkingChart.innerHTML = window.dummyParkingHTML;
+      occupiedParkingSpots = 170;
+      updateParkingDisplay(true);
     }
     loadNewsEvents();
   }
@@ -6508,6 +6649,19 @@ function loadAllData() {
   if (savedParkingChartHtml !== null) {
     const parkingChart = document.getElementById('parking-chart-container');
     if (parkingChart) parkingChart.innerHTML = savedParkingChartHtml;
+  }
+
+  const savedParkingDaily = localStorage.getItem('thd_parking_daily_cache');
+  if (savedParkingDaily) {
+    try {
+      const parsed = JSON.parse(savedParkingDaily);
+      const today = new Date().toISOString().split('T')[0];
+      if (parsed.date === today) {
+        parkingDailyCache = parsed.hours || {};
+      } else {
+        localStorage.removeItem('thd_parking_daily_cache');
+      }
+    } catch(e){}
   }
 
   const savedProfilePic = localStorage.getItem('thd_profile_pic');
