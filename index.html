@@ -27,15 +27,16 @@
   <script>
     (function () {
       var savedTheme = localStorage.getItem('thd_theme') || 'dark';
+      if (savedTheme === 'oled') savedTheme = 'thd';
       document.body.classList.add('theme-' + savedTheme);
       var metaThemeColor = document.querySelector('meta[name="theme-color"]');
       var metaColorScheme = document.querySelector('meta[name="color-scheme"]');
       if (savedTheme === 'light') {
         if (metaThemeColor) metaThemeColor.setAttribute('content', '#EBEBF0');
         if (metaColorScheme) metaColorScheme.setAttribute('content', 'light');
-      } else if (savedTheme === 'oled') {
-        if (metaThemeColor) metaThemeColor.setAttribute('content', '#0A0A0A');
-        if (metaColorScheme) metaColorScheme.setAttribute('content', 'dark');
+      } else if (savedTheme === 'thd') {
+        if (metaThemeColor) metaThemeColor.setAttribute('content', '#ffffff');
+        if (metaColorScheme) metaColorScheme.setAttribute('content', 'light');
       }
     })();
   </script>
@@ -77,8 +78,8 @@
           <button id="setup-theme-btn-dark" class="segment-btn active" onclick="setTheme('dark')"
             data-translate="theme_dark"
             style="padding: 8px 0; font-size: 13px; flex: 1; z-index: 2; border-radius: 9px;">Dunkel</button>
-          <button id="setup-theme-btn-oled" class="segment-btn" onclick="setTheme('oled')" data-translate="theme_oled"
-            style="padding: 8px 0; font-size: 13px; flex: 1; z-index: 2; border-radius: 9px;">Anti-Ghosting</button>
+          <button id="setup-theme-btn-thd" class="segment-btn" onclick="setTheme('thd')" data-translate="theme_thd"
+            style="padding: 8px 0; font-size: 13px; flex: 1; z-index: 2; border-radius: 9px;">THD Design</button>
         </div>
         <hr style="border: 0; border-top: 1px dashed var(--grid-line); margin: 5px 0;">
 
@@ -114,7 +115,8 @@
             </svg>
           </div>
           <label class="toggle-switch" style="transform: scale(0.8); transform-origin: right;">
-            <input type="checkbox" class="toggle-input" id="setup-real-mode-toggle" checked>
+            <input type="checkbox" class="toggle-input" id="setup-real-mode-toggle" checked
+              onchange="toggleRealMode(this.checked)">
             <span class="toggle-slider"></span>
           </label>
         </div>
@@ -778,8 +780,8 @@
             style="padding: 8px 0; font-size: 13px; flex: 1; z-index: 2; border-radius: 9px;">Hell</button>
           <button id="theme-btn-dark" class="segment-btn active" onclick="setTheme('dark')" data-translate="theme_dark"
             style="padding: 8px 0; font-size: 13px; flex: 1; z-index: 2; border-radius: 9px;">Dunkel</button>
-          <button id="theme-btn-oled" class="segment-btn" onclick="setTheme('oled')" data-translate="theme_oled"
-            style="padding: 8px 0; font-size: 13px; flex: 1; z-index: 2; border-radius: 9px;">Anti-Ghosting</button>
+          <button id="theme-btn-thd" class="segment-btn" onclick="setTheme('thd')" data-translate="theme_thd"
+            style="padding: 8px 0; font-size: 13px; flex: 1; z-index: 2; border-radius: 9px;">THD Design</button>
         </div>
 
         <div
@@ -1522,7 +1524,8 @@
 
       <div id="page-home" class="page active">
         <div class="header">
-          <span data-translate="dashboard_header">Dashboard</span>
+          <span class="dashboard-title-text" data-translate="dashboard_header">Dashboard</span>
+          <div class="dashboard-logo-img"></div>
           <svg class="header-icon-svg" viewBox="0 0 24 24" onclick="openWidgetSettingsModal()">
             <circle cx="12" cy="12" r="10"></circle>
             <line x1="12" y1="8" x2="12" y2="16"></line>
@@ -1998,8 +2001,8 @@
         <!-- Chat messages will be appended here -->
       </div>
       <div style="flex-shrink: 0; margin-bottom: 10px;">
-        <input type="text" id="ai-chat-input" class="compose-input" placeholder="Frag mich etwas..." autocomplete="off"
-          spellcheck="false" onkeypress="if(event.key === 'Enter') sendAiChatMessage()">
+        <input type="text" id="ai-chat-input" class="compose-input" placeholder="Frag mich etwas... (Gemini 2.5 Flash)"
+          autocomplete="off" spellcheck="false" onkeypress="if(event.key === 'Enter') sendAiChatMessage()">
       </div>
       <div class="modal-buttons" style="flex-shrink: 0;">
         <button class="btn btn-secondary" onclick="closeModal()" data-translate="close_button">Schließen</button>

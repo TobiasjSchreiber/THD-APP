@@ -201,6 +201,13 @@ async function loadNewsEvents() {
     listContainer.innerHTML = '';
     let validEvents = dataToRender.filter(e => e.start >= now).sort((a, b) => a.start - b.start);
 
+    let isShowingPast = false;
+    if (validEvents.length === 0 && dataToRender.length > 0) {
+      // Falls alle Termine veraltet sind, zeige zur Bestätigung die letzten vergangenen Termine an
+      validEvents = dataToRender.sort((a, b) => b.start - a.start).slice(0, 15);
+      isShowingPast = true;
+    }
+
     if (validEvents.length === 0) {
       listContainer.innerHTML = '<div style="color: var(--text-sub); text-align: center; padding: 20px;">Keine anstehenden Termine gefunden.</div>';
       return;
@@ -211,6 +218,13 @@ async function loadNewsEvents() {
       en: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
       fi: ['Tam', 'Hel', 'Maa', 'Huh', 'Tou', 'Kes', 'Hei', 'Elo', 'Syy', 'Lok', 'Mar', 'Jou']
     };
+
+    if (isShowingPast) {
+      const msg = document.createElement('div');
+      msg.style.cssText = 'color: var(--text-sub); text-align: center; font-size: 13px; margin-bottom: 5px;';
+      msg.innerText = currentLanguage === 'de' ? 'Aktuell keine neuen Termine. Hier sind die letzten:' : 'No new events. Showing past ones:';
+      listContainer.appendChild(msg);
+    }
 
     validEvents.forEach(event => {
       const day = String(event.start.getDate()).padStart(2, '0');
@@ -244,7 +258,7 @@ async function loadNewsEvents() {
 
       card.innerHTML = `
              <div style="display: flex; gap: 15px; width: 100%; align-items: flex-start;">
-                <div style="background: rgba(58, 130, 247, 0.15); color: var(--accent-blue); border: 1.5px solid rgba(58, 130, 247, 0.3); border-radius: 12px; padding: 10px 8px; text-align: center; min-width: 58px; box-sizing: border-box; flex-shrink: 0; margin-top: 2px;"><div style="font-size: 22px; font-weight: 700; line-height: 1;">${day}</div><div style="font-size: 12px; font-weight: 600; text-transform: uppercase; margin-top: 4px;">${month}</div></div>
+                <div style="background: ${isShowingPast ? 'var(--item-bg)' : 'rgba(58, 130, 247, 0.15)'}; color: ${isShowingPast ? 'var(--text-sub)' : 'var(--accent-blue)'}; border: 1.5px solid ${isShowingPast ? 'var(--border-color)' : 'rgba(58, 130, 247, 0.3)'}; border-radius: 12px; padding: 10px 8px; text-align: center; min-width: 58px; box-sizing: border-box; flex-shrink: 0; margin-top: 2px;"><div style="font-size: 22px; font-weight: 700; line-height: 1;">${day}</div><div style="font-size: 12px; font-weight: 600; text-transform: uppercase; margin-top: 4px;">${month}</div></div>
                 <div style="flex: 1; min-width: 0;">
                    <div style="display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; width: 100%;"><div style="font-weight: 600; font-size: 15px; color: var(--text-main); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.3; flex: 1;">${event.summary}</div><div class="event-star ${isFav ? 'active' : ''}" onclick="toggleEventFavorite('${event.id}', event, this)" style="flex-shrink: 0; padding: 2px; cursor: pointer; margin-top: -2px; margin-right: -2px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg></div></div>
                    <div style="color: var(--accent-blue); font-size: 13px; font-weight: 600; margin-top: 6px;">${timeStr}</div>
@@ -307,6 +321,8 @@ async function loadNewsEvents() {
         const doc = parser.parseFromString(htmlString, 'text/html');
 
         const eventLinks = doc.querySelectorAll('a[href*="veranstaltung?id="]');
+        const futureIds = new Set();
+        const pastIds = new Set();
         const seenIds = new Set();
 
         eventLinks.forEach(link => {
@@ -314,101 +330,172 @@ async function loadNewsEvents() {
           const match = href.match(/id=(\d+)/);
           if (match) {
             const id = match[1];
-
-            // Textinhalt säubern (entfernt überflüssige Leerzeichen & HTML-Tags)
             let title = link.textContent.trim().replace(/\s+/g, ' ');
 
-            // Herausfiltern von Kalender-Tagen (die nur aus Zahlen bestehen) oder komplett leeren Links
             if (title !== '' && !/^\d+$/.test(title) && !seenIds.has(id)) {
               seenIds.add(id);
+              let textContext = link.textContent;
+              let parent = link.parentElement;
+              const dateCheckRegex = /(\d{2})\.(\d{2})\.(\d{2,4})|(\d{1,2})\.?\s*(Jan|Feb|Mär|Mar|Apr|Mai|May|Jun|Jul|Aug|Sep|Okt|Oct|Nov|Dez)/i;
+
+              // Gehe im DOM nach oben, bis wir ein Datum finden (max. 2000 Zeichen, um nicht die ganze Seite zu scannen)
+              while (parent && parent.textContent.length < 2000) {
+                textContext = parent.textContent;
+                if (dateCheckRegex.test(textContext)) break;
+                parent = parent.parentElement;
+              }
+
+              let isPast = false;
+              let foundDate = false;
+              let latestDate = 0;
+
+              // Pattern 1: Klassisches Datum (DD.MM.YYYY)
+              const dateRegex1 = /(\d{2})\.(\d{2})\.(\d{2,4})/g;
+              let dMatch;
+              while ((dMatch = dateRegex1.exec(textContext)) !== null) {
+                foundDate = true;
+                let year = parseInt(dMatch[3], 10);
+                if (year < 100) year += 2000;
+                let month = parseInt(dMatch[2], 10) - 1;
+                let day = parseInt(dMatch[1], 10);
+                let eventDate = new Date(year, month, day, 23, 59, 59).getTime();
+                if (eventDate > latestDate) latestDate = eventDate;
+              }
+
+              // Pattern 2: Text-Datum (z.B. 06 Mai oder 12 Jan 2024)
+              const dateRegex2 = /(\d{1,2})\.?\s*(Jan|Feb|Mär|Mar|Apr|Mai|May|Jun|Jul|Aug|Sep|Okt|Oct|Nov|Dez)[a-z]*(\s+\d{2,4})?/gi;
+              const monthMap = { 'jan': 0, 'feb': 1, 'mär': 2, 'mar': 2, 'apr': 3, 'mai': 4, 'may': 4, 'jun': 5, 'jul': 6, 'aug': 7, 'sep': 8, 'okt': 9, 'oct': 9, 'nov': 10, 'dez': 11, 'dec': 11 };
+              while ((dMatch = dateRegex2.exec(textContext)) !== null) {
+                foundDate = true;
+                let month = monthMap[dMatch[2].toLowerCase()];
+                let year = now.getFullYear();
+                if (dMatch[3] && dMatch[3].trim() !== '') {
+                  year = parseInt(dMatch[3].trim(), 10);
+                  if (year < 100) year += 2000;
+                } else {
+                  // Wenn kein Jahr angegeben ist und der Monat extrem weit in der Vergangenheit liegt, ist vermutlich das nächste Jahr gemeint
+                  if (month < now.getMonth() - 6) {
+                    year += 1;
+                  }
+                }
+                let eventDate = new Date(year, month, parseInt(dMatch[1], 10), 23, 59, 59).getTime();
+                if (eventDate > latestDate) latestDate = eventDate;
+              }
+
+              if (foundDate && latestDate < now.getTime()) {
+                isPast = true;
+              }
+
+              if (isPast) pastIds.add(id);
+              else futureIds.add(id);
             }
           }
         });
 
-        // Wir nehmen alle gefundenen IDs, arbeiten sie aber in kleinen Schritten ab.
-        // So finden wir garantiert die zukünftigen Termine.
-        const idArray = Array.from(seenIds);
+        let idArray = Array.from(futureIds);
+
+        // Wenn keine zukünftigen gefunden wurden, nimm die letzten vergangenen
+        if (idArray.length === 0 && pastIds.size > 0) {
+          idArray = Array.from(pastIds).slice(-15);
+        }
+
+        // Limit drastisch auf 200 erhöhen. Da der Download nach 8 gefundenen Zukunfts-Terminen
+        // ohnehin stoppt, schützt das hohe Limit davor, dass alte Termine die Queue verstopfen.
+        idArray = idArray.slice(0, 200);
 
         if (idArray.length === 0) {
           if (!useCache) listContainer.innerHTML = '<div style="color: var(--text-sub); text-align: center; padding: 20px;">Keine Termine gefunden.</div>';
           return;
         }
 
-        if (!useCache) {
-          listContainer.innerHTML = '<div style="color: var(--text-sub); text-align: center; padding: 20px;">Lese Kalender-Daten...</div>';
-        }
-
         let upcomingCount = 0;
         eventsData = []; // Reset eventsData for fresh fetch
 
-        // In 6er-Schritten herunterladen, um den Proxy nicht zu überlasten
-        for (let i = 0; i < idArray.length; i += 6) {
-          const chunk = idArray.slice(i, i + 6);
+        // In 12er-Schritten herunterladen, um den "Wasserfall"-Effekt zu verhindern
+        for (let i = 0; i < idArray.length; i += 12) {
+          if (!useCache && listContainer && eventsData.length === 0) {
+            listContainer.innerHTML = `<div style="color: var(--text-sub); text-align: center; padding: 20px;">Suche aktuelle Termine (${Math.min(i, idArray.length)} geprüft)...</div>`;
+          }
+
+          const chunk = idArray.slice(i, i + 12);
           const promises = chunk.map(async (id) => {
+            let timeoutId;
             try {
               const iCalUrl = `https://th-deg.de/de/ical-export?eventid=${id}`;
-              const iCalProxy = 'https://thd-app-backend.onrender.com/api/proxy?url=' + encodeURIComponent(iCalUrl);
-              const res = await fetch(iCalProxy);
-              if (!res.ok) return null;
+              const proxyUrl = 'https://thd-app-backend.onrender.com/api/proxy?url=' + encodeURIComponent(iCalUrl);
+
+              const controller = new AbortController();
+              timeoutId = setTimeout(() => controller.abort(), 4000); // Kürzere Timeout-Zeit (4s)
+              const res = await fetch(proxyUrl, { signal: controller.signal });
+
+              if (!res.ok) {
+                clearTimeout(timeoutId);
+                return null;
+              }
               const text = await res.text();
+              clearTimeout(timeoutId);
 
-              let start = null, end = null, location = "", summary = "", description = "";
-              let currentKey = "";
+              const unfoldedText = text.replace(/\r?\n[ \t]/g, '');
+              if (!unfoldedText.includes('BEGIN:VCALENDAR') && !unfoldedText.includes('BEGIN:VEVENT')) return null;
 
-              const foldedText = text.replace(/\r?\n[ \t]/g, '');
-              const lines = foldedText.split('\n');
+              const upperText = unfoldedText.toUpperCase();
+              const getVal = (key) => {
+                const keyMatch = upperText.match(new RegExp(`(?:^|\\s)${key}[:;]`));
+                if (!keyMatch) return "";
 
-              lines.forEach(line => {
-                line = line.trim();
-                if (!line) return;
+                const startIdx = keyMatch.index + keyMatch[0].length;
+                const nextKeyRegex = /\s(DTSTART|DTEND|LOCATION|DTSTAMP|SUMMARY|DESCRIPTION|UID|SEQUENCE|LAST-MODIFIED|END|BEGIN)[:;]/g;
+                nextKeyRegex.lastIndex = startIdx;
 
-                const matchKey = line.match(/^([A-Z-]+)([:;])/);
-                if (matchKey) {
-                  currentKey = matchKey[1];
-                  const value = line.substring(line.indexOf(':') + 1).replace(/\\,/g, ',');
+                const match = nextKeyRegex.exec(upperText);
+                const endIdx = match ? match.index : unfoldedText.length;
+                return unfoldedText.substring(startIdx, endIdx).trim().replace(/\\,/g, ',').replace(/\\n/gi, ' ');
+              };
 
-                  if (currentKey === 'SUMMARY') summary = value;
-                  else if (currentKey === 'LOCATION') location = value;
-                  else if (currentKey === 'DESCRIPTION') description = value;
-                  else if (currentKey === 'DTSTART') {
-                    const matchTime = line.match(/(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})/);
-                    if (matchTime) {
-                      start = new Date(matchTime[1], matchTime[2] - 1, matchTime[3], matchTime[4], matchTime[5]);
-                      if (line.includes('Z')) start.setHours(start.getHours() + (start.getTimezoneOffset() / -60));
-                    } else {
-                      const matchDate = line.match(/(\d{4})(\d{2})(\d{2})/);
-                      if (matchDate) start = new Date(matchDate[1], matchDate[2] - 1, matchDate[3]);
-                    }
-                  }
-                  else if (currentKey === 'DTEND') {
-                    const matchTime = line.match(/(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})/);
-                    if (matchTime) {
-                      end = new Date(matchTime[1], matchTime[2] - 1, matchTime[3], matchTime[4], matchTime[5]);
-                      if (line.includes('Z')) end.setHours(end.getHours() + (end.getTimezoneOffset() / -60));
-                    } else {
-                      const matchDate = line.match(/(\d{4})(\d{2})(\d{2})/);
-                      if (matchDate) end = new Date(matchDate[1], matchDate[2] - 1, matchDate[3]);
-                    }
-                  }
+              let start = null, end = null;
+
+              let summary = getVal("SUMMARY");
+              let location = getVal("LOCATION");
+              let description = getVal("DESCRIPTION");
+
+              const startStr = getVal("DTSTART");
+              if (startStr) {
+                const matchTime = startStr.match(/(\d{4})-?(\d{2})-?(\d{2})T(\d{2}):?(\d{2})/i);
+                if (matchTime) {
+                  start = new Date(matchTime[1], matchTime[2] - 1, matchTime[3], matchTime[4], matchTime[5]);
+                  if (startStr.includes('Z')) start.setHours(start.getHours() + (start.getTimezoneOffset() / -60));
                 } else {
-                  if (currentKey === 'DESCRIPTION') description += ' ' + line;
-                  else if (currentKey === 'SUMMARY') summary += ' ' + line;
+                  const matchDate = startStr.match(/(\d{4})-?(\d{2})-?(\d{2})/);
+                  if (matchDate) start = new Date(matchDate[1], matchDate[2] - 1, matchDate[3]);
                 }
-              });
+              }
 
-              if (!start || !summary) return null;
+              const endStr = getVal("DTEND");
+              if (endStr) {
+                const matchTime = endStr.match(/(\d{4})-?(\d{2})-?(\d{2})T(\d{2}):?(\d{2})/i);
+                if (matchTime) {
+                  end = new Date(matchTime[1], matchTime[2] - 1, matchTime[3], matchTime[4], matchTime[5]);
+                  if (endStr.includes('Z')) end.setHours(end.getHours() + (end.getTimezoneOffset() / -60));
+                } else {
+                  const matchDate = endStr.match(/(\d{4})-?(\d{2})-?(\d{2})/);
+                  if (matchDate) end = new Date(matchDate[1], matchDate[2] - 1, matchDate[3]);
+                }
+              }
+
+              if (!start) return null;
+              if (!summary) summary = "Termin";
 
               let cleanDesc = description
                 .replace(/&lt;/g, '<').replace(/&gt;/g, '>')
                 .replace(/<br\s*\/?>/gi, ' ')
                 .replace(/<\/p>/gi, ' ')
                 .replace(/<[^>]*>?/gm, '')
-                .replace(/\\n/g, ' ')
                 .replace(/\s+/g, ' ')
                 .trim();
 
               return { id, summary, start, end, location, description: cleanDesc };
             } catch (e) {
+              if (timeoutId) clearTimeout(timeoutId);
               return null;
             }
           });
@@ -420,6 +507,11 @@ async function loadNewsEvents() {
             if (e.start >= now) upcomingCount++;
             eventsData.push(e);
           });
+
+          // Zeige die gefundenen Termine SOFORT an, ohne auf das Ende der Schleife zu warten
+          if (!useCache && eventsData.length > 0) {
+            renderList(eventsData);
+          }
 
           // Aufhören, sobald wir mindestens 8 zukünftige Termine gefunden haben
           if (upcomingCount >= 8) break;
@@ -1031,6 +1123,14 @@ window.addEventListener('DOMContentLoaded', () => {
 
   if (localStorage.getItem('thd_setup_completed') !== 'true') {
     checkInitialSetup();
+    // Lade die Hintergrund-Daten passend zur Voreinstellung des Setup-Dialogs
+    if (isRealModeEnabled) {
+      loadRealMensaData();
+      loadSchedule();
+      loadRealParkingData();
+    } else {
+      updateScheduleProgress(true, true);
+    }
   } else {
     if (isRealModeEnabled) {
       loadRealMensaData(); // Lädt den Live-Speiseplan über OpenMensa beim App-Start
@@ -1746,6 +1846,8 @@ function completeSetup() {
   if (realModeEnabled) {
     loadRealMensaData();
     loadSchedule();
+    loadRealParkingData();
+    loadNewsEvents();
   } else {
     updateScheduleProgress(true, true); // Fortschrittsbalken und Scrollen im Demo-Modus anwenden
   }
@@ -2716,7 +2818,7 @@ const translations = {
     settings_theme: "Design",
     theme_light: "Hell",
     theme_dark: "Dunkel",
-    theme_oled: "Anti-Ghosting",
+    theme_thd: "THD Design",
     language_label: "Sprache",
     settings_storage: "Daten lokal speichern",
     settings_real_mode: "Echte Daten\n(Mensa, Stundenplan, Parkhaus, KI-Mails, Events)",
@@ -2932,7 +3034,7 @@ const translations = {
     settings_theme: "Theme",
     theme_light: "Light",
     theme_dark: "Dark",
-    theme_oled: "Anti-Ghosting",
+    theme_thd: "THD Theme",
     language_label: "Language",
     settings_storage: "Save data locally",
     settings_real_mode: "Real Data\n(Mensa, Schedule, Parking, AI Mails, Events)",
@@ -3148,7 +3250,7 @@ const translations = {
     settings_theme: "Teema",
     theme_light: "Vaalea",
     theme_dark: "Tumma",
-    theme_oled: "Anti-Ghosting",
+    theme_thd: "THD Teema",
     language_label: "Kieli",
     settings_storage: "Tallenna tiedot paikallisesti",
     settings_real_mode: "Oikeat tiedot\n(Ruokala, Lukujärjestys, Parkkihalli, AI-postit, Tapahtumat)",
@@ -3221,7 +3323,7 @@ let mensaBalance = 12.00;
 let displayedMensaBalance = 12.00;
 let currentGPA = 2.1;
 let isPrivacyModeEnabled = false;
-let isRealModeEnabled = false;
+let isRealModeEnabled = true;
 let currentStudyGroup = 'MT-MP4';
 
 // --- Globale Variable für den echten Stundenplan ---
@@ -4248,7 +4350,7 @@ async function loadRealParkingData() {
         const today = new Date().toISOString().split('T')[0];
         const currentHour = new Date().getHours();
         const currentPercent = Math.min(100, Math.max(0, Math.round((occupiedParkingSpots / totalParkingSpots) * 100)));
-        
+
         parkingDailyCache[currentHour] = currentPercent;
         localStorage.setItem('thd_parking_daily_cache', JSON.stringify({ date: today, hours: parkingDailyCache }));
       }
@@ -5514,7 +5616,7 @@ function openAiAssistantModal() {
     }
     const chatHistory = document.getElementById('ai-chat-history');
     if (chatHistory && chatHistory.children.length === 0) {
-      addAiMessage("Rrrr! Hallo! Ich bin Deggster. Wie kann ich dir helfen?", "ai_happy");
+      addAiMessage("Rrrr! Hallo! Ich bin Deggster, dein KI-Assistent. Wie kann ich dir helfen?", "ai_happy");
     }
   }, 10);
 }
@@ -6507,7 +6609,7 @@ function loadAllData() {
 
   const savedTheme = localStorage.getItem('thd_theme');
   if (savedTheme) {
-    setTheme(savedTheme);
+    setTheme(savedTheme === 'oled' ? 'thd' : savedTheme);
   } else {
     setTheme('dark');
   }
@@ -6661,7 +6763,7 @@ function loadAllData() {
       } else {
         localStorage.removeItem('thd_parking_daily_cache');
       }
-    } catch(e){}
+    } catch (e) { }
   }
 
   const savedProfilePic = localStorage.getItem('thd_profile_pic');
@@ -6973,24 +7075,24 @@ function updateScheduleProgress(isInitialLoad = false, animate = false) {
 }
 
 function setTheme(theme) {
-  document.body.classList.remove('theme-light', 'theme-dark', 'theme-oled');
+  document.body.classList.remove('theme-light', 'theme-dark', 'theme-thd', 'theme-oled');
   document.body.classList.add('theme-' + theme);
 
   // Meta Tags für das Betriebssystem (Mobile Statusbar) aktualisieren
   const metaThemeColor = document.querySelector('meta[name="theme-color"]');
   if (metaThemeColor) {
     if (theme === 'light') metaThemeColor.setAttribute('content', '#EBEBF0');
-    else if (theme === 'oled') metaThemeColor.setAttribute('content', '#0A0A0A');
+    else if (theme === 'thd') metaThemeColor.setAttribute('content', '#ffffff');
     else metaThemeColor.setAttribute('content', '#000000');
   }
   const metaColorScheme = document.querySelector('meta[name="color-scheme"]');
   if (metaColorScheme) {
-    metaColorScheme.setAttribute('content', theme === 'light' ? 'light' : 'dark');
+    metaColorScheme.setAttribute('content', (theme === 'light' || theme === 'thd') ? 'light' : 'dark');
   }
 
   let index = 1; // standard dunkel
   if (theme === 'light') index = 0;
-  else if (theme === 'oled') index = 2;
+  else if (theme === 'thd') index = 2;
 
   // Einstellungen Modal
   document.querySelectorAll('#theme-segments .segment-btn').forEach(b => b.classList.remove('active'));
