@@ -24,6 +24,7 @@
 </head>
 
 <body>
+  <canvas id="liquid-glass-canvas" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0;"></canvas>
   <script>
     (function () {
       var savedTheme = localStorage.getItem('thd_theme') || 'dark';
@@ -37,6 +38,10 @@
       } else if (savedTheme === 'thd') {
         if (metaThemeColor) metaThemeColor.setAttribute('content', '#ffffff');
         if (metaColorScheme) metaColorScheme.setAttribute('content', 'light');
+      } else if (savedTheme === 'glass') {
+        if (metaThemeColor) metaThemeColor.setAttribute('content', '#0a0a0f');
+        var canvas = document.getElementById('liquid-glass-canvas');
+        if (canvas) canvas.style.display = 'block';
       }
     })();
   </script>
@@ -70,7 +75,7 @@
         <div class="segmented-control" id="setup-theme-segments"
           style="display: flex; padding: 4px; position: relative;">
           <div class="segment-highlight" id="setup-theme-segment-highlight"
-            style="width: calc((100% - 8px) / 3); position: absolute; left: 4px; top: 4px; bottom: 4px; transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);">
+            style="width: calc((100% - 8px) / 4); position: absolute; left: 4px; top: 4px; bottom: 4px; transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);">
           </div>
           <button id="setup-theme-btn-light" class="segment-btn" onclick="setTheme('light')"
             data-translate="theme_light"
@@ -79,7 +84,9 @@
             data-translate="theme_dark"
             style="padding: 8px 0; font-size: 13px; flex: 1; z-index: 2; border-radius: 9px;">Dunkel</button>
           <button id="setup-theme-btn-thd" class="segment-btn" onclick="setTheme('thd')" data-translate="theme_thd"
-            style="padding: 8px 0; font-size: 13px; flex: 1; z-index: 2; border-radius: 9px;">THD Design</button>
+            style="padding: 8px 0; font-size: 13px; flex: 1; z-index: 2; border-radius: 9px;">THD</button>
+          <button id="setup-theme-btn-glass" class="segment-btn" onclick="setTheme('glass')" ondblclick="openLiquidGlassSettingsModal()" data-translate="theme_glass"
+            style="padding: 8px 0; font-size: 13px; flex: 1; z-index: 2; border-radius: 9px;">Glass</button>
         </div>
         <hr style="border: 0; border-top: 1px dashed var(--grid-line); margin: 5px 0;">
 
@@ -774,14 +781,16 @@
           style="margin-top: 15px; margin-bottom: 5px; text-align: center;">Design</div>
         <div class="segmented-control" id="theme-segments" style="display: flex; padding: 4px; position: relative;">
           <div class="segment-highlight" id="theme-segment-highlight"
-            style="width: calc((100% - 8px) / 3); position: absolute; left: 4px; top: 4px; bottom: 4px; transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);">
+            style="width: calc((100% - 8px) / 4); position: absolute; left: 4px; top: 4px; bottom: 4px; transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);">
           </div>
           <button id="theme-btn-light" class="segment-btn" onclick="setTheme('light')" data-translate="theme_light"
             style="padding: 8px 0; font-size: 13px; flex: 1; z-index: 2; border-radius: 9px;">Hell</button>
           <button id="theme-btn-dark" class="segment-btn active" onclick="setTheme('dark')" data-translate="theme_dark"
             style="padding: 8px 0; font-size: 13px; flex: 1; z-index: 2; border-radius: 9px;">Dunkel</button>
           <button id="theme-btn-thd" class="segment-btn" onclick="setTheme('thd')" data-translate="theme_thd"
-            style="padding: 8px 0; font-size: 13px; flex: 1; z-index: 2; border-radius: 9px;">THD Design</button>
+            style="padding: 8px 0; font-size: 13px; flex: 1; z-index: 2; border-radius: 9px;">THD</button>
+          <button id="theme-btn-glass" class="segment-btn" onclick="setTheme('glass')" ondblclick="openLiquidGlassSettingsModal()" data-translate="theme_glass"
+            style="padding: 8px 0; font-size: 13px; flex: 1; z-index: 2; border-radius: 9px;">Glass</button>
         </div>
 
         <div
@@ -1543,7 +1552,7 @@
 
         <div class="top-widgets-row" id="widget-top-row">
           <div class="ects-free" id="widget-ects">
-            <div class="ects-item" onclick="openAiAssistantModal()"
+            <div id="deggster-widget" class="ects-item" onclick="openAiAssistantModal()"
               style="cursor: pointer; position: relative; overflow: hidden;">
               <img id="ai-assistant-thumb" src="ai_neutral.png"
                 style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; object-position: top; transform: scaleX(-1) scale(1.15) translateY(-6%); z-index: 0;"
@@ -2063,6 +2072,36 @@
         <button class="btn btn-primary" onclick="saveStudyTime()" data-translate="save_button">Speichern</button>
       </div>
 
+    </div>
+
+    <div id="liquid-glass-settings-modal" class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title" data-translate="glass_settings_title">Liquid Glass Settings</h3>
+      </div>
+      <div class="modal-info" style="display: flex; flex-direction: column; gap: 15px;">
+        <div style="display: flex; flex-direction: column; gap: 5px;">
+          <label style="font-size: 13px; color: var(--text-sub);" data-translate="glass_blur">Unschärfe (Blur)</label>
+          <input type="range" id="glass-blur-slider" min="0" max="50" value="20" style="width: 100%;">
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 5px;">
+          <label style="font-size: 13px; color: var(--text-sub);" data-translate="glass_saturation">Sättigung (Saturation)</label>
+          <input type="range" id="glass-sat-slider" min="100" max="300" value="180" style="width: 100%;">
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 5px;">
+          <label style="font-size: 13px; color: var(--text-sub);" data-translate="glass_opacity">Deckkraft (Opacity)</label>
+          <input type="range" id="glass-opacity-slider" min="0" max="100" value="20" style="width: 100%;">
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <label style="font-size: 13px; color: var(--text-sub);" data-translate="glass_caustics">Caustics Animation</label>
+          <label class="toggle-switch" style="transform: scale(0.8); transform-origin: right;">
+            <input type="checkbox" class="toggle-input" id="glass-caustics-toggle" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+      <div class="modal-buttons" style="margin-top: 20px;">
+        <button class="btn btn-secondary" onclick="closeModal()" data-translate="close_button">Schließen</button>
+      </div>
     </div>
 
     <div class="navbar">

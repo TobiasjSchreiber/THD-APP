@@ -657,16 +657,20 @@ function initHeaderEasterEgg() {
           letterToFly.style.opacity = '0';
         }, 600);
 
-        // Wenn es der letzte Buchstabe war, alles zurücksetzen
+        // Wenn es der letzte Buchstabe war, alles zurücksetzen oder Logo zeigen (THD)
         if (letters.length === 1) {
           setTimeout(() => {
-            headerSpan.innerHTML = headerSpan.getAttribute('data-original-text');
-            headerSpan.classList.remove('is-letterized');
-            headerSpan.classList.add('header-pop-in');
+            if (document.body.classList.contains('theme-thd')) {
+              headerSpan.parentElement.classList.add('logo-revealed');
+            } else {
+              headerSpan.innerHTML = headerSpan.getAttribute('data-original-text');
+              headerSpan.classList.remove('is-letterized');
+              headerSpan.classList.add('header-pop-in');
 
-            setTimeout(() => {
-              headerSpan.classList.remove('header-pop-in');
-            }, 400);
+              setTimeout(() => {
+                headerSpan.classList.remove('header-pop-in');
+              }, 400);
+            }
           }, 600);
         }
       }
@@ -2818,7 +2822,13 @@ const translations = {
     settings_theme: "Design",
     theme_light: "Hell",
     theme_dark: "Dunkel",
-    theme_thd: "THD Design",
+    theme_thd: "THD",
+    theme_glass: "Glass",
+    glass_settings_title: "Liquid Glass Einstellungen",
+    glass_blur: "Unschärfe (Blur)",
+    glass_saturation: "Sättigung (Saturation)",
+    glass_opacity: "Deckkraft (Opacity)",
+    glass_caustics: "Caustics Animation",
     language_label: "Sprache",
     settings_storage: "Daten lokal speichern",
     settings_real_mode: "Echte Daten\n(Mensa, Stundenplan, Parkhaus, KI-Mails, Events)",
@@ -3034,7 +3044,13 @@ const translations = {
     settings_theme: "Theme",
     theme_light: "Light",
     theme_dark: "Dark",
-    theme_thd: "THD Theme",
+    theme_thd: "THD",
+    theme_glass: "Glass",
+    glass_settings_title: "Liquid Glass Settings",
+    glass_blur: "Blur",
+    glass_saturation: "Saturation",
+    glass_opacity: "Opacity",
+    glass_caustics: "Caustics Animation",
     language_label: "Language",
     settings_storage: "Save data locally",
     settings_real_mode: "Real Data\n(Mensa, Schedule, Parking, AI Mails, Events)",
@@ -3250,7 +3266,13 @@ const translations = {
     settings_theme: "Teema",
     theme_light: "Vaalea",
     theme_dark: "Tumma",
-    theme_thd: "THD Teema",
+    theme_thd: "THD",
+    theme_glass: "Glass",
+    glass_settings_title: "Liquid Glass -asetukset",
+    glass_blur: "Sumennus (Blur)",
+    glass_saturation: "Kylläisyys (Saturation)",
+    glass_opacity: "Peittävyys (Opacity)",
+    glass_caustics: "Caustics-animaatio",
     language_label: "Kieli",
     settings_storage: "Tallenna tiedot paikallisesti",
     settings_real_mode: "Oikeat tiedot\n(Ruokala, Lukujärjestys, Parkkihalli, AI-postit, Tapahtumat)",
@@ -4527,6 +4549,12 @@ function setLanguage(lang) {
     updateMensaModalView();
     updateMensaWeekLabel();
   }
+
+  // Logo-Reveal und Easter-Egg Zustand zurücksetzen bei Sprachwechsel
+  document.querySelectorAll('.header').forEach(h => h.classList.remove('logo-revealed'));
+  document.querySelectorAll('.header > span[data-translate]').forEach(headerSpan => {
+    headerSpan.classList.remove('is-letterized');
+  });
 
   // 1. Zuerst temporär den finalen Text setzen, um die exakte Zielhöhe zu messen
   document.querySelectorAll('[data-translate]').forEach(el => {
@@ -7075,7 +7103,7 @@ function updateScheduleProgress(isInitialLoad = false, animate = false) {
 }
 
 function setTheme(theme) {
-  document.body.classList.remove('theme-light', 'theme-dark', 'theme-thd', 'theme-oled');
+  document.body.classList.remove('theme-light', 'theme-dark', 'theme-thd', 'theme-oled', 'theme-glass');
   document.body.classList.add('theme-' + theme);
 
   // Meta Tags für das Betriebssystem (Mobile Statusbar) aktualisieren
@@ -7083,6 +7111,7 @@ function setTheme(theme) {
   if (metaThemeColor) {
     if (theme === 'light') metaThemeColor.setAttribute('content', '#EBEBF0');
     else if (theme === 'thd') metaThemeColor.setAttribute('content', '#ffffff');
+    else if (theme === 'glass') metaThemeColor.setAttribute('content', '#0a0a0f');
     else metaThemeColor.setAttribute('content', '#000000');
   }
   const metaColorScheme = document.querySelector('meta[name="color-scheme"]');
@@ -7093,6 +7122,7 @@ function setTheme(theme) {
   let index = 1; // standard dunkel
   if (theme === 'light') index = 0;
   else if (theme === 'thd') index = 2;
+  else if (theme === 'glass') index = 3;
 
   // Einstellungen Modal
   document.querySelectorAll('#theme-segments .segment-btn').forEach(b => b.classList.remove('active'));
@@ -7108,9 +7138,26 @@ function setTheme(theme) {
   const highlight2 = document.getElementById('setup-theme-segment-highlight');
   if (highlight2) highlight2.style.transform = `translateX(${index * 100}%)`;
 
+  // Liquid Glass Canvas starten/stoppen
+  if (theme === 'glass') {
+    startLiquidGlassCanvas();
+    loadLiquidGlassSettings();
+  } else {
+    stopLiquidGlassCanvas();
+  }
+
   if (isStorageEnabled()) {
     localStorage.setItem('thd_theme', theme);
   }
+
+  // Logo-Reveal und Easter-Egg Zustand zurücksetzen beim Themenwechsel
+  document.querySelectorAll('.header').forEach(h => h.classList.remove('logo-revealed'));
+  document.querySelectorAll('.header > span[data-translate]').forEach(headerSpan => {
+    if (headerSpan.classList.contains('is-letterized')) {
+      headerSpan.innerHTML = headerSpan.getAttribute('data-original-text');
+      headerSpan.classList.remove('is-letterized');
+    }
+  });
 }
 
 // --- ToDo Widget Logic ---
@@ -7426,4 +7473,198 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize state
     updateWeatherWidget();
   }
+});
+
+// ============================
+// === Liquid Glass Engine ====
+// ============================
+
+let liquidGlassAnimId = null;
+let liquidGlassCausticsEnabled = true;
+
+// Caustic blob definitions for the animated background
+const liquidGlassBlobs = [
+  { x: 0.2, y: 0.3, vx: 0.0003, vy: 0.0004, radius: 0.35, hue: 210, sat: 80, light: 50, alpha: 0.12 },
+  { x: 0.7, y: 0.6, vx: -0.0004, vy: 0.0003, radius: 0.30, hue: 280, sat: 70, light: 45, alpha: 0.10 },
+  { x: 0.5, y: 0.2, vx: 0.0002, vy: -0.0003, radius: 0.25, hue: 340, sat: 65, light: 50, alpha: 0.08 },
+  { x: 0.3, y: 0.8, vx: 0.0005, vy: -0.0002, radius: 0.28, hue: 170, sat: 75, light: 45, alpha: 0.09 },
+  { x: 0.8, y: 0.3, vx: -0.0003, vy: 0.0005, radius: 0.22, hue: 45, sat: 80, light: 55, alpha: 0.07 },
+];
+
+function startLiquidGlassCanvas() {
+  const canvas = document.getElementById('liquid-glass-canvas');
+  if (!canvas) return;
+
+  canvas.style.display = 'block';
+  const ctx = canvas.getContext('2d');
+
+  function resize() {
+    canvas.width = window.innerWidth * window.devicePixelRatio;
+    canvas.height = window.innerHeight * window.devicePixelRatio;
+    ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  let time = 0;
+
+  function drawCaustics() {
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+
+    ctx.setTransform(window.devicePixelRatio, 0, 0, window.devicePixelRatio, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+
+    // Dark base
+    ctx.fillStyle = '#0a0a0f';
+    ctx.fillRect(0, 0, w, h);
+
+    if (!liquidGlassCausticsEnabled) {
+      liquidGlassAnimId = requestAnimationFrame(drawCaustics);
+      return;
+    }
+
+    time += 0.004;
+
+    // Draw each blob with organic motion
+    liquidGlassBlobs.forEach((blob, i) => {
+      // Organic sine-wave motion
+      const bx = blob.x + Math.sin(time * (1 + i * 0.3) + i) * 0.08;
+      const by = blob.y + Math.cos(time * (0.8 + i * 0.2) + i * 2) * 0.06;
+
+      const cx = bx * w;
+      const cy = by * h;
+      const r = blob.radius * Math.min(w, h);
+
+      // Pulsating radius
+      const pulseR = r * (1 + Math.sin(time * 1.5 + i * 1.2) * 0.08);
+
+      const gradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, pulseR);
+
+      // Shifting hue over time
+      const hueShift = Math.sin(time * 0.5 + i) * 20;
+      const hue = blob.hue + hueShift;
+      const alphaMultiplier = 0.6 + Math.sin(time * 0.8 + i * 0.7) * 0.4;
+
+      gradient.addColorStop(0, `hsla(${hue}, ${blob.sat}%, ${blob.light}%, ${blob.alpha * alphaMultiplier})`);
+      gradient.addColorStop(0.5, `hsla(${hue}, ${blob.sat}%, ${blob.light}%, ${blob.alpha * alphaMultiplier * 0.4})`);
+      gradient.addColorStop(1, `hsla(${hue}, ${blob.sat}%, ${blob.light}%, 0)`);
+
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, w, h);
+    });
+
+    // Caustic light concentration overlay
+    const causticX = w * (0.5 + Math.sin(time * 0.7) * 0.3);
+    const causticY = h * (0.4 + Math.cos(time * 0.5) * 0.25);
+    const causticR = Math.min(w, h) * 0.3;
+
+    const causticGradient = ctx.createRadialGradient(causticX, causticY, 0, causticX, causticY, causticR);
+    causticGradient.addColorStop(0, 'rgba(255, 255, 255, 0.03)');
+    causticGradient.addColorStop(0.6, 'rgba(255, 255, 255, 0.01)');
+    causticGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+
+    ctx.fillStyle = causticGradient;
+    ctx.fillRect(0, 0, w, h);
+
+    liquidGlassAnimId = requestAnimationFrame(drawCaustics);
+  }
+
+  // Cancel previous animation if running
+  if (liquidGlassAnimId) {
+    cancelAnimationFrame(liquidGlassAnimId);
+  }
+  drawCaustics();
+}
+
+function stopLiquidGlassCanvas() {
+  if (liquidGlassAnimId) {
+    cancelAnimationFrame(liquidGlassAnimId);
+    liquidGlassAnimId = null;
+  }
+  const canvas = document.getElementById('liquid-glass-canvas');
+  if (canvas) {
+    canvas.style.display = 'none';
+  }
+}
+
+// --- Liquid Glass Settings Modal ---
+function openLiquidGlassSettingsModal() {
+  // Zuerst das aktuelle Settings-Modal schließen, falls offen
+  const currentOpenModal = document.querySelector('.modal.show');
+  if (currentOpenModal) {
+    currentOpenModal.classList.remove('show');
+  }
+
+  setTimeout(() => {
+    document.getElementById('modal-overlay').classList.add('show');
+    setTimeout(() => {
+      document.getElementById('liquid-glass-settings-modal').classList.add('show');
+    }, 10);
+  }, currentOpenModal ? 300 : 0);
+}
+
+function loadLiquidGlassSettings() {
+  const savedSettings = localStorage.getItem('thd_glass_settings');
+  if (savedSettings) {
+    try {
+      const settings = JSON.parse(savedSettings);
+      applyLiquidGlassSettings(settings);
+
+      // Update slider positions
+      const blurSlider = document.getElementById('glass-blur-slider');
+      const satSlider = document.getElementById('glass-sat-slider');
+      const opacitySlider = document.getElementById('glass-opacity-slider');
+      const causticsToggle = document.getElementById('glass-caustics-toggle');
+
+      if (blurSlider) blurSlider.value = settings.blur ?? 20;
+      if (satSlider) satSlider.value = settings.saturation ?? 180;
+      if (opacitySlider) opacitySlider.value = settings.opacity ?? 20;
+      if (causticsToggle) causticsToggle.checked = settings.caustics !== false;
+
+      liquidGlassCausticsEnabled = settings.caustics !== false;
+    } catch (e) {
+      console.log('Glass settings parse error:', e);
+    }
+  }
+}
+
+function applyLiquidGlassSettings(settings) {
+  document.body.style.setProperty('--lg-blur', (settings.blur ?? 20) + 'px');
+  document.body.style.setProperty('--lg-saturation', (settings.saturation ?? 180) + '%');
+  document.body.style.setProperty('--lg-opacity', (settings.opacity ?? 20) / 100);
+}
+
+function saveLiquidGlassSettings() {
+  const blurSlider = document.getElementById('glass-blur-slider');
+  const satSlider = document.getElementById('glass-sat-slider');
+  const opacitySlider = document.getElementById('glass-opacity-slider');
+  const causticsToggle = document.getElementById('glass-caustics-toggle');
+
+  const settings = {
+    blur: parseInt(blurSlider?.value ?? 20),
+    saturation: parseInt(satSlider?.value ?? 180),
+    opacity: parseInt(opacitySlider?.value ?? 20),
+    caustics: causticsToggle?.checked ?? true,
+  };
+
+  if (isStorageEnabled()) {
+    localStorage.setItem('thd_glass_settings', JSON.stringify(settings));
+  }
+
+  applyLiquidGlassSettings(settings);
+  liquidGlassCausticsEnabled = settings.caustics;
+}
+
+// Wire up slider event listeners when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+  const blurSlider = document.getElementById('glass-blur-slider');
+  const satSlider = document.getElementById('glass-sat-slider');
+  const opacitySlider = document.getElementById('glass-opacity-slider');
+  const causticsToggle = document.getElementById('glass-caustics-toggle');
+
+  if (blurSlider) blurSlider.addEventListener('input', saveLiquidGlassSettings);
+  if (satSlider) satSlider.addEventListener('input', saveLiquidGlassSettings);
+  if (opacitySlider) opacitySlider.addEventListener('input', saveLiquidGlassSettings);
+  if (causticsToggle) causticsToggle.addEventListener('change', saveLiquidGlassSettings);
 });

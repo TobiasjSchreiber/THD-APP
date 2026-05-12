@@ -70,6 +70,8 @@ body.theme-light {
 
 body.theme-thd {
   font-family: 'Saira', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
   --bg-color: #ffffff;
   --card-bg: #1f4675;
   --modal-bg: #1f4675;
@@ -87,7 +89,7 @@ body.theme-thd {
   --building-fill: rgba(31, 70, 117, 0.1);
   --btn-secondary-bg: rgba(31, 70, 117, 0.1);
   --grid-line: rgba(31, 70, 117, 0.1);
-  --noise-opacity: 0.06;
+  --noise-opacity: 0;
   --chart-future-1: rgba(31, 70, 117, 0.05);
   --chart-future-2: rgba(31, 70, 117, 0.15);
   --overlay-bg: rgba(0, 0, 0, 0.4);
@@ -364,11 +366,19 @@ body.privacy-mode .sensitive-data {
 }
 
 body.theme-thd .dashboard-title-text {
-  display: none;
+  display: block;
 }
 
 body.theme-thd .dashboard-logo-img {
-  display: block;
+  display: none;
+}
+
+body.theme-thd .header.logo-revealed .dashboard-title-text {
+  display: none !important;
+}
+
+body.theme-thd .header.logo-revealed .dashboard-logo-img {
+  display: block !important;
 }
 
 /* Home Styles */
@@ -3021,4 +3031,294 @@ body.theme-light .widget-placeholder {
   background-color: #FF3B30;
   color: #FFFFFF;
   border-color: #FF3B30;
+}
+
+/* ============================== */
+/* === Liquid Glass Theme ======= */
+/* ============================== */
+
+body.theme-glass {
+  --bg-color: #0a0a0f;
+  --card-bg: rgba(255, 255, 255, 0.06);
+  --modal-bg: rgba(30, 30, 45, 0.75);
+  --text-main: #FFFFFF;
+  --text-sub: rgba(255, 255, 255, 0.6);
+  --accent-orange: #FF6B2C;
+  --accent-blue: #5AC8FA;
+
+  --border-color: rgba(255, 255, 255, 0.12);
+  --item-bg: rgba(255, 255, 255, 0.04);
+  --track-bg: rgba(255, 255, 255, 0.08);
+  --modal-glass: rgba(20, 20, 35, 0.6);
+  --modal-border: rgba(255, 255, 255, 0.18);
+  --mail-selected: rgba(90, 200, 250, 0.12);
+  --building-fill: rgba(255, 255, 255, 0.08);
+  --btn-secondary-bg: rgba(255, 255, 255, 0.1);
+  --grid-line: rgba(255, 255, 255, 0.06);
+  --noise-opacity: 0;
+  --chart-future-1: rgba(255, 255, 255, 0.03);
+  --chart-future-2: rgba(255, 255, 255, 0.08);
+  --overlay-bg: rgba(0, 0, 0, 0.55);
+  --chart-low-bg: rgba(52, 199, 89, 0.25);
+  --chart-med-bg: rgba(255, 149, 0, 0.25);
+  --chart-high-bg: rgba(255, 59, 48, 0.25);
+  --progress-bg: rgba(255, 255, 255, 0.08);
+  --schedule-fill-bg: rgba(90, 200, 250, 0.08);
+  --segmented-bg: rgba(255, 255, 255, 0.06);
+  --glass-bg: rgba(10, 10, 15, 0.5);
+
+  /* Liquid Glass custom properties */
+  --lg-blur: 20px;
+  --lg-saturation: 180%;
+  --lg-opacity: 0.2;
+  --lg-border-opacity: 0.15;
+  --lg-surface: rgba(255, 255, 255, var(--lg-opacity));
+}
+
+/* Liquid Glass canvas */
+#liquid-glass-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+body.theme-glass #liquid-glass-canvas {
+  display: block !important;
+}
+
+/* Make the app container sit above the canvas */
+body.theme-glass .app-container {
+  position: relative;
+  z-index: 1;
+}
+
+/* --- Glass Surface Mixin applied to all card-like elements --- */
+body.theme-glass .schedule-item,
+body.theme-glass .mensa-card,
+body.theme-glass .parking-card,
+body.theme-glass .rental-card,
+body.theme-glass .vpn-card,
+body.theme-glass .services-card,
+body.theme-glass .weather-card,
+body.theme-glass .todo-card,
+body.theme-glass .stat-card,
+body.theme-glass .progress-section,
+body.theme-glass .mail-item,
+body.theme-glass .search-result-item,
+body.theme-glass .suggestion-tile,
+body.theme-glass .service-tile,
+body.theme-glass .service-card,
+body.theme-glass .dropdown-notification,
+body.theme-glass .news-item,
+body.theme-glass .widget-preview-card,
+body.theme-glass .ects-item {
+  background: var(--lg-surface) !important;
+  backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-saturation));
+  -webkit-backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-saturation));
+  border: 1px solid rgba(255, 255, 255, var(--lg-border-opacity));
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.03);
+  transition: background 0.3s ease, backdrop-filter 0.3s ease, border 0.3s ease, transform 0.2s ease;
+}
+
+/* Glass styling for list items (no backdrop filter to prevent double brightness and fix border-radius clipping) */
+body.theme-glass .list-item {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Remove glass background for Deggster on Dashboard */
+body.theme-glass #deggster-widget {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Glass Modal */
+body.theme-glass .modal {
+  background: rgba(20, 20, 35, 0.65) !important;
+  backdrop-filter: blur(calc(var(--lg-blur) * 1.5)) saturate(var(--lg-saturation));
+  -webkit-backdrop-filter: blur(calc(var(--lg-blur) * 1.5)) saturate(var(--lg-saturation));
+  border: 1px solid rgba(255, 255, 255, var(--lg-border-opacity));
+  box-shadow:
+    0 8px 48px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.03);
+}
+
+/* Glass Header */
+body.theme-glass .header {
+  background: rgba(10, 10, 15, 0.45) !important;
+  backdrop-filter: blur(calc(var(--lg-blur) * 1.2)) saturate(var(--lg-saturation));
+  -webkit-backdrop-filter: blur(calc(var(--lg-blur) * 1.2)) saturate(var(--lg-saturation));
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Glass Navbar */
+body.theme-glass .navbar {
+  background: rgba(10, 10, 15, 0.5) !important;
+  backdrop-filter: blur(calc(var(--lg-blur) * 1.5)) saturate(var(--lg-saturation));
+  -webkit-backdrop-filter: blur(calc(var(--lg-blur) * 1.5)) saturate(var(--lg-saturation));
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Glass Segmented Control */
+body.theme-glass .segmented-control {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+body.theme-glass .segment-highlight {
+  background: rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Glass Inputs */
+body.theme-glass .compose-input,
+body.theme-glass .search-input {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--text-main);
+}
+
+/* Glass Toggle */
+body.theme-glass .toggle-slider {
+  background: rgba(255, 255, 255, 0.12) !important;
+}
+
+body.theme-glass .toggle-input:checked + .toggle-slider {
+  background: rgba(90, 200, 250, 0.45) !important;
+}
+
+/* Overlay for glass theme */
+body.theme-glass ~ #modal-overlay,
+body.theme-glass #modal-overlay {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+/* Subtle glow effects for glass cards */
+body.theme-glass .mensa-card,
+body.theme-glass .parking-card,
+body.theme-glass .rental-card,
+body.theme-glass .weather-card,
+body.theme-glass .todo-card {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Fresnel-like edge highlight on hover (desktop) */
+@media (hover: hover) {
+  body.theme-glass .schedule-item:hover,
+  body.theme-glass .mensa-card:hover,
+  body.theme-glass .parking-card:hover,
+  body.theme-glass .rental-card:hover,
+  body.theme-glass .mail-item:hover,
+  body.theme-glass .news-item:hover,
+  body.theme-glass .list-item:hover,
+  body.theme-glass .suggestion-tile:hover,
+  body.theme-glass .service-tile:hover,
+  body.theme-glass .stat-card:hover {
+    border-color: rgba(255, 255, 255, 0.25) !important;
+    box-shadow:
+      0 4px 24px rgba(0, 0, 0, 0.25),
+      inset 0 1px 0 rgba(255, 255, 255, 0.18),
+      0 0 20px rgba(90, 200, 250, 0.06);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+}
+
+/* Glass range slider styling */
+body.theme-glass input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  outline: none;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+body.theme-glass input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 0 12px rgba(90, 200, 250, 0.2);
+  border: 2px solid rgba(90, 200, 250, 0.4);
+  transition: box-shadow 0.2s ease;
+}
+
+body.theme-glass input[type="range"]::-webkit-slider-thumb:hover {
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4), 0 0 20px rgba(90, 200, 250, 0.35);
+}
+
+body.theme-glass input[type="range"]::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 0 12px rgba(90, 200, 250, 0.2);
+  border: 2px solid rgba(90, 200, 250, 0.4);
+}
+
+/* Glass buttons */
+body.theme-glass .btn-primary,
+body.theme-glass .btn-secondary,
+body.theme-glass .fab-button {
+  transition: background 0.3s ease, backdrop-filter 0.3s ease, border 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+body.theme-glass .btn-primary {
+  background: rgba(90, 200, 250, 0.25) !important;
+  border: 1px solid rgba(90, 200, 250, 0.3);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: #fff;
+}
+
+body.theme-glass .btn-secondary {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--text-main);
+}
+
+/* Glass FAB */
+body.theme-glass .fab-button {
+  background: rgba(90, 200, 250, 0.2) !important;
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(90, 200, 250, 0.25);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), 0 0 24px rgba(90, 200, 250, 0.1);
+}
+
+/* Ensure schedule progress fill is glass-compatible */
+body.theme-glass .schedule-progress-fill {
+  background-color: rgba(90, 200, 250, 0.1) !important;
+}
+
+/* VPN card glow animations override */
+body.theme-glass .vpn-card.vpn-connect-anim {
+  box-shadow: 0 0 30px rgba(52, 199, 89, 0.25) !important;
+}
+
+body.theme-glass .vpn-card.vpn-disconnect-anim {
+  box-shadow: 0 0 30px rgba(255, 59, 48, 0.25) !important;
 }
