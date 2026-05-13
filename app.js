@@ -1248,11 +1248,21 @@ function updateStudyTimeDisplay(animate = true) {
   let extraPercent = totalDays > 0 ? (extraDays / totalDays) * 100 : 0;
   if (fillPercent > 100) fillPercent = 100;
 
-  const fillBar = document.querySelector('.progress-bar-fill');
+  const fillBar = document.getElementById('study-progress-bar');
   const extraBar = document.querySelector('.progress-bar-extra');
 
   if (fillBar) {
     fillBar.style.animation = 'none';
+    
+    // Kreise für Liquid-Effekt immer injizieren, CSS regelt die Anzeige im Glass-Modus
+    if (!fillBar.querySelector('.study-liquid-wrapper')) {
+      fillBar.innerHTML = `<div class="study-liquid-wrapper">` + 
+        Array.from({length: 3}, (_, i) => {
+          const randomDelay = -(Math.random() * 20).toFixed(2);
+          return `<div class="circle circle-${i+1}" style="--delay: ${randomDelay}s"></div>`;
+        }).join('') + `</div>`;
+    }
+
     if (animate) {
       fillBar.style.transition = 'none';
       fillBar.style.width = '0%';
@@ -4186,15 +4196,16 @@ function applyParkingVisuals(spots, bar, statusText) {
     // Shift colors slightly for the blobs to create a mixed liquid effect
     const shiftColor = (amt) => `rgb(${Math.min(255, Math.max(0, r + amt))}, ${Math.min(255, Math.max(0, g + amt))}, ${Math.min(255, Math.max(0, b - amt))})`;
     
-    bar.style.setProperty('--c-color-1', shiftColor(-20));
+    bar.style.setProperty('--c-color-1', shiftColor(-60));
     bar.style.setProperty('--c-color-2', color);
-    bar.style.setProperty('--c-color-3', shiftColor(20));
+    bar.style.setProperty('--c-color-3', shiftColor(60));
     
-    if (!bar.querySelector('.circle')) {
-      bar.innerHTML = Array.from({length: 3}, (_, i) => {
-        const randomDelay = -(Math.random() * 20).toFixed(2);
-        return `<div class="circle circle-${i+1}" style="--delay: ${randomDelay}s"></div>`;
-      }).join('');
+    if (!bar.querySelector('.parking-liquid-wrapper')) {
+      bar.innerHTML = `<div class="parking-liquid-wrapper">` + 
+        Array.from({length: 3}, (_, i) => {
+          const randomDelay = -(Math.random() * 20).toFixed(2);
+          return `<div class="circle circle-${i+1}" style="--delay: ${randomDelay}s"></div>`;
+        }).join('') + `</div>`;
     }
   } else {
     bar.style.backgroundColor = color;
@@ -7741,6 +7752,13 @@ function startLiquidGlassCanvas() {
     // Draw Nested Items with Parent Clipping
     nestedItems.forEach(el => {
       if (!isVisible(el)) return;
+
+      // Special case: deggster-widget on dashboard should only show glass effect when scrolled
+      if (el.id === 'deggster-widget') {
+        const container = el.closest('.ects-free');
+        if (container && !container.classList.contains('is-scrolled')) return;
+      }
+
       const rect = el.getBoundingClientRect();
       const style = window.getComputedStyle(el);
       

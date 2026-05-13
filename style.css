@@ -666,15 +666,43 @@ body.theme-thd .header.logo-revealed .dashboard-logo-img {
   height: 10px;
   background: var(--progress-bg);
   border-radius: 5px;
-  overflow: hidden;
   margin-bottom: 8px;
+  position: relative;
+}
+
+body.theme-glass .parking-bar-fill {
+  box-shadow: none;
+}
+
+body.theme-glass .parking-bar-fill::after {
+  content: '';
+  position: absolute;
+  right: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 50px;
+  height: 14px;
+  background: radial-gradient(ellipse at 40px 50%, var(--c-color-2) 0%, transparent 85%);
+  filter: blur(7px);
+  border-radius: 50%;
+  opacity: 0.8;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.parking-liquid-wrapper {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  z-index: 1;
 }
 
 .parking-bar-fill {
   height: 100%;
   width: 0%;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   border-radius: 5px;
 }
 
@@ -1300,9 +1328,16 @@ body.theme-glass .parking-bar-fill .circle.circle-3 { --background: var(--c-colo
   height: 10px;
   background: var(--progress-bg);
   border-radius: 5px;
-  overflow: hidden;
   margin-bottom: 10px;
   position: relative;
+}
+
+.study-liquid-wrapper {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  z-index: 1;
 }
 
 .progress-bar-fill {
@@ -1312,9 +1347,50 @@ body.theme-glass .parking-bar-fill .circle.circle-3 { --background: var(--c-colo
   height: 100%;
   background: var(--accent-blue);
   width: 42%;
-  border-radius: 5px 0 0 5px;
+  border-radius: 5px;
   z-index: 1;
+  overflow: visible;
 }
+
+body.theme-glass .progress-bar-fill::after {
+  content: '';
+  position: absolute;
+  right: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 50px;
+  height: 14px;
+  background: radial-gradient(ellipse at 40px 50%, #5dade2 0%, transparent 85%);
+  filter: blur(7px);
+  border-radius: 50%;
+  opacity: 0.8;
+  z-index: 2;
+  pointer-events: none;
+}
+
+body.theme-glass .progress-bar-fill {
+  background: linear-gradient(90deg, rgba(74, 144, 226, 0.2), rgba(93, 189, 226, 0.2)) !important;
+  backdrop-filter: blur(4px);
+}
+
+body.theme-glass .progress-bar-fill .study-liquid-wrapper .circle {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: var(--background);
+  filter: blur(12px);
+  opacity: 0.9;
+  top: -25px;
+  left: var(--start-x);
+  animation: var(--animation) infinite alternate ease-in-out;
+  animation-delay: var(--delay);
+  pointer-events: none;
+}
+
+body.theme-glass .progress-bar-fill .circle.circle-1 { --background: #4a90e2; --start-x: -10%; --animation: p-circle-1; animation-duration: 8s; }
+body.theme-glass .progress-bar-fill .circle.circle-2 { --background: #5dade2; --start-x: 40%; --animation: p-circle-2; animation-duration: 12s; }
+body.theme-glass .progress-bar-fill .circle.circle-3 { --background: #3498db; --start-x: 80%; --animation: p-circle-3; animation-duration: 10s; }
 
 .progress-bar-extra {
   position: absolute;
