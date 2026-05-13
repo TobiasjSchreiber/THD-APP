@@ -915,8 +915,8 @@
       </div>
       <div class="modal-info" style="text-align: center;">
         <div style="display: flex; justify-content: space-around; margin-bottom: 15px; font-weight: 600;">
-          <div><span style="color: #34C759;">↓</span> <span id="vpn-dl-text">0.00</span> KB/s</div>
-          <div><span style="color: #FF3B30;">↑</span> <span id="vpn-ul-text">0.00</span> KB/s</div>
+          <div><span class="vpn-arrow-dl">↓</span> <span id="vpn-dl-text">0.00</span> KB/s</div>
+          <div><span class="vpn-arrow-ul">↑</span> <span id="vpn-ul-text">0.00</span> KB/s</div>
         </div>
         <div style="position: relative; height: 120px; width: 100%; z-index: 1;">
           <div class="chart-grid-line" style="bottom: 25%;"></div>
@@ -1836,7 +1836,7 @@
                 id="profile-study-time-card">
                 <div class="section-title" data-translate="study_time_title">Studienzeit</div>
                 <div class="progress-bar-container sensitive-data">
-                  <div class="progress-bar-fill"></div>
+                  <div class="progress-bar-fill" id="study-progress-bar"></div>
                   <div class="progress-bar-extra"></div>
                 </div>
                 <div class="progress-labels">
@@ -2080,16 +2080,25 @@
       </div>
       <div class="modal-info" style="display: flex; flex-direction: column; gap: 15px;">
         <div style="display: flex; flex-direction: column; gap: 5px;">
-          <label style="font-size: 13px; color: var(--text-sub);" data-translate="glass_blur">Unschärfe (Blur)</label>
-          <input type="range" id="glass-blur-slider" min="0" max="50" value="20" style="width: 100%;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <label style="font-size: 13px; color: var(--text-sub);" data-translate="glass_blur">Unschärfe (Blur)</label>
+            <span id="glass-blur-value" style="font-size: 13px; color: var(--text-sub);">12px</span>
+          </div>
+          <input type="range" id="glass-blur-slider" min="0" max="50" value="12" style="width: 100%;">
         </div>
         <div style="display: flex; flex-direction: column; gap: 5px;">
-          <label style="font-size: 13px; color: var(--text-sub);" data-translate="glass_saturation">Sättigung (Saturation)</label>
-          <input type="range" id="glass-sat-slider" min="100" max="300" value="180" style="width: 100%;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <label style="font-size: 13px; color: var(--text-sub);" data-translate="glass_saturation">Sättigung (Saturation)</label>
+            <span id="glass-sat-value" style="font-size: 13px; color: var(--text-sub);">250%</span>
+          </div>
+          <input type="range" id="glass-sat-slider" min="100" max="300" value="250" style="width: 100%;">
         </div>
         <div style="display: flex; flex-direction: column; gap: 5px;">
-          <label style="font-size: 13px; color: var(--text-sub);" data-translate="glass_opacity">Deckkraft (Opacity)</label>
-          <input type="range" id="glass-opacity-slider" min="0" max="100" value="20" style="width: 100%;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <label style="font-size: 13px; color: var(--text-sub);" data-translate="glass_opacity">Deckkraft (Opacity)</label>
+            <span id="glass-opacity-value" style="font-size: 13px; color: var(--text-sub);">12%</span>
+          </div>
+          <input type="range" id="glass-opacity-slider" min="0" max="100" value="12" style="width: 100%;">
         </div>
         <div style="display: flex; justify-content: space-between; align-items: center;">
           <label style="font-size: 13px; color: var(--text-sub);" data-translate="glass_caustics">Caustics Animation</label>

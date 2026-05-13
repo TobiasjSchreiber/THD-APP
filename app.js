@@ -1005,7 +1005,7 @@ window.addEventListener('DOMContentLoaded', () => {
       widget.scrollTo({ top: targetTop, behavior: 'smooth' });
     }, { passive: false });
   }
-  fixMouseWheelSnapping('widget-ects', 150);
+  fixMouseWheelSnapping('widget-ects', 154);
   fixMouseWheelSnapping('widget-schedule', 80); // 68px Höhe + 12px Gap
 
   setTimeout(() => {
@@ -1022,7 +1022,7 @@ window.addEventListener('DOMContentLoaded', () => {
       clearTimeout(window.ectsScrollTimeout);
       window.ectsScrollTimeout = setTimeout(() => {
         if (isStorageEnabled()) {
-          const index = Math.round(widgetEcts.scrollTop / 150);
+          const index = Math.round(widgetEcts.scrollTop / 154);
           localStorage.setItem('thd_ects_scroll_index', index);
         }
       }, 150);
@@ -1248,11 +1248,21 @@ function updateStudyTimeDisplay(animate = true) {
   let extraPercent = totalDays > 0 ? (extraDays / totalDays) * 100 : 0;
   if (fillPercent > 100) fillPercent = 100;
 
-  const fillBar = document.querySelector('.progress-bar-fill');
+  const fillBar = document.getElementById('study-progress-bar');
   const extraBar = document.querySelector('.progress-bar-extra');
 
   if (fillBar) {
     fillBar.style.animation = 'none';
+    
+    // Kreise für Liquid-Effekt immer injizieren, CSS regelt die Anzeige im Glass-Modus
+    if (!fillBar.querySelector('.study-liquid-wrapper')) {
+      fillBar.innerHTML = `<div class="study-liquid-wrapper">` + 
+        Array.from({length: 3}, (_, i) => {
+          const randomDelay = -(Math.random() * 20).toFixed(2);
+          return `<div class="circle circle-${i+1}" style="--delay: ${randomDelay}s"></div>`;
+        }).join('') + `</div>`;
+    }
+
     if (animate) {
       fillBar.style.transition = 'none';
       fillBar.style.width = '0%';
@@ -1425,6 +1435,7 @@ function openModal(title, time, room, tasks, searchKeyword) {
 
   setTimeout(() => {
     document.getElementById('course-modal').classList.add('show');
+    enhanceGlassButtons();
   }, 10);
 }
 
@@ -1774,24 +1785,30 @@ function startSetupCountdown() {
   clearInterval(setupCountdownInterval);
   let counter = 5;
 
+  const updateBtnText = (text) => {
+    const span = btn.querySelector('.button-wrapper span');
+    if (span) span.textContent = text;
+    else btn.textContent = text;
+  };
+
   // Button initial sperren und grauer machen
   btn.disabled = true;
   btn.style.opacity = '0.5';
   btn.style.cursor = 'not-allowed';
   btn.removeAttribute('data-translate');
-  btn.innerText = `${translations[currentLanguage].continue_button} (${counter})`;
+  updateBtnText(`${translations[currentLanguage].continue_button} (${counter})`);
 
   setupCountdownInterval = setInterval(() => {
     counter--;
     if (counter > 0) {
-      btn.innerText = `${translations[currentLanguage].continue_button} (${counter})`;
+      updateBtnText(`${translations[currentLanguage].continue_button} (${counter})`);
     } else {
       clearInterval(setupCountdownInterval);
       btn.disabled = false;
       btn.style.opacity = '1';
       btn.style.cursor = 'pointer';
       btn.setAttribute('data-translate', 'continue_button');
-      btn.innerText = translations[currentLanguage].continue_button;
+      updateBtnText(translations[currentLanguage].continue_button);
     }
   }, 1000);
 }
@@ -2225,6 +2242,7 @@ function openDeleteModal() {
   document.getElementById('modal-overlay').classList.add('show');
   setTimeout(() => {
     document.getElementById('delete-modal').classList.add('show');
+    enhanceGlassButtons();
   }, 10);
 }
 
@@ -4170,7 +4188,29 @@ function applyParkingVisuals(spots, bar, statusText) {
   }
 
   const color = `rgb(${r}, ${g}, ${b})`;
-  bar.style.backgroundColor = color;
+  
+  const isGlass = document.body.classList.contains('theme-glass');
+  
+  if (isGlass) {
+    bar.style.backgroundColor = 'transparent';
+    // Shift colors slightly for the blobs to create a mixed liquid effect
+    const shiftColor = (amt) => `rgb(${Math.min(255, Math.max(0, r + amt))}, ${Math.min(255, Math.max(0, g + amt))}, ${Math.min(255, Math.max(0, b - amt))})`;
+    
+    bar.style.setProperty('--c-color-1', shiftColor(-60));
+    bar.style.setProperty('--c-color-2', color);
+    bar.style.setProperty('--c-color-3', shiftColor(60));
+    
+    if (!bar.querySelector('.parking-liquid-wrapper')) {
+      bar.innerHTML = `<div class="parking-liquid-wrapper">` + 
+        Array.from({length: 3}, (_, i) => {
+          const randomDelay = -(Math.random() * 20).toFixed(2);
+          return `<div class="circle circle-${i+1}" style="--delay: ${randomDelay}s"></div>`;
+        }).join('') + `</div>`;
+    }
+  } else {
+    bar.style.backgroundColor = color;
+    bar.innerHTML = ''; // Clean up if theme changed
+  }
 
   if (statusText) {
     statusText.style.color = color;
@@ -5638,6 +5678,10 @@ function openAiAssistantModal() {
   document.getElementById('modal-overlay').classList.add('show');
   setTimeout(() => {
     document.getElementById('ai-assistant-modal').classList.add('show');
+    
+    // Buttons für Glass-Theme verbessern
+    enhanceGlassButtons();
+
     const chatInput = document.getElementById('ai-chat-input');
     if (chatInput) {
       chatInput.focus();
@@ -6954,41 +6998,53 @@ function updateVpnChart() {
   vpnCtx.clearRect(0, 0, width, height);
 
   // Hilfsfunktion zum Zeichnen der Graphen
-  function drawGraph(dataArray, strokeColor, fillColor) {
-    // 1. Gefüllten Bereich zeichnen
-    vpnCtx.beginPath();
-    vpnCtx.moveTo(0, height);
-    for (let i = 0; i < maxPoints; i++) {
-      const x = (i / (maxPoints - 1)) * width;
-      const y = height - (dataArray[i] * 4); // Skalierung der Höhe
-      vpnCtx.lineTo(x, y);
-    }
-    vpnCtx.lineTo(width, height);
-    vpnCtx.closePath();
+  function drawGraph(dataArray, strokeColor, r, g, b, alpha) {
+    let path = new Path2D();
+    let prevX = 0;
+    let prevY = height - (dataArray[0] * 4); // Skalierung der Höhe
+    path.moveTo(prevX, prevY);
 
-    vpnCtx.fillStyle = fillColor;
-    vpnCtx.fill();
-
-    // 2. Linie darüber zeichnen
-    vpnCtx.beginPath();
-    vpnCtx.moveTo(0, height - (dataArray[0] * 4));
+    // Abgerundete Kurve mit Bezier-Kurven erstellen
     for (let i = 1; i < maxPoints; i++) {
       const x = (i / (maxPoints - 1)) * width;
       const y = height - (dataArray[i] * 4);
-      vpnCtx.lineTo(x, y);
+      const cpX = prevX + (x - prevX) / 2;
+      path.bezierCurveTo(cpX, prevY, cpX, y, x, y);
+      prevX = x;
+      prevY = y;
     }
+
+    // Gradient für den gefüllten Bereich (von 100% des Alpha-Werts auf 50% unten)
+    const gradient = vpnCtx.createLinearGradient(0, 0, 0, height);
+    gradient.addColorStop(0, `rgba(${r}, ${g}, ${b}, ${alpha})`);
+    gradient.addColorStop(1, `rgba(${r}, ${g}, ${b}, ${alpha * 0.5})`);
+
+    let fillPath = new Path2D(path);
+    fillPath.lineTo(width, height);
+    fillPath.lineTo(0, height);
+    fillPath.closePath();
+
+    vpnCtx.fillStyle = gradient;
+    vpnCtx.fill(fillPath);
 
     vpnCtx.strokeStyle = strokeColor;
     vpnCtx.lineWidth = 2;
-    vpnCtx.stroke();
+    vpnCtx.stroke(path);
   }
 
   const isLight = document.body.classList.contains('theme-light');
-  const fillAlpha = isLight ? '0.15' : '0.2';
+  const isGlass = document.body.classList.contains('theme-glass');
+  const fillAlpha = isLight ? 0.15 : 0.2;
 
-  // Zeichne Upload (Rot) und Download (Grün)
-  drawGraph(ulData, '#FF3B30', `rgba(255, 59, 48, ${fillAlpha})`);
-  drawGraph(dlData, '#3ad961', `rgba(52, 199, 89, ${fillAlpha})`);
+  if (isGlass) {
+    // Glass Theme: Entsättigter und blauer
+    drawGraph(ulData, '#7EA1FF', 126, 161, 255, fillAlpha); // Soft Blue/Indigo
+    drawGraph(dlData, '#5AC8FA', 90, 200, 250, fillAlpha);  // Cyan Blue
+  } else {
+    // Standardfarben (Rot/Grün)
+    drawGraph(ulData, '#FF3B30', 255, 59, 48, fillAlpha);
+    drawGraph(dlData, '#3ad961', 52, 199, 89, fillAlpha);
+  }
 }
 
 // Updated fortlaufend alle 500ms
@@ -7102,16 +7158,99 @@ function updateScheduleProgress(isInitialLoad = false, animate = false) {
   }
 }
 
+function enhanceGlassButtons() {
+  const isGlass = document.body.classList.contains('theme-glass');
+  const buttons = document.querySelectorAll('.btn-primary');
+
+  buttons.forEach(btn => {
+    // Wenn Glas-Theme aktiv und noch nicht verbessert
+    if (isGlass && !btn.querySelector('.button-wrapper')) {
+      const text = btn.textContent.trim(); // Use textContent instead of innerText
+      if (!text) return; // Prevent creating empty wrappers if text is missing
+
+      // Generate harmonious dark, muted colors using OKLCH
+      // Pick a random base hue for this button
+      const baseHue = Math.floor(Math.random() * 360);
+      
+      // Create an analogous color palette by shifting the hue slightly
+      // This ensures the 3 blobs have different colors that blend perfectly together
+      const color1 = `oklch(0.35 0.08 ${baseHue})`;
+      const color2 = `oklch(0.35 0.08 ${(baseHue + 45) % 360})`;
+      const color3 = `oklch(0.35 0.08 ${(baseHue + 90) % 360})`;
+
+      btn.style.setProperty('--c-color-1', color1);
+      btn.style.setProperty('--c-color-2', color2);
+      btn.style.setProperty('--c-color-3', color3);
+
+      btn.innerHTML = `
+        <div class="button-wrapper">
+          <span>${text}</span>
+          ${Array.from({length: 3}, (_, i) => {
+            const randomDelay = -(Math.random() * 20).toFixed(2); // Random negative delay up to -20s
+            return `<div class="circle circle-${i+1}" style="--delay: ${randomDelay}s"></div>`;
+          }).join('')}
+        </div>
+      `;
+    }
+    // Wenn nicht Glas-Theme und bereits verbessert -> Zurücksetzen
+    else if (!isGlass && btn.querySelector('.button-wrapper')) {
+      btn.textContent = btn.querySelector('.button-wrapper span').textContent;
+
+      // Cleanup inline variables
+      btn.style.removeProperty('--c-color-1');
+      btn.style.removeProperty('--c-color-2');
+      btn.style.removeProperty('--c-color-3');
+      btn.style.removeProperty('--c-color-4');
+    }
+  });
+}
+// Observer to automatically enhance buttons when they are added or modified
+const buttonEnhanceObserver = new MutationObserver((mutations) => {
+  if (!document.body.classList.contains('theme-glass')) return;
+  
+  let needsUpdate = false;
+  for (const m of mutations) {
+    if (m.type === 'childList' || m.type === 'characterData') {
+      const target = m.target;
+      if (target.nodeType === 1 && target.classList?.contains('btn-primary') && !target.querySelector('.button-wrapper')) {
+        needsUpdate = true; break;
+      }
+      if (target.parentNode && target.parentNode.classList?.contains('btn-primary') && !target.parentNode.querySelector('.button-wrapper')) {
+        needsUpdate = true; break;
+      }
+      if (m.addedNodes.length > 0) {
+        for (const node of m.addedNodes) {
+          if (node.nodeType === 1 && (node.classList?.contains('btn-primary') || node.querySelector('.btn-primary'))) {
+            needsUpdate = true; break;
+          }
+        }
+      }
+    }
+    if (needsUpdate) break;
+  }
+  
+  if (needsUpdate) {
+    buttonEnhanceObserver.disconnect(); // Prevent infinite loop
+    enhanceGlassButtons();
+    buttonEnhanceObserver.observe(document.body, { childList: true, subtree: true, characterData: true });
+  }
+});
+// Start observing
+buttonEnhanceObserver.observe(document.body, { childList: true, subtree: true, characterData: true });
+
 function setTheme(theme) {
   document.body.classList.remove('theme-light', 'theme-dark', 'theme-thd', 'theme-oled', 'theme-glass');
   document.body.classList.add('theme-' + theme);
+
+  // Buttons für Glass-Theme verbessern
+  enhanceGlassButtons();
 
   // Meta Tags für das Betriebssystem (Mobile Statusbar) aktualisieren
   const metaThemeColor = document.querySelector('meta[name="theme-color"]');
   if (metaThemeColor) {
     if (theme === 'light') metaThemeColor.setAttribute('content', '#EBEBF0');
     else if (theme === 'thd') metaThemeColor.setAttribute('content', '#ffffff');
-    else if (theme === 'glass') metaThemeColor.setAttribute('content', '#0a0a0f');
+    else if (theme === 'glass') metaThemeColor.setAttribute('content', '#000000');
     else metaThemeColor.setAttribute('content', '#000000');
   }
   const metaColorScheme = document.querySelector('meta[name="color-scheme"]');
@@ -7484,11 +7623,16 @@ let liquidGlassCausticsEnabled = true;
 
 // Caustic blob definitions for the animated background
 const liquidGlassBlobs = [
-  { x: 0.2, y: 0.3, vx: 0.0003, vy: 0.0004, radius: 0.35, hue: 210, sat: 80, light: 50, alpha: 0.12 },
-  { x: 0.7, y: 0.6, vx: -0.0004, vy: 0.0003, radius: 0.30, hue: 280, sat: 70, light: 45, alpha: 0.10 },
-  { x: 0.5, y: 0.2, vx: 0.0002, vy: -0.0003, radius: 0.25, hue: 340, sat: 65, light: 50, alpha: 0.08 },
-  { x: 0.3, y: 0.8, vx: 0.0005, vy: -0.0002, radius: 0.28, hue: 170, sat: 75, light: 45, alpha: 0.09 },
-  { x: 0.8, y: 0.3, vx: -0.0003, vy: 0.0005, radius: 0.22, hue: 45, sat: 80, light: 55, alpha: 0.07 },
+  { x: 0.2, y: 0.3, vx: 0.0003, vy: 0.0004, radius: 0.45, hue: 210, sat: 80, light: 60, alpha: 0.18 },
+  { x: 0.7, y: 0.6, vx: -0.0004, vy: 0.0003, radius: 0.40, hue: 280, sat: 70, light: 55, alpha: 0.16 },
+  { x: 0.5, y: 0.2, vx: 0.0002, vy: -0.0003, radius: 0.35, hue: 340, sat: 65, light: 60, alpha: 0.14 },
+  { x: 0.3, y: 0.8, vx: 0.0005, vy: -0.0002, radius: 0.38, hue: 170, sat: 75, light: 55, alpha: 0.15 },
+  { x: 0.8, y: 0.3, vx: -0.0003, vy: 0.0005, radius: 0.32, hue: 45, sat: 80, light: 65, alpha: 0.12 },
+  { x: 0.1, y: 0.7, vx: 0.0002, vy: 0.0002, radius: 0.50, hue: 200, sat: 90, light: 40, alpha: 0.10 },
+  { x: 0.9, y: 0.9, vx: -0.0002, vy: -0.0002, radius: 0.42, hue: 320, sat: 80, light: 50, alpha: 0.12 },
+  { x: 0.4, y: 0.5, vx: 0.0003, vy: -0.0001, radius: 0.25, hue: 190, sat: 70, light: 60, alpha: 0.20 },
+  { x: 0.6, y: 0.1, vx: -0.0001, vy: 0.0004, radius: 0.30, hue: 250, sat: 60, light: 45, alpha: 0.15 },
+  { x: 0.2, y: 0.9, vx: 0.0004, vy: -0.0003, radius: 0.28, hue: 10, sat: 85, light: 55, alpha: 0.14 },
 ];
 
 function startLiquidGlassCanvas() {
@@ -7497,11 +7641,20 @@ function startLiquidGlassCanvas() {
 
   canvas.style.display = 'block';
   const ctx = canvas.getContext('2d');
+  
+  // Offscreen canvas for drawing blobs before masking
+  const offCanvas = document.createElement('canvas');
+  const offCtx = offCanvas.getContext('2d');
 
   function resize() {
-    canvas.width = window.innerWidth * window.devicePixelRatio;
-    canvas.height = window.innerHeight * window.devicePixelRatio;
-    ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = window.innerWidth * dpr;
+    canvas.height = window.innerHeight * dpr;
+    offCanvas.width = canvas.width;
+    offCanvas.height = canvas.height;
+    
+    ctx.scale(dpr, dpr);
+    offCtx.scale(dpr, dpr);
   }
   resize();
   window.addEventListener('resize', resize);
@@ -7511,61 +7664,148 @@ function startLiquidGlassCanvas() {
   function drawCaustics() {
     const w = window.innerWidth;
     const h = window.innerHeight;
+    const dpr = window.devicePixelRatio || 1;
 
-    ctx.setTransform(window.devicePixelRatio, 0, 0, window.devicePixelRatio, 0, 0);
+    // 1. Prepare Main Canvas
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, w, h);
-
-    // Dark base
-    ctx.fillStyle = '#0a0a0f';
-    ctx.fillRect(0, 0, w, h);
 
     if (!liquidGlassCausticsEnabled) {
       liquidGlassAnimId = requestAnimationFrame(drawCaustics);
       return;
     }
 
+    // 2. Prepare Offscreen Canvas (Blobs)
+    offCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    offCtx.clearRect(0, 0, w, h);
+
     time += 0.004;
 
-    // Draw each blob with organic motion
+    // Draw blobs to offscreen canvas
     liquidGlassBlobs.forEach((blob, i) => {
-      // Organic sine-wave motion
       const bx = blob.x + Math.sin(time * (1 + i * 0.3) + i) * 0.08;
       const by = blob.y + Math.cos(time * (0.8 + i * 0.2) + i * 2) * 0.06;
-
       const cx = bx * w;
       const cy = by * h;
       const r = blob.radius * Math.min(w, h);
+      const pulseSpeed = 1.2 + i * 0.3;
+      const pulseR = r * (1 + Math.sin(time * pulseSpeed + i * 1.2) * 0.08);
 
-      // Pulsating radius
-      const pulseR = r * (1 + Math.sin(time * 1.5 + i * 1.2) * 0.08);
-
-      const gradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, pulseR);
-
-      // Shifting hue over time
+      const gradient = offCtx.createRadialGradient(cx, cy, 0, cx, cy, pulseR);
       const hueShift = Math.sin(time * 0.5 + i) * 20;
       const hue = blob.hue + hueShift;
-      const alphaMultiplier = 0.6 + Math.sin(time * 0.8 + i * 0.7) * 0.4;
+      const alphaSpeed = 0.7 + i * 0.2;
+      const alphaMultiplier = 0.6 + Math.sin(time * alphaSpeed + i * 0.7) * 0.4;
 
       gradient.addColorStop(0, `hsla(${hue}, ${blob.sat}%, ${blob.light}%, ${blob.alpha * alphaMultiplier})`);
       gradient.addColorStop(0.5, `hsla(${hue}, ${blob.sat}%, ${blob.light}%, ${blob.alpha * alphaMultiplier * 0.4})`);
       gradient.addColorStop(1, `hsla(${hue}, ${blob.sat}%, ${blob.light}%, 0)`);
 
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, w, h);
+      offCtx.fillStyle = gradient;
+      offCtx.fillRect(cx - pulseR, cy - pulseR, pulseR * 2, pulseR * 2);
     });
 
     // Caustic light concentration overlay
     const causticX = w * (0.5 + Math.sin(time * 0.7) * 0.3);
     const causticY = h * (0.4 + Math.cos(time * 0.5) * 0.25);
     const causticR = Math.min(w, h) * 0.3;
-
-    const causticGradient = ctx.createRadialGradient(causticX, causticY, 0, causticX, causticY, causticR);
+    const causticGradient = offCtx.createRadialGradient(causticX, causticY, 0, causticX, causticY, causticR);
     causticGradient.addColorStop(0, 'rgba(255, 255, 255, 0.03)');
     causticGradient.addColorStop(0.6, 'rgba(255, 255, 255, 0.01)');
     causticGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+    offCtx.fillStyle = causticGradient;
+    offCtx.fillRect(causticX - causticR, causticY - causticR, causticR * 2, causticR * 2);
 
-    ctx.fillStyle = causticGradient;
-    ctx.fillRect(0, 0, w, h);
+    // 3. Draw Mask (Stencil) to Main Canvas
+    const standaloneSelectors = [
+      '.mensa-card', '.parking-card', '.rental-card', '.vpn-card',
+      '.services-card', '.weather-card', '.todo-card', '.stat-card', '.progress-section',
+      '.search-result-item', '.suggestion-tile', '.service-tile', '.service-card',
+      '.dropdown-notification', '.widget-preview-card'
+    ];
+    
+    const nestedItems = document.querySelectorAll('.ects-item, .mail-item, .news-item, .schedule-item');
+    const standalones = document.querySelectorAll(standaloneSelectors.join(','));
+    const modals = document.querySelectorAll('.modal');
+
+    ctx.fillStyle = 'white';
+    
+    const isVisible = (el) => {
+      const rect = el.getBoundingClientRect();
+      if (rect.width <= 0 || rect.height <= 0) return false;
+      const style = window.getComputedStyle(el);
+      return style.display !== 'none' && style.visibility !== 'hidden' && parseFloat(style.opacity) > 0.01;
+    };
+
+    // Draw Standalone Widgets
+    standalones.forEach(el => {
+      if (!isVisible(el)) return;
+      const rect = el.getBoundingClientRect();
+      const style = window.getComputedStyle(el);
+      const radius = parseInt(style.borderRadius) || 0;
+      ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(rect.left, rect.top, rect.width, rect.height, radius);
+      else ctx.rect(rect.left, rect.top, rect.width, rect.height);
+      ctx.fill();
+    });
+
+    // Draw Nested Items with Parent Clipping
+    nestedItems.forEach(el => {
+      if (!isVisible(el)) return;
+
+      // Special case: deggster-widget on dashboard should only show glass effect when scrolled
+      if (el.id === 'deggster-widget') {
+        const container = el.closest('.ects-free');
+        if (container && !container.classList.contains('is-scrolled')) return;
+      }
+
+      const rect = el.getBoundingClientRect();
+      const style = window.getComputedStyle(el);
+      
+      const container = el.closest('.ects-free, .mail-list, .scroll-list, .schedule-box');
+      if (container) {
+        const crect = container.getBoundingClientRect();
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(crect.left, crect.top, crect.width, crect.height);
+        ctx.clip();
+        
+        const radius = parseInt(style.borderRadius) || 0;
+        ctx.beginPath();
+        if (ctx.roundRect) ctx.roundRect(rect.left, rect.top, rect.width, rect.height, radius);
+        else ctx.rect(rect.left, rect.top, rect.width, rect.height);
+        ctx.fill();
+        ctx.restore();
+      } else {
+        const radius = parseInt(style.borderRadius) || 0;
+        ctx.beginPath();
+        if (ctx.roundRect) ctx.roundRect(rect.left, rect.top, rect.width, rect.height, radius);
+        else ctx.rect(rect.left, rect.top, rect.width, rect.height);
+        ctx.fill();
+      }
+    });
+
+    // Draw Modals
+    modals.forEach(el => {
+      if (!isVisible(el)) return;
+      const rect = el.getBoundingClientRect();
+      const style = window.getComputedStyle(el);
+      const radius = parseInt(style.borderRadius) || 0;
+      ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(rect.left, rect.top, rect.width, rect.height, radius);
+      else ctx.rect(rect.left, rect.top, rect.width, rect.height);
+      ctx.fill();
+    });
+
+    // 4. Project Blobs onto Stencil
+    ctx.save();
+    ctx.globalCompositeOperation = 'source-in';
+    ctx.setTransform(1, 0, 0, 1, 0, 0); // Identity transform for 1:1 image draw
+    ctx.drawImage(offCanvas, 0, 0);
+    ctx.restore();
+
+    // Reset for next frame
+    ctx.globalCompositeOperation = 'source-over';
 
     liquidGlassAnimId = requestAnimationFrame(drawCaustics);
   }
@@ -7606,33 +7846,54 @@ function openLiquidGlassSettingsModal() {
 
 function loadLiquidGlassSettings() {
   const savedSettings = localStorage.getItem('thd_glass_settings');
+  let settings = {
+    blur: 12,
+    saturation: 250,
+    opacity: 12,
+    caustics: true
+  };
+
   if (savedSettings) {
     try {
-      const settings = JSON.parse(savedSettings);
-      applyLiquidGlassSettings(settings);
-
-      // Update slider positions
-      const blurSlider = document.getElementById('glass-blur-slider');
-      const satSlider = document.getElementById('glass-sat-slider');
-      const opacitySlider = document.getElementById('glass-opacity-slider');
-      const causticsToggle = document.getElementById('glass-caustics-toggle');
-
-      if (blurSlider) blurSlider.value = settings.blur ?? 20;
-      if (satSlider) satSlider.value = settings.saturation ?? 180;
-      if (opacitySlider) opacitySlider.value = settings.opacity ?? 20;
-      if (causticsToggle) causticsToggle.checked = settings.caustics !== false;
-
-      liquidGlassCausticsEnabled = settings.caustics !== false;
+      settings = JSON.parse(savedSettings);
     } catch (e) {
       console.log('Glass settings parse error:', e);
     }
   }
+
+  applyLiquidGlassSettings(settings);
+
+  // Update slider positions
+  const blurSlider = document.getElementById('glass-blur-slider');
+  const satSlider = document.getElementById('glass-sat-slider');
+  const opacitySlider = document.getElementById('glass-opacity-slider');
+  const causticsToggle = document.getElementById('glass-caustics-toggle');
+
+  if (blurSlider) blurSlider.value = settings.blur ?? 12;
+  if (satSlider) satSlider.value = settings.saturation ?? 250;
+  if (opacitySlider) opacitySlider.value = settings.opacity ?? 12;
+  if (causticsToggle) causticsToggle.checked = settings.caustics !== false;
+
+  liquidGlassCausticsEnabled = settings.caustics !== false;
 }
 
 function applyLiquidGlassSettings(settings) {
-  document.body.style.setProperty('--lg-blur', (settings.blur ?? 20) + 'px');
-  document.body.style.setProperty('--lg-saturation', (settings.saturation ?? 180) + '%');
-  document.body.style.setProperty('--lg-opacity', (settings.opacity ?? 20) / 100);
+  const blur = settings.blur ?? 12;
+  const saturation = settings.saturation ?? 250;
+  const opacity = settings.opacity ?? 12;
+
+  document.body.style.setProperty('--lg-blur', blur + 'px');
+  document.body.style.setProperty('--lg-saturation', saturation + '%');
+  document.body.style.setProperty('--lg-opacity', opacity / 100);
+
+  // Update numerical displays
+  const blurValue = document.getElementById('glass-blur-value');
+  const satValue = document.getElementById('glass-sat-value');
+  const opacityValue = document.getElementById('glass-opacity-value');
+
+  if (blurValue) blurValue.textContent = blur + 'px';
+  if (satValue) satValue.textContent = saturation + '%';
+  if (opacityValue) opacityValue.textContent = opacity + '%';
 }
 
 function saveLiquidGlassSettings() {
@@ -7642,9 +7903,9 @@ function saveLiquidGlassSettings() {
   const causticsToggle = document.getElementById('glass-caustics-toggle');
 
   const settings = {
-    blur: parseInt(blurSlider?.value ?? 20),
-    saturation: parseInt(satSlider?.value ?? 180),
-    opacity: parseInt(opacitySlider?.value ?? 20),
+    blur: parseInt(blurSlider?.value ?? 12),
+    saturation: parseInt(satSlider?.value ?? 250),
+    opacity: parseInt(opacitySlider?.value ?? 12),
     caustics: causticsToggle?.checked ?? true,
   };
 
