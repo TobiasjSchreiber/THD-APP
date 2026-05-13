@@ -270,3 +270,122 @@
     50% { transform: translateY(50vh) translateX(20px); }
     100% { transform: translateY(110vh) translateX(-20px); }
 }
+
+/* --- Uiverse Animated Buttons --- */
+/* From Uiverse.io by adamgiebl */ 
+body.theme-glass .btn-primary {
+  --duration: 5s;
+  --easing: ease-in-out;
+  --c-color-1: #423023;
+  --c-color-2: #232742;
+  --c-color-3: #42233f;
+  --c-color-4: #423b23;
+  --c-shadow: rgba(0, 0, 0, 0.6);
+  --c-color: #fff;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-appearance: none;
+  outline: none;
+  position: relative;
+  cursor: pointer;
+  border: 1px solid transparent; /* Make original border transparent to keep sizing */
+  display: block;
+  border-radius: 16px;
+  padding: 0;
+  margin: 0;
+  font-weight: 600;
+  font-size: 16px;
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+  color: var(--c-color);
+  background: #2d2a1c; /* Flat background instead of radial gradient */
+  box-shadow: 0 0 14px var(--c-shadow);
+  /* Override default glass primary */
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+body.theme-glass .btn-primary::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 16px;
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  mix-blend-mode: color-dodge;
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* Removed .btn-primary:before which contained inset shadows causing dark edges */
+
+body.theme-glass .btn-primary .button-wrapper {
+  overflow: hidden;
+  border-radius: 16px;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 0;
+  box-sizing: border-box;
+  position: relative;
+}
+
+body.theme-glass .btn-primary .button-wrapper span {
+  display: inline-block;
+  position: relative;
+  z-index: 10;
+  color: #ffffff;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+}
+
+body.theme-glass .btn-primary .button-wrapper .circle {
+  position: absolute;
+  left: calc(var(--start-x, 0%) - 80px); /* Adjust offset for new 160px width */
+  top: calc(50% + var(--start-y, 0px) - 80px); /* Adjust offset for new 160px height */
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  filter: blur(var(--blur, 20px)); /* Increased blur for larger blobs */
+  background: var(--background, transparent);
+  transform: translateZ(0);
+  animation: var(--animation, none) var(--duration) var(--easing) var(--delay, 0s) infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+body.theme-glass .btn-primary .button-wrapper .circle.circle-1 {
+  --background: var(--c-color-1);
+}
+body.theme-glass .btn-primary .button-wrapper .circle.circle-2 {
+  --background: var(--c-color-2);
+}
+body.theme-glass .btn-primary .button-wrapper .circle.circle-3 {
+  --background: var(--c-color-3);
+}
+
+body.theme-glass .btn-primary .button-wrapper .circle.circle-1 { --start-x: 10%; --start-y: 0px; --animation: circle-1; --duration: 7s; }
+body.theme-glass .btn-primary .button-wrapper .circle.circle-2 { --start-x: 50%; --start-y: 10px; --animation: circle-2; --duration: 11s; }
+body.theme-glass .btn-primary .button-wrapper .circle.circle-3 { --start-x: 90%; --start-y: -10px; --animation: circle-3; --duration: 9s; }
+
+@keyframes circle-1 { 
+  0%, 100% { transform: translate(0, 0) translateZ(0); } 
+  25% { transform: translate(40px, 30px) translateZ(0); } 
+  50% { transform: translate(70px, -20px) translateZ(0); } 
+  75% { transform: translate(-20px, 40px) translateZ(0); } 
+}
+@keyframes circle-2 { 
+  0%, 100% { transform: translate(0, 0) translateZ(0); } 
+  30% { transform: translate(-60px, -30px) translateZ(0); } 
+  60% { transform: translate(40px, -50px) translateZ(0); } 
+  85% { transform: translate(30px, 40px) translateZ(0); } 
+}
+@keyframes circle-3 { 
+  0%, 100% { transform: translate(0, 0) translateZ(0); } 
+  20% { transform: translate(-30px, 50px) translateZ(0); } 
+  50% { transform: translate(-80px, -20px) translateZ(0); } 
+  80% { transform: translate(20px, -50px) translateZ(0); } 
+}

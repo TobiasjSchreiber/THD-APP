@@ -426,18 +426,21 @@ body.theme-thd .header.logo-revealed .dashboard-logo-img {
   flex-direction: column;
   border-radius: 24px;
   transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-  height: 150px;
+  height: 154px; /* Increased to accommodate item margins without clipping */
   overflow-y: auto !important;
   scroll-snap-type: y mandatory;
   overscroll-behavior-y: contain;
   touch-action: pan-y;
+  /* Allow borders to be visible without clipping */
+  padding: 0 2px; /* Horizontal padding to prevent side clipping */
+  box-sizing: border-box;
+  background-color: var(--card-bg);
 }
 
 #page-home>.ects-free,
 #page-home .widget-column>.ects-free {
   align-items: center;
-  padding: 0 !important;
-  background-color: transparent;
+  background-color: var(--card-bg);
   border-radius: 24px;
 }
 
@@ -448,6 +451,8 @@ body.theme-thd .header.logo-revealed .dashboard-logo-img {
 .ects-item {
   height: 150px;
   width: 100%;
+  border-radius: 24px;
+  overflow: hidden;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
@@ -455,6 +460,7 @@ body.theme-thd .header.logo-revealed .dashboard-logo-img {
   justify-content: center;
   scroll-snap-align: start;
   scroll-snap-stop: always;
+  box-sizing: border-box;
 }
 
 .ects-number {
@@ -667,7 +673,33 @@ body.theme-thd .header.logo-revealed .dashboard-logo-img {
 .parking-bar-fill {
   height: 100%;
   width: 0%;
+  position: relative;
+  overflow: hidden;
+  border-radius: 5px;
 }
+
+body.theme-glass .parking-bar-fill .circle {
+  position: absolute;
+  left: calc(var(--start-x, 0%) - 40px);
+  top: calc(50% + var(--start-y, 0px) - 40px);
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  filter: blur(10px);
+  background: var(--background, transparent);
+  transform: translateZ(0);
+  animation: var(--animation, none) 5s ease-in-out var(--delay, 0s) infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+body.theme-glass .parking-bar-fill .circle.circle-1 { --background: var(--c-color-1); --start-x: 10%; --start-y: 0px; --animation: p-circle-1; animation-duration: 7s; }
+body.theme-glass .parking-bar-fill .circle.circle-2 { --background: var(--c-color-2); --start-x: 50%; --start-y: 2px; --animation: p-circle-2; animation-duration: 11s; }
+body.theme-glass .parking-bar-fill .circle.circle-3 { --background: var(--c-color-3); --start-x: 90%; --start-y: -2px; --animation: p-circle-3; animation-duration: 9s; }
+
+@keyframes p-circle-1 { 0%, 100% { transform: translate(0, 0) translateZ(0); } 50% { transform: translate(30px, 10px) translateZ(0); } }
+@keyframes p-circle-2 { 0%, 100% { transform: translate(0, 0) translateZ(0); } 50% { transform: translate(-30px, -10px) translateZ(0); } }
+@keyframes p-circle-3 { 0%, 100% { transform: translate(0, 0) translateZ(0); } 50% { transform: translate(-20px, 15px) translateZ(0); } }
 
 .parking-text {
   font-size: 12px;
@@ -1045,6 +1077,14 @@ body.theme-thd .header.logo-revealed .dashboard-logo-img {
 .vpn-status.active {
   color: #34C759;
   font-weight: 500;
+}
+
+.vpn-arrow-dl {
+  color: #34C759;
+}
+
+.vpn-arrow-ul {
+  color: #FF3B30;
 }
 
 /* Toggle Switch */
@@ -1601,6 +1641,13 @@ body.theme-light .compose-input {
   box-shadow: 0 4px 15px rgba(230, 115, 50, 0.4);
 }
 
+/* Glass Theme override for iLearn FAB */
+body.theme-glass #page-mails.ilearn-active .fab-button {
+  background: rgba(255, 107, 44, 0.2) !important;
+  border: 1px solid rgba(255, 107, 44, 0.3);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), 0 0 24px rgba(255, 107, 44, 0.15);
+}
+
 .notification-view {
   flex: 1;
   flex-direction: column;
@@ -2084,6 +2131,27 @@ body.theme-light .modal .btn-secondary {
   animation: vpn-slider-glow-red 0.7s ease-out;
 }
 
+/* Glass Theme Overrides für VPN Animationen */
+body.theme-glass .vpn-disconnect-anim .vpn-status {
+  animation: vpn-text-glow-blue 0.7s ease-out;
+}
+
+body.theme-glass .vpn-disconnect-anim .toggle-slider {
+  animation: vpn-slider-glow-blue 0.7s ease-out;
+}
+
+@keyframes vpn-text-glow-blue {
+  0% { color: var(--text-sub); }
+  50% { color: #7EA1FF; }
+  100% { color: var(--text-sub); }
+}
+
+@keyframes vpn-slider-glow-blue {
+  0% { background-color: var(--track-bg); }
+  50% { background-color: #7EA1FF; }
+  100% { background-color: var(--track-bg); }
+}
+
 /* VPN Chart Entry Animation (wie Parkplatz) */
 #vpn-chart {
   transform-origin: bottom;
@@ -2501,8 +2569,7 @@ body.theme-light .modal .btn-secondary {
 
 /* Verhindert das Quetschen des VPN Widgets, wenn der Schalter geklickt wird */
 .vpn-card.no-squish,
-.vpn-card:has(.toggle-switch:active),
-.vpn-card:has(.toggle-switch:hover) {
+.vpn-card:has(.toggle-switch:active) {
   transform: scale(1) !important;
 }
 
@@ -3038,7 +3105,7 @@ body.theme-light .widget-placeholder {
 /* ============================== */
 
 body.theme-glass {
-  --bg-color: #0a0a0f;
+  --bg-color: #000000;
   --card-bg: rgba(255, 255, 255, 0.06);
   --modal-bg: rgba(30, 30, 45, 0.75);
   --text-main: #FFFFFF;
@@ -3065,14 +3132,26 @@ body.theme-glass {
   --progress-bg: rgba(255, 255, 255, 0.08);
   --schedule-fill-bg: rgba(90, 200, 250, 0.08);
   --segmented-bg: rgba(255, 255, 255, 0.06);
-  --glass-bg: rgba(10, 10, 15, 0.5);
+  --glass-bg: rgba(0, 0, 0, 0.5);
 
   /* Liquid Glass custom properties */
   --lg-blur: 20px;
   --lg-saturation: 180%;
-  --lg-opacity: 0.2;
+  --lg-opacity: 0.12;
   --lg-border-opacity: 0.15;
   --lg-surface: rgba(255, 255, 255, var(--lg-opacity));
+}
+
+body.theme-glass .vpn-status.active {
+  color: #5AC8FA; /* Glass accent blue */
+}
+
+body.theme-glass .vpn-arrow-dl {
+  color: #5AC8FA; /* Cyan Blue */
+}
+
+body.theme-glass .vpn-arrow-ul {
+  color: #7EA1FF; /* Indigo Blue */
 }
 
 /* Liquid Glass canvas */
@@ -3114,17 +3193,39 @@ body.theme-glass .service-tile,
 body.theme-glass .service-card,
 body.theme-glass .dropdown-notification,
 body.theme-glass .news-item,
-body.theme-glass .widget-preview-card,
-body.theme-glass .ects-item {
+body.theme-glass .widget-preview-card {
   background: var(--lg-surface) !important;
-  backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-saturation));
-  -webkit-backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-saturation));
   border: 1px solid rgba(255, 255, 255, var(--lg-border-opacity));
   box-shadow:
     0 4px 24px rgba(0, 0, 0, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.1),
     inset 0 -1px 0 rgba(255, 255, 255, 0.03);
-  transition: background 0.3s ease, backdrop-filter 0.3s ease, border 0.3s ease, transform 0.2s ease;
+  transition: transform 0.2s ease;
+}
+
+body.theme-glass #page-home .ects-free {
+  background-color: transparent !important;
+}
+
+body.theme-glass .mail-list {
+  padding-top: calc(70px + max(40px, env(safe-area-inset-top))) !important;
+}
+
+body.theme-glass .mail-item,
+body.theme-glass .news-item {
+  margin: 4px 0;
+  box-sizing: border-box;
+}
+
+body.theme-glass .ects-item {
+  background: var(--lg-surface) !important;
+  border: 1px solid rgba(255, 255, 255, var(--lg-border-opacity));
+  margin: 2px 0; /* Add margin to prevent clipping against the scroll container viewport */
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.03);
+  transition: transform 0.2s ease;
 }
 
 /* Glass styling for list items (no backdrop filter to prevent double brightness and fix border-radius clipping) */
@@ -3145,7 +3246,7 @@ body.theme-glass #deggster-widget {
 
 /* Glass Modal */
 body.theme-glass .modal {
-  background: rgba(20, 20, 35, 0.65) !important;
+  background: rgba(15, 15, 30, 0.3) !important;
   backdrop-filter: blur(calc(var(--lg-blur) * 1.5)) saturate(var(--lg-saturation));
   -webkit-backdrop-filter: blur(calc(var(--lg-blur) * 1.5)) saturate(var(--lg-saturation));
   border: 1px solid rgba(255, 255, 255, var(--lg-border-opacity));
@@ -3157,7 +3258,7 @@ body.theme-glass .modal {
 
 /* Glass Header */
 body.theme-glass .header {
-  background: rgba(10, 10, 15, 0.45) !important;
+  background: rgba(10, 10, 15, 0.3) !important;
   backdrop-filter: blur(calc(var(--lg-blur) * 1.2)) saturate(var(--lg-saturation));
   -webkit-backdrop-filter: blur(calc(var(--lg-blur) * 1.2)) saturate(var(--lg-saturation));
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
@@ -3165,7 +3266,7 @@ body.theme-glass .header {
 
 /* Glass Navbar */
 body.theme-glass .navbar {
-  background: rgba(10, 10, 15, 0.5) !important;
+  background: rgba(10, 10, 15, 0.3) !important;
   backdrop-filter: blur(calc(var(--lg-blur) * 1.5)) saturate(var(--lg-saturation));
   -webkit-backdrop-filter: blur(calc(var(--lg-blur) * 1.5)) saturate(var(--lg-saturation));
   border-top: 1px solid rgba(255, 255, 255, 0.08);
@@ -3180,6 +3281,16 @@ body.theme-glass .segmented-control {
 body.theme-glass .segment-highlight {
   background: rgba(255, 255, 255, 0.12) !important;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+body.theme-glass .nav-item {
+  color: #FFFFFF; /* Festes Weiß statt rgba */
+  opacity: 0.5; /* Transparenz auf das gesamte Element anwenden */
+}
+
+body.theme-glass .nav-item.active {
+  color: #FFFFFF;
+  opacity: 1;
 }
 
 /* Glass Inputs */
@@ -3217,27 +3328,6 @@ body.theme-glass .todo-card {
   overflow: hidden;
 }
 
-/* Fresnel-like edge highlight on hover (desktop) */
-@media (hover: hover) {
-  body.theme-glass .schedule-item:hover,
-  body.theme-glass .mensa-card:hover,
-  body.theme-glass .parking-card:hover,
-  body.theme-glass .rental-card:hover,
-  body.theme-glass .mail-item:hover,
-  body.theme-glass .news-item:hover,
-  body.theme-glass .list-item:hover,
-  body.theme-glass .suggestion-tile:hover,
-  body.theme-glass .service-tile:hover,
-  body.theme-glass .stat-card:hover {
-    border-color: rgba(255, 255, 255, 0.25) !important;
-    box-shadow:
-      0 4px 24px rgba(0, 0, 0, 0.25),
-      inset 0 1px 0 rgba(255, 255, 255, 0.18),
-      0 0 20px rgba(90, 200, 250, 0.06);
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-  }
-}
-
 /* Glass range slider styling */
 body.theme-glass input[type="range"] {
   -webkit-appearance: none;
@@ -3263,10 +3353,6 @@ body.theme-glass input[type="range"]::-webkit-slider-thumb {
   transition: box-shadow 0.2s ease;
 }
 
-body.theme-glass input[type="range"]::-webkit-slider-thumb:hover {
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4), 0 0 20px rgba(90, 200, 250, 0.35);
-}
-
 body.theme-glass input[type="range"]::-moz-range-thumb {
   width: 22px;
   height: 22px;
@@ -3281,20 +3367,20 @@ body.theme-glass input[type="range"]::-moz-range-thumb {
 body.theme-glass .btn-primary,
 body.theme-glass .btn-secondary,
 body.theme-glass .fab-button {
-  transition: background 0.3s ease, backdrop-filter 0.3s ease, border 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 body.theme-glass .btn-primary {
-  background: rgba(90, 200, 250, 0.25) !important;
-  border: 1px solid rgba(90, 200, 250, 0.3);
+  background: rgba(90, 200, 250, 0.1) !important;
+  border: 1px solid rgba(90, 200, 250, 0.25);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   color: #fff;
 }
 
 body.theme-glass .btn-secondary {
-  background: rgba(255, 255, 255, 0.08) !important;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   color: var(--text-main);
@@ -3302,11 +3388,11 @@ body.theme-glass .btn-secondary {
 
 /* Glass FAB */
 body.theme-glass .fab-button {
-  background: rgba(90, 200, 250, 0.2) !important;
+  background: rgba(90, 200, 250, 0.08) !important;
   backdrop-filter: blur(16px) saturate(180%);
   -webkit-backdrop-filter: blur(16px) saturate(180%);
-  border: 1px solid rgba(90, 200, 250, 0.25);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), 0 0 24px rgba(90, 200, 250, 0.1);
+  border: 1px solid rgba(90, 200, 250, 0.2);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), 0 0 24px rgba(90, 200, 250, 0.08);
 }
 
 /* Ensure schedule progress fill is glass-compatible */
@@ -3316,9 +3402,41 @@ body.theme-glass .schedule-progress-fill {
 
 /* VPN card glow animations override */
 body.theme-glass .vpn-card.vpn-connect-anim {
-  box-shadow: 0 0 30px rgba(52, 199, 89, 0.25) !important;
+  animation: vpn-glow-glass-blue 0.8s ease-out !important;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2) !important; /* Keep base shadow stable */
 }
 
 body.theme-glass .vpn-card.vpn-disconnect-anim {
-  box-shadow: 0 0 30px rgba(255, 59, 48, 0.25) !important;
+  animation: vpn-glow-glass-indigo 0.8s ease-out !important;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2) !important;
+}
+
+@keyframes vpn-glow-glass-blue {
+  0% { 
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, var(--lg-border-opacity));
+  }
+  50% { 
+    box-shadow: 0 0 40px rgba(90, 200, 250, 0.5), inset 0 0 15px rgba(90, 200, 250, 0.3);
+    border-color: rgba(90, 200, 250, 0.5);
+  }
+  100% { 
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, var(--lg-border-opacity));
+  }
+}
+
+@keyframes vpn-glow-glass-indigo {
+  0% { 
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, var(--lg-border-opacity));
+  }
+  50% { 
+    box-shadow: 0 0 40px rgba(126, 161, 255, 0.5), inset 0 0 15px rgba(126, 161, 255, 0.3);
+    border-color: rgba(126, 161, 255, 0.5);
+  }
+  100% { 
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, var(--lg-border-opacity));
+  }
 }
