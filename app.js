@@ -4521,7 +4521,9 @@ function scrambleText(el, newText, isPlaceholder) {
     if (isPlaceholder) {
       el.placeholder = result;
     } else {
-      el.innerText = result;
+      const span = el.querySelector('.button-wrapper span');
+      if (span) span.innerText = result;
+      else el.innerText = result;
     }
 
     if (iteration >= newText.length) {
@@ -4529,7 +4531,9 @@ function scrambleText(el, newText, isPlaceholder) {
       if (isPlaceholder) {
         el.placeholder = newText;
       } else {
-        el.innerText = newText;
+        const span = el.querySelector('.button-wrapper span');
+        if (span) span.innerText = newText;
+        else el.innerText = newText;
       }
     }
 
@@ -4608,7 +4612,9 @@ function setLanguage(lang) {
       if (el.hasAttribute('placeholder')) {
         el.placeholder = text;
       } else {
-        el.innerText = text;
+        const span = el.querySelector('.button-wrapper span');
+        if (span) span.innerText = text;
+        else el.innerText = text;
       }
     }
   });
@@ -7665,6 +7671,20 @@ function startLiquidGlassCanvas() {
   resize();
   window.addEventListener('resize', resize);
 
+  const getGlassRadius = (el) => {
+    if (el.classList.contains('mail-item') || 
+        el.classList.contains('search-result-item') || 
+        el.classList.contains('suggestion-tile') || 
+        el.classList.contains('service-tile') ||
+        el.classList.contains('widget-preview-card')) return 16;
+    if (el.classList.contains('news-item') || el.classList.contains('list-item')) return 12;
+    if (el.classList.contains('schedule-item')) return 20;
+    if (el.classList.contains('service-card')) return 10;
+    if (el.classList.contains('dropdown-notification')) return 30;
+    if (el.classList.contains('modal')) return 28;
+    return 24; // Standard für große Widgets wie Mensa, Parken, ECTS
+  };
+
   let time = 0;
 
   function drawCaustics() {
@@ -7773,7 +7793,7 @@ function startLiquidGlassCanvas() {
         };
       }
 
-      const radius = el.classList.contains('ects-item') || el.classList.contains('mail-item') || el.classList.contains('news-item') ? 16 : 24;
+      const radius = getGlassRadius(el);
       
       ctx.beginPath();
       if (ctx.roundRect) ctx.roundRect(drawRect.left, drawRect.top, drawRect.width, drawRect.height, radius);
@@ -7800,14 +7820,14 @@ function startLiquidGlassCanvas() {
         ctx.rect(crect.left, crect.top, crect.width, crect.height);
         ctx.clip();
         
-        const radius = el.classList.contains('ects-item') || el.classList.contains('mail-item') || el.classList.contains('news-item') ? 16 : 24;
+        const radius = getGlassRadius(el);
         ctx.beginPath();
         if (ctx.roundRect) ctx.roundRect(rect.left, rect.top, rect.width, rect.height, radius);
         else ctx.rect(rect.left, rect.top, rect.width, rect.height);
         ctx.fill();
         ctx.restore();
       } else {
-        const radius = el.classList.contains('ects-item') || el.classList.contains('mail-item') || el.classList.contains('news-item') ? 16 : 24;
+        const radius = getGlassRadius(el);
         ctx.beginPath();
         if (ctx.roundRect) ctx.roundRect(rect.left, rect.top, rect.width, rect.height, radius);
         else ctx.rect(rect.left, rect.top, rect.width, rect.height);
@@ -7819,7 +7839,7 @@ function startLiquidGlassCanvas() {
     modals.forEach(el => {
       const rect = el.getBoundingClientRect();
       if (rect.width <= 0 || rect.height <= 0) return;
-      const radius = 24;
+      const radius = getGlassRadius(el);
       ctx.beginPath();
       if (ctx.roundRect) ctx.roundRect(rect.left, rect.top, rect.width, rect.height, radius);
       else ctx.rect(rect.left, rect.top, rect.width, rect.height);
