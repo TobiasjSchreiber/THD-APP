@@ -6274,8 +6274,14 @@ function initWidgetDragAndDrop() {
     const dx = clientX - dragState.startX;
     const dy = clientY - dragState.startY;
 
-    dragState.element.style.left = dragState.initialX + dx + 'px';
-    dragState.element.style.top = dragState.initialY + dy + 'px';
+    const newX = dragState.initialX + dx;
+    const newY = dragState.initialY + dy;
+
+    dragState.currentX = newX;
+    dragState.currentY = newY;
+
+    dragState.element.style.left = newX + 'px';
+    dragState.element.style.top = newY + 'px';
 
     // Auto-Scrolling, wenn der Finger an den oberen oder unteren Rand gezogen wird
     const edgeThreshold = 100;
@@ -7717,6 +7723,12 @@ function startLiquidGlassCanvas() {
     offCtx.fillRect(causticX - causticR, causticY - causticR, causticR * 2, causticR * 2);
 
     // 3. Draw Mask (Stencil) to Main Canvas
+    const activePage = document.querySelector('.page.active');
+    if (!activePage) {
+      liquidGlassAnimId = requestAnimationFrame(drawCaustics);
+      return;
+    }
+
     const standaloneSelectors = [
       '.mensa-card', '.parking-card', '.rental-card', '.vpn-card',
       '.services-card', '.weather-card', '.todo-card', '.stat-card', '.progress-section',
@@ -7724,45 +7736,63 @@ function startLiquidGlassCanvas() {
       '.dropdown-notification', '.widget-preview-card'
     ];
     
-    const nestedItems = document.querySelectorAll('.ects-item, .mail-item, .news-item, .schedule-item');
-    const standalones = document.querySelectorAll(standaloneSelectors.join(','));
-    const modals = document.querySelectorAll('.modal');
+    // Nur Elemente der aktiven Seite + Modals + evtl. gerade gezogenes Widget
+    const nestedItems = activePage.querySelectorAll('.ects-item, .mail-item, .news-item, .schedule-item');
+    let standalones = Array.from(activePage.querySelectorAll(standaloneSelectors.join(',')));
+    const modals = document.querySelectorAll('.modal.show');
+
+    // Wenn ein Widget gezogen wird, ist es im Body, also manuell hinzufügen
+    if (dragState.isDragging && dragState.element && !standalones.includes(dragState.element)) {
+      standalones.push(dragState.element);
+    }
 
     ctx.fillStyle = 'white';
     
-    const isVisible = (el) => {
+    // Hilfsfunktion zur Prüfung der tatsächlichen Sichtbarkeit (inkl. Animationen)
+    const isActuallyVisible = (el) => {
       const rect = el.getBoundingClientRect();
       if (rect.width <= 0 || rect.height <= 0) return false;
-      const style = window.getComputedStyle(el);
-      return style.display !== 'none' && style.visibility !== 'hidden' && parseFloat(style.opacity) > 0.01;
+      // Prüfe ob das Element gerade einanimiert wird (Opacity > 0.1)
+      const opacity = window.getComputedStyle(el).opacity;
+      if (parseFloat(opacity) < 0.1) return false;
+      return true;
     };
 
     // Draw Standalone Widgets
     standalones.forEach(el => {
-      if (!isVisible(el)) return;
+      if (!isActuallyVisible(el)) return;
       const rect = el.getBoundingClientRect();
-      const style = window.getComputedStyle(el);
-      const radius = parseInt(style.borderRadius) || 0;
+      
+      let drawRect = rect;
+      if (dragState.isDragging && el === dragState.element && dragState.currentX !== undefined) {
+        drawRect = {
+          left: dragState.currentX,
+          top: dragState.currentY,
+          width: el.offsetWidth,
+          height: el.offsetHeight
+        };
+      }
+
+      const radius = el.classList.contains('ects-item') || el.classList.contains('mail-item') || el.classList.contains('news-item') ? 16 : 24;
+      
       ctx.beginPath();
-      if (ctx.roundRect) ctx.roundRect(rect.left, rect.top, rect.width, rect.height, radius);
-      else ctx.rect(rect.left, rect.top, rect.width, rect.height);
+      if (ctx.roundRect) ctx.roundRect(drawRect.left, drawRect.top, drawRect.width, drawRect.height, radius);
+      else ctx.rect(drawRect.left, drawRect.top, drawRect.width, drawRect.height);
       ctx.fill();
     });
 
     // Draw Nested Items with Parent Clipping
     nestedItems.forEach(el => {
-      if (!isVisible(el)) return;
+      if (!isActuallyVisible(el)) return;
+      const rect = el.getBoundingClientRect();
 
-      // Special case: deggster-widget on dashboard should only show glass effect when scrolled
       if (el.id === 'deggster-widget') {
         const container = el.closest('.ects-free');
         if (container && !container.classList.contains('is-scrolled')) return;
       }
 
-      const rect = el.getBoundingClientRect();
-      const style = window.getComputedStyle(el);
-      
       const container = el.closest('.ects-free, .mail-list, .scroll-list, .schedule-box');
+      
       if (container) {
         const crect = container.getBoundingClientRect();
         ctx.save();
@@ -7770,14 +7800,14 @@ function startLiquidGlassCanvas() {
         ctx.rect(crect.left, crect.top, crect.width, crect.height);
         ctx.clip();
         
-        const radius = parseInt(style.borderRadius) || 0;
+        const radius = el.classList.contains('ects-item') || el.classList.contains('mail-item') || el.classList.contains('news-item') ? 16 : 24;
         ctx.beginPath();
         if (ctx.roundRect) ctx.roundRect(rect.left, rect.top, rect.width, rect.height, radius);
         else ctx.rect(rect.left, rect.top, rect.width, rect.height);
         ctx.fill();
         ctx.restore();
       } else {
-        const radius = parseInt(style.borderRadius) || 0;
+        const radius = el.classList.contains('ects-item') || el.classList.contains('mail-item') || el.classList.contains('news-item') ? 16 : 24;
         ctx.beginPath();
         if (ctx.roundRect) ctx.roundRect(rect.left, rect.top, rect.width, rect.height, radius);
         else ctx.rect(rect.left, rect.top, rect.width, rect.height);
@@ -7787,10 +7817,9 @@ function startLiquidGlassCanvas() {
 
     // Draw Modals
     modals.forEach(el => {
-      if (!isVisible(el)) return;
       const rect = el.getBoundingClientRect();
-      const style = window.getComputedStyle(el);
-      const radius = parseInt(style.borderRadius) || 0;
+      if (rect.width <= 0 || rect.height <= 0) return;
+      const radius = 24;
       ctx.beginPath();
       if (ctx.roundRect) ctx.roundRect(rect.left, rect.top, rect.width, rect.height, radius);
       else ctx.rect(rect.left, rect.top, rect.width, rect.height);
@@ -7800,11 +7829,11 @@ function startLiquidGlassCanvas() {
     // 4. Project Blobs onto Stencil
     ctx.save();
     ctx.globalCompositeOperation = 'source-in';
-    ctx.setTransform(1, 0, 0, 1, 0, 0); // Identity transform for 1:1 image draw
+    ctx.setTransform(1, 0, 0, 1, 0, 0); // 1:1 Identity für drawImage auf physikalischen Pixeln
     ctx.drawImage(offCanvas, 0, 0);
     ctx.restore();
 
-    // Reset for next frame
+    // Reset für den nächsten Frame
     ctx.globalCompositeOperation = 'source-over';
 
     liquidGlassAnimId = requestAnimationFrame(drawCaustics);

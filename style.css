@@ -245,7 +245,7 @@ body {
   height: 100%;
 
   overflow: hidden;
-  overscroll-behavior-y: none;
+  
   -webkit-user-select: none;
   -ms-user-select: none;
   user-select: none;
@@ -384,6 +384,7 @@ body.theme-thd .header.logo-revealed .dashboard-logo-img {
 /* Home Styles */
 #page-home {
   overflow-y: auto;
+  
   /* Erhöhe hier die 56px auf z.B. 76px oder 80px */
   padding-bottom: calc(80px + env(safe-area-inset-bottom));
   box-sizing: border-box;
@@ -424,23 +425,23 @@ body.theme-thd .header.logo-revealed .dashboard-logo-img {
   flex: 1;
   display: flex;
   flex-direction: column;
+  gap: 15px; /* Einheitlicher 15px Gap */
   border-radius: 24px;
   transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-  height: 154px; /* Increased to accommodate item margins without clipping */
+  height: 152px; /* Minimiert, um genau mit dem Item (150px) abzuschließen */
   overflow-y: auto !important;
-  scroll-snap-type: y mandatory;
-  overscroll-behavior-y: contain;
-  touch-action: pan-y;
+  scroll-snap-type: y proximity;
+  
   /* Allow borders to be visible without clipping */
-  padding: 0 2px; /* Horizontal padding to prevent side clipping */
+  padding: 1px 2px; /* Minimales Padding für die Umrandung */
   box-sizing: border-box;
-  background-color: var(--card-bg);
+  background-color: transparent;
 }
 
 #page-home>.ects-free,
 #page-home .widget-column>.ects-free {
   align-items: center;
-  background-color: var(--card-bg);
+  background-color: transparent;
   border-radius: 24px;
 }
 
@@ -461,6 +462,13 @@ body.theme-thd .header.logo-revealed .dashboard-logo-img {
   scroll-snap-align: start;
   scroll-snap-stop: always;
   box-sizing: border-box;
+  background-color: var(--card-bg);
+}
+
+#deggster-widget {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
 }
 
 .ects-number {
@@ -485,17 +493,19 @@ body.theme-thd .header.logo-revealed .dashboard-logo-img {
   flex: 1.2;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 15px; /* Einheitlicher 15px Gap */
   border-radius: 24px;
-  height: 150px;
+  height: 152px;
+  padding: 1px 2px;
+  box-sizing: border-box;
   /* Leicht erhöht (150px statt 148px) für Displays mit Subpixel-Rundungsfehlern */
   overflow-y: auto !important;
   /* Überschreibt das globale 'overflow: hidden' der Widgets */
   scroll-snap-type: y proximity;
   /* Proximity statt Mandatory verhindert das Steckenbleiben bei Randelementen */
-  overscroll-behavior-y: contain;
+  
   /* Verhindert das Wischen der gesamten Seite am Rand */
-  touch-action: pan-y;
+  
   /* Garantiert reibungsloses Scrollen auf Touch-Geräten */
 }
 
@@ -508,7 +518,7 @@ body.theme-thd .header.logo-revealed .dashboard-logo-img {
   background-color: var(--card-bg);
   border-radius: 20px;
   padding: 15px;
-  height: 68px;
+  height: 67.5px; /* 67.5 + 15 + 67.5 = 150px (exakt bündig mit ECTS) */
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -584,6 +594,7 @@ body.theme-thd .header.logo-revealed .dashboard-logo-img {
   flex: 1.2;
   height: 90px;
   overflow-y: auto;
+  
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -941,7 +952,7 @@ body.theme-glass .parking-bar-fill .circle.circle-3 { --background: var(--c-colo
 /* Bottom Widgets Row (VPN & Dienste) */
 .bottom-widgets-row {
   display: flex;
-  margin: 0 15px 15px;
+  margin: 0 15px 10px;
   gap: 15px;
   transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
 }
@@ -1177,7 +1188,7 @@ body.theme-glass .parking-bar-fill .circle.circle-3 { --background: var(--c-colo
   background-color: var(--glass-bg);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border-top: 1px solid var(--grid-line);
+  border-top: none;
   z-index: 50;
   flex-shrink: 0;
 }
@@ -1950,6 +1961,7 @@ body.theme-light .modal .btn-secondary {
 
 #page-search {
   overflow-y: auto;
+  
   /* Auch hier den Wert erhöhen */
   padding-bottom: calc(80px + env(safe-area-inset-bottom));
   box-sizing: border-box;
@@ -2853,7 +2865,7 @@ body.theme-glass .vpn-disconnect-anim .toggle-slider {
 .number-picker-list {
   height: 100%;
   overflow-y: scroll;
-  scroll-snap-type: y mandatory;
+  scroll-snap-type: y proximity;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -3287,7 +3299,6 @@ body.theme-glass .mail-list {
   padding-top: calc(70px + max(40px, env(safe-area-inset-top))) !important;
 }
 
-body.theme-glass .mail-item,
 body.theme-glass .news-item {
   margin: 4px 0;
   box-sizing: border-box;
@@ -3296,7 +3307,6 @@ body.theme-glass .news-item {
 body.theme-glass .ects-item {
   background: var(--lg-surface) !important;
   border: 1px solid rgba(255, 255, 255, var(--lg-border-opacity));
-  margin: 2px 0; /* Add margin to prevent clipping against the scroll container viewport */
   box-shadow:
     0 4px 24px rgba(0, 0, 0, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.1),
@@ -3337,7 +3347,7 @@ body.theme-glass .header {
   background: rgba(10, 10, 15, 0.3) !important;
   backdrop-filter: blur(calc(var(--lg-blur) * 1.2)) saturate(var(--lg-saturation));
   -webkit-backdrop-filter: blur(calc(var(--lg-blur) * 1.2)) saturate(var(--lg-saturation));
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: none;
 }
 
 /* Glass Navbar */
@@ -3345,7 +3355,7 @@ body.theme-glass .navbar {
   background: rgba(10, 10, 15, 0.3) !important;
   backdrop-filter: blur(calc(var(--lg-blur) * 1.5)) saturate(var(--lg-saturation));
   -webkit-backdrop-filter: blur(calc(var(--lg-blur) * 1.5)) saturate(var(--lg-saturation));
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: none;
 }
 
 /* Glass Segmented Control */
