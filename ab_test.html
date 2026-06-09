@@ -1,0 +1,1785 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>THD App - A/B Testing Lab</title>
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Saira:wght@400;600;700&display=swap"
+    rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-lab: #f3f4f6;
+      --card-lab: #ffffff;
+      --border-lab: #e5e7eb;
+      --text-main: #111827;
+      --text-sub: #4b5563;
+      --led-green: #10b981;
+      --led-off: #d1d5db;
+
+      /* Display sizing variables */
+      --screen-top: 1%;
+      --screen-left: 2.85%;
+      --screen-width: 94.65%;
+      --screen-height: 98.45%;
+      --screen-radius: 46px;
+      --app-scale: 0.81;
+      --app-width: 123.46%;
+      --app-height: 123.46%;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background-color: var(--bg-lab);
+      color: var(--text-main);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      -webkit-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
+    }
+
+    /* Controls Alignment Row */
+    .controls-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      max-width: calc(760px + clamp(110px, 8vw, 150px));
+      /* Passt sich exakt an die Handys & die Lücke an */
+      margin: 30px auto 15px auto;
+      padding: 0 20px;
+      flex-shrink: 0;
+    }
+
+    .column-header {
+      width: 360px;
+      /* Passt genau auf die Breite des Handys */
+      display: flex;
+      justify-content: center;
+    }
+
+    .sync-center {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--card-lab);
+      border: 1px solid var(--border-lab);
+      border-radius: 20px;
+      padding: 6px 14px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+      flex-shrink: 0;
+    }
+
+    /* Toggle Groups */
+    .feature-toggles {
+      display: flex;
+      background: #ffffff;
+      border: 1px solid var(--border-lab);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .toggle-btn {
+      background: transparent;
+      border: none;
+      border-right: 1px solid var(--border-lab);
+      color: var(--text-sub);
+      padding: 6px 10px;
+      border-radius: 0;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 500;
+      transition: all 0.15s ease;
+    }
+
+    .toggle-btn:last-child {
+      border-right: none;
+    }
+
+    .toggle-btn:hover {
+      background: #f9fafb;
+      color: var(--text-main);
+    }
+
+    .toggle-btn.active {
+      background: #111827;
+      color: #ffffff;
+    }
+
+    /* Color Picker Popup */
+    .color-picker-popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(229, 231, 235, 0.7);
+      border-radius: 16px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+      padding: 20px;
+      z-index: 200;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      min-width: 220px;
+    }
+
+    .color-picker-popup.active {
+      display: flex;
+    }
+
+    .color-picker-popup h4 {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin: 0;
+    }
+
+    .color-picker-popup input[type="color"] {
+      width: 60px;
+      height: 60px;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      cursor: pointer;
+      padding: 2px;
+      background: none;
+    }
+
+    .color-picker-popup .preset-colors {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .color-picker-popup .preset-swatch {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 2px solid #e5e7eb;
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+
+    .color-picker-popup .preset-swatch:hover {
+      transform: scale(1.2);
+    }
+
+    .color-picker-popup .color-picker-btns {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .color-picker-popup .color-picker-btns button {
+      flex: 1;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid #e5e7eb;
+      background: #ffffff;
+      color: var(--text-main);
+      font-family: inherit;
+    }
+
+    .color-picker-popup .color-picker-btns button.apply-btn {
+      background: #111827;
+      border-color: #111827;
+      color: #ffffff;
+    }
+
+    /* General Sync Switch */
+    .switch-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-sub);
+    }
+
+    /* Switch Slider */
+    .switch-container {
+      position: relative;
+      display: inline-block;
+      width: 38px;
+      height: 20px;
+    }
+
+    .switch-container input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: var(--led-off);
+      transition: .3s;
+      border-radius: 20px;
+      border: 1px solid var(--border-lab);
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 12px;
+      width: 12px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .3s;
+      border-radius: 50%;
+    }
+
+    input:checked+.slider {
+      background-color: #111827;
+    }
+
+    input:checked+.slider:before {
+      transform: translateX(18px);
+    }
+
+    /* Main Workspace */
+    .workspace {
+      flex: 1;
+      display: flex;
+      align-items: flex-start;
+      /* Verhindert das Abschneiden am oberen Rand */
+      justify-content: center;
+      gap: clamp(110px, 8vw, 150px);
+      /* Dynamischer Abstand basierend auf Fensterbreite */
+      padding: 0 20px 30px 20px;
+      z-index: 1;
+      overflow-y: auto;
+      /* Erlaubt Scrollen bei sehr kleinen Bildschirmen */
+      overflow-x: hidden;
+    }
+
+    .column {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      margin: auto 0;
+      /* Zentriert sicher vertikal, solange Platz ist */
+      flex-shrink: 0;
+    }
+
+    /* Phone Mockup Wrapper using iPhone.png */
+    .device-container {
+      width: 360px;
+      height: 740px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      background: transparent !important;
+    }
+
+    .screen-wrapper {
+      position: absolute;
+      top: var(--screen-top);
+      left: var(--screen-left);
+      width: var(--screen-width);
+      height: var(--screen-height);
+      overflow: hidden;
+      border-radius: var(--screen-radius);
+      background: #000;
+      box-shadow: 0 0 0 4px #000;
+      /* Füllt sub-pixel Lücken zwischen Display und iPhone Rahmen */
+      z-index: 1;
+    }
+
+    .app-frame {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: var(--app-width);
+      height: var(--app-height);
+      transform: scale(var(--app-scale));
+      transform-origin: top left;
+      border: none;
+      background: transparent;
+    }
+
+    .device-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 10;
+      filter: drop-shadow(0 25px 45px rgba(0, 0, 0, 0.15));
+    }
+
+    /* Floating Sizing Tools Trigger */
+    .sizing-trigger {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #000000;
+      color: #ffffff;
+      border: none;
+      width: 42px;
+      height: 42px;
+      padding: 0;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      transition: all 0.2s ease;
+      z-index: 90;
+    }
+
+    .sizing-trigger:hover,
+    .fullscreen-trigger:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
+      background: #1a1a1a;
+    }
+
+    .fullscreen-trigger {
+      position: fixed;
+      bottom: 24px;
+      right: 76px;
+      background: #000000;
+      color: #ffffff;
+      border: none;
+      width: 42px;
+      height: 42px;
+      padding: 0;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      transition: all 0.2s ease;
+      z-index: 90;
+    }
+
+    /* Collapsible Sizing Panel */
+    .sizing-panel {
+      position: fixed;
+      bottom: 84px;
+      right: 24px;
+      width: 320px;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(229, 231, 235, 0.7);
+      border-radius: 16px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      display: none;
+      flex-direction: column;
+      z-index: 95;
+      overflow: hidden;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      max-height: calc(100vh - 120px);
+    }
+
+    .sizing-panel.active {
+      display: flex;
+    }
+
+    .sizing-panel-header {
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(229, 231, 235, 0.5);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .sizing-panel-header h3 {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .close-panel-btn {
+      background: none;
+      border: none;
+      font-size: 20px;
+      color: var(--text-sub);
+      cursor: pointer;
+      padding: 0 4px;
+    }
+
+    .close-panel-btn:hover {
+      color: var(--text-main);
+    }
+
+    .sizing-panel-body {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      overflow-y: auto;
+    }
+
+    .slider-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .slider-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-sub);
+    }
+
+    .slider-group input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background: #e5e7eb;
+      outline: none;
+    }
+
+    .slider-group input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #111827;
+      cursor: pointer;
+      transition: transform 0.1s ease;
+    }
+
+    .slider-group input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+    }
+
+    /* CSS Output Block */
+    .css-output-container {
+      margin-top: 6px;
+      border: 1px solid rgba(229, 231, 235, 0.7);
+      border-radius: 8px;
+      background: #fafafa;
+      overflow: hidden;
+    }
+
+    .css-output-header {
+      background: #f3f4f6;
+      padding: 6px 12px;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-sub);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(229, 231, 235, 0.7);
+    }
+
+    .copy-css-btn {
+      background: #ffffff;
+      border: 1px solid #d1d5db;
+      color: var(--text-main);
+      padding: 2px 6px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 9px;
+      font-weight: 600;
+    }
+
+    .copy-css-btn:hover {
+      background: #f9fafb;
+    }
+
+    #css-output {
+      padding: 10px;
+      font-family: monospace;
+      font-size: 10px;
+      color: #1f2937;
+      margin: 0;
+      white-space: pre-wrap;
+      user-select: all;
+    }
+
+
+
+    /* iOS-style Status Bar Overlay */
+    .status-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 38px;
+      padding: 0 26px 0 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 5;
+      pointer-events: none;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Outfit", sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      color: #ffffff;
+      transition: color 0.2s ease;
+    }
+
+    .status-bar-dark {
+      color: #000000;
+    }
+
+    .status-left {
+      display: flex;
+      align-items: center;
+    }
+
+    .status-time {
+      letter-spacing: -0.2px;
+    }
+
+    .status-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-icon {
+      opacity: 0.95;
+      flex-shrink: 0;
+    }
+
+    .status-battery {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .battery-level {
+      font-size: 9px;
+      font-weight: 500;
+      opacity: 0.8;
+    }
+
+    .battery-icon {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .battery-body {
+      width: 19px;
+      height: 9.5px;
+      border: 1px solid currentColor;
+      border-radius: 2.5px;
+      padding: 0.75px;
+      display: flex;
+    }
+
+    .battery-fill {
+      height: 100%;
+      width: 87%;
+      background-color: currentColor;
+      border-radius: 0.75px;
+    }
+
+    .battery-cap {
+      width: 1.5px;
+      height: 3.5px;
+      background-color: currentColor;
+      border-radius: 0 1px 1px 0;
+      margin-left: 0.75px;
+      opacity: 0.8;
+    }
+  </style>
+</head>
+
+<body>
+
+
+
+  <!-- Inline Controls Row -->
+  <div class="controls-row">
+    <!-- App A Header -->
+    <div class="column-header">
+      <div class="feature-toggles">
+        <button class="toggle-btn" onmousedown="handleMonocromPress('a', event)" onmouseup="handleMonocromRelease()"
+          onmouseleave="handleMonocromRelease()" ontouchstart="handleMonocromPress('a', event)"
+          ontouchend="handleMonocromRelease()"
+          onclick="handleMonocromClick('a', 'ab-feature-schwarz', this, event)">Monocrom</button>
+        <button class="toggle-btn" onmousedown="handleRadiusPress('a', event)" onmouseup="handleRadiusRelease()"
+          onmouseleave="handleRadiusRelease()" ontouchstart="handleRadiusPress('a', event)"
+          ontouchend="handleRadiusRelease()"
+          onclick="handleRadiusClick('a', 'ab-feature-radius', this, event)">Radius</button>
+        <button class="toggle-btn" onmousedown="handleHeaderPress('a', event)" onmouseup="handleHeaderRelease()"
+          onmouseleave="handleHeaderRelease()" ontouchstart="handleHeaderPress('a', event)"
+          ontouchend="handleHeaderRelease()"
+          onclick="handleHeaderClick('a', 'ab-feature-header', this, event)">Titel</button>
+        <button class="toggle-btn"
+          onclick="toggleIframeFeature('a', 'ab-feature-full-modal', this)">Vollfenster</button>
+        <button class="toggle-btn" onclick="toggleIframeFeature('a', 'ab-feature-deggster-bg', this)">Deggster</button>
+      </div>
+    </div>
+
+    <!-- Sync Toggle Center -->
+    <div class="sync-center">
+      <span class="switch-label">Sync</span>
+      <label class="switch-container">
+        <input type="checkbox" id="sync-toggle" checked onchange="toggleMirroring(this.checked)">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <!-- App B Header -->
+    <div class="column-header">
+      <div class="feature-toggles">
+        <button class="toggle-btn" onmousedown="handleMonocromPress('b', event)" onmouseup="handleMonocromRelease()"
+          onmouseleave="handleMonocromRelease()" ontouchstart="handleMonocromPress('b', event)"
+          ontouchend="handleMonocromRelease()"
+          onclick="handleMonocromClick('b', 'ab-feature-schwarz', this, event)">Monocrom</button>
+        <button class="toggle-btn" onmousedown="handleRadiusPress('b', event)" onmouseup="handleRadiusRelease()"
+          onmouseleave="handleRadiusRelease()" ontouchstart="handleRadiusPress('b', event)"
+          ontouchend="handleRadiusRelease()"
+          onclick="handleRadiusClick('b', 'ab-feature-radius', this, event)">Radius</button>
+        <button class="toggle-btn" onmousedown="handleHeaderPress('b', event)" onmouseup="handleHeaderRelease()"
+          onmouseleave="handleHeaderRelease()" ontouchstart="handleHeaderPress('b', event)"
+          ontouchend="handleHeaderRelease()"
+          onclick="handleHeaderClick('b', 'ab-feature-header', this, event)">Titel</button>
+        <button class="toggle-btn"
+          onclick="toggleIframeFeature('b', 'ab-feature-full-modal', this)">Vollfenster</button>
+        <button class="toggle-btn" onclick="toggleIframeFeature('b', 'ab-feature-deggster-bg', this)">Deggster</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Workspace Viewports -->
+  <div class="workspace">
+    <!-- Column A -->
+    <div class="column side-a">
+      <div class="device-container">
+        <div class="screen-wrapper">
+          <!-- Status Bar -->
+          <div class="status-bar">
+            <div class="status-left">
+              <span class="status-time">12:00</span>
+            </div>
+            <div class="status-right">
+              <!-- Cellular Signal -->
+              <svg class="status-icon" width="15" height="11" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M2 22h20V2z" />
+              </svg>
+              <!-- WiFi Icon -->
+              <svg class="status-icon" width="13" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
+                <path d="M1.42 9a16 16 0 0 1 21.16 0"></path>
+                <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+                <line x1="12" y1="20" x2="12.01" y2="20" stroke-width="3"></line>
+              </svg>
+              <!-- Battery -->
+              <div class="status-battery">
+                <span class="battery-level">87</span>
+                <div class="battery-icon">
+                  <div class="battery-body">
+                    <div class="battery-fill"></div>
+                  </div>
+                  <div class="battery-cap"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <iframe id="iframe-a" src="index.html" class="app-frame"></iframe>
+        </div>
+        <img src="iPhone.png" class="device-overlay" alt="iPhone Frame">
+      </div>
+    </div>
+
+    <!-- Column B -->
+    <div class="column side-b">
+      <div class="device-container">
+        <div class="screen-wrapper">
+          <!-- Status Bar -->
+          <div class="status-bar">
+            <div class="status-left">
+              <span class="status-time">12:00</span>
+            </div>
+            <div class="status-right">
+              <!-- Cellular Signal -->
+              <svg class="status-icon" width="15" height="11" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M2 22h20V2z" />
+              </svg>
+              <!-- WiFi Icon -->
+              <svg class="status-icon" width="13" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
+                <path d="M1.42 9a16 16 0 0 1 21.16 0"></path>
+                <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+                <line x1="12" y1="20" x2="12.01" y2="20" stroke-width="3"></line>
+              </svg>
+              <!-- Battery -->
+              <div class="status-battery">
+                <span class="battery-level">87</span>
+                <div class="battery-icon">
+                  <div class="battery-body">
+                    <div class="battery-fill"></div>
+                  </div>
+                  <div class="battery-cap"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <iframe id="iframe-b" src="index.html" class="app-frame"></iframe>
+        </div>
+        <img src="iPhone.png" class="device-overlay" alt="iPhone Frame">
+      </div>
+    </div>
+  </div>
+  <!-- Color Picker Popup -->
+  <div id="color-picker-popup" class="color-picker-popup">
+    <h4>Akzentfarbe wählen</h4>
+    <input type="color" id="accent-color-input" value="#111827">
+    <div class="preset-colors">
+      <div class="preset-swatch" style="background:#111827" onclick="setPresetColor('#111827')"></div>
+      <div class="preset-swatch" style="background:#3A82F7" onclick="setPresetColor('#3A82F7')"></div>
+      <div class="preset-swatch" style="background:#10b981" onclick="setPresetColor('#10b981')"></div>
+      <div class="preset-swatch" style="background:#f59e0b" onclick="setPresetColor('#f59e0b')"></div>
+      <div class="preset-swatch" style="background:#ef4444" onclick="setPresetColor('#ef4444')"></div>
+      <div class="preset-swatch" style="background:#8b5cf6" onclick="setPresetColor('#8b5cf6')"></div>
+      <div class="preset-swatch" style="background:#ec4899" onclick="setPresetColor('#ec4899')"></div>
+      <div class="preset-swatch" style="background:#009fe3" onclick="setPresetColor('#009fe3')"></div>
+    </div>
+    <div class="color-picker-btns">
+      <button onclick="closeColorPicker()">Abbrechen</button>
+      <button class="apply-btn" onclick="applyCustomColor()">Anwenden</button>
+    </div>
+  </div>
+
+  <!-- Radius Picker Popup -->
+  <div id="radius-picker-popup" class="color-picker-popup">
+    <h4>Eckenradius anpassen</h4>
+    <div class="slider-group" style="width: 100%; margin: 5px 0;">
+      <div class="slider-header">
+        <label for="radius-input">Radius:</label>
+        <span id="radius-val">12px</span>
+      </div>
+      <input type="range" id="radius-input" min="0" max="40" step="1" value="12" oninput="updateRadiusVal(this.value)">
+    </div>
+    <div class="color-picker-btns">
+      <button onclick="closeRadiusPicker(true)">Abbrechen</button>
+      <button class="apply-btn" onclick="applyCustomRadius()">Anwenden</button>
+    </div>
+  </div>
+
+  <!-- Header Picker Popup -->
+  <div id="header-picker-popup" class="color-picker-popup">
+    <h4>Überschriftengröße</h4>
+    <div class="slider-group" style="width: 100%; margin: 5px 0;">
+      <div class="slider-header">
+        <label for="header-input">Skalierung:</label>
+        <span id="header-val">1.2x</span>
+      </div>
+      <input type="range" id="header-input" min="0.8" max="2.0" step="0.05" value="1.2"
+        oninput="updateHeaderVal(this.value)">
+    </div>
+    <div class="color-picker-btns">
+      <button onclick="closeHeaderPicker(true)">Abbrechen</button>
+      <button class="apply-btn" onclick="applyCustomHeader()">Anwenden</button>
+    </div>
+  </div>
+
+  <!-- Floating Fullscreen Button -->
+  <button class="fullscreen-trigger" onclick="toggleFullscreen()" title="Vollbild">
+    <svg id="fullscreen-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="15 3 21 3 21 9"></polyline>
+      <polyline points="9 21 3 21 3 15"></polyline>
+      <line x1="21" y1="3" x2="14" y2="10"></line>
+      <line x1="3" y1="21" x2="10" y2="14"></line>
+    </svg>
+  </button>
+
+  <!-- Floating Sizing Tools Trigger -->
+  <button id="sizing-toggle-btn" class="sizing-trigger" onclick="toggleSizingPanel()">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <line x1="4" y1="21" x2="4" y2="14"></line>
+      <line x1="4" y1="10" x2="4" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="12"></line>
+      <line x1="12" y1="8" x2="12" y2="3"></line>
+      <line x1="20" y1="21" x2="20" y2="16"></line>
+      <line x1="20" y1="12" x2="20" y2="3"></line>
+      <line x1="1" y1="14" x2="7" y2="14"></line>
+      <line x1="9" y1="8" x2="15" y2="8"></line>
+      <line x1="17" y1="16" x2="23" y2="16"></line>
+    </svg>
+  </button>
+
+  <!-- Collapsible Sizing Panel -->
+  <div id="sizing-panel" class="sizing-panel">
+    <div class="sizing-panel-header">
+      <h3>Display-Ausrichtung</h3>
+      <button class="close-panel-btn" onclick="toggleSizingPanel()">&times;</button>
+    </div>
+    <div class="sizing-panel-body">
+      <div class="slider-group">
+        <div class="slider-header">
+          <label for="input-screen-top">Top Abstand (top):</label>
+          <span id="val-screen-top">1%</span>
+        </div>
+        <input type="range" id="input-screen-top" min="0" max="5" step="0.05" value="1"
+          oninput="updateSizingVar('screen-top', this.value + '%')">
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-header">
+          <label for="input-screen-left">Links Abstand (left):</label>
+          <span id="val-screen-left">2.85%</span>
+        </div>
+        <input type="range" id="input-screen-left" min="0" max="5" step="0.05" value="2.85"
+          oninput="updateSizingVar('screen-left', this.value + '%')">
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-header">
+          <label for="input-screen-width">Display Breite (width):</label>
+          <span id="val-screen-width">94.65%</span>
+        </div>
+        <input type="range" id="input-screen-width" min="90" max="100" step="0.05" value="94.65"
+          oninput="updateSizingVar('screen-width', this.value + '%')">
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-header">
+          <label for="input-screen-height">Display Höhe (height):</label>
+          <span id="val-screen-height">98.45%</span>
+        </div>
+        <input type="range" id="input-screen-height" min="90" max="100" step="0.05" value="98.45"
+          oninput="updateSizingVar('screen-height', this.value + '%')">
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-header">
+          <label for="input-screen-radius">Eckenradius (radius):</label>
+          <span id="val-screen-radius">46px</span>
+        </div>
+        <input type="range" id="input-screen-radius" min="0" max="80" step="1" value="46"
+          oninput="updateSizingVar('screen-radius', this.value + 'px')">
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-header">
+          <label for="input-app-scale">App Skalierung / PPI (zoom):</label>
+          <span id="val-app-scale">0.81</span>
+        </div>
+        <input type="range" id="input-app-scale" min="0.5" max="1.5" step="0.01" value="0.81"
+          oninput="updateAppScale(this.value)">
+      </div>
+
+      <div class="css-output-container">
+        <div class="css-output-header">
+          <span>Generiertes CSS:</span>
+          <button class="copy-css-btn" onclick="copyGeneratedCSS()">Kopieren</button>
+        </div>
+        <pre id="css-output"></pre>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const iframeA = document.getElementById('iframe-a');
+    const iframeB = document.getElementById('iframe-b');
+    const syncToggle = document.getElementById('sync-toggle');
+
+    // Blockiere das Standard-Kontextmenü (verhindert das Teilen-Menü auf Android/Tablets)
+    window.addEventListener('contextmenu', function (e) {
+      e.preventDefault();
+    });
+
+    let syncEnabled = true;
+    let isMirroring = false;
+
+    // Dynamic Style Injection for both iframes (via postMessage)
+    const customStyles = `
+      /* --- Dynamic A/B Features Injected CSS --- */
+      
+      /* General Mockup Display Adjustments for Notch/Bezel Spacing */
+      .header {
+        padding-top: 64px !important;
+      }
+      #profile-top-spacer {
+        min-height: 124px !important;
+      }
+      .mail-list {
+        padding-top: 124px !important;
+      }
+      body.theme-glass .mail-list {
+        padding-top: 134px !important;
+      }
+      .dropdown-notification.show {
+        transform: translate(-50%, 39px) !important;
+      }
+      .navbar {
+        padding-bottom: 16px !important;
+        height: 72px !important;
+      }
+      
+      /* 1. Schwarz Accent Scheme (custom color via CSS variable) */
+      body.ab-feature-schwarz {
+        --accent-blue: var(--ab-custom-accent, #ffffff) !important;
+        --accent-orange: var(--ab-custom-accent, #ffffff) !important;
+        --accent-text: #000000 !important;
+        
+        /* Override specifically some static gradients or hardcoded colors if needed, but redefining --accent-blue/orange should cascade */
+      }
+      body.ab-feature-schwarz.theme-light,
+      body.ab-feature-schwarz.theme-thd {
+        --accent-blue: var(--ab-custom-accent, #111827) !important;
+        --accent-orange: var(--ab-custom-accent, #111827) !important;
+        --accent-text: #ffffff !important;
+      }
+      
+      body.ab-feature-schwarz.theme-light {
+        --schedule-fill-bg: rgba(0, 0, 0, 0.1) !important;
+      }
+      
+      /* Force all usages of these variables to inherit our overrides immediately */
+      body.ab-feature-schwarz *,
+      body.ab-feature-schwarz *::before,
+      body.ab-feature-schwarz *::after {
+        /* Since CSS variables inherit, changing them on body should be enough, 
+           but some components might use hardcoded inline styles or static classes. 
+           Let's explicitly target known colored elements. */
+      }
+      
+      body.ab-feature-schwarz .btn-primary,
+      body.ab-feature-schwarz .setup-continue-btn,
+      body.ab-feature-schwarz .fab-button,
+      body.ab-feature-schwarz .toggle-input:checked + .toggle-slider,
+      body.ab-feature-schwarz .checkbox-inner,
+      body.ab-feature-schwarz .radio-inner,
+      body.ab-feature-schwarz .progress-bar-fill,
+      body.ab-feature-schwarz .segment-highlight {
+        background-color: var(--accent-blue) !important;
+        border-color: var(--accent-blue) !important;
+      }
+      
+      body.ab-feature-schwarz .btn-primary,
+      body.ab-feature-schwarz .setup-continue-btn,
+      body.ab-feature-schwarz .fab-button {
+        color: var(--accent-text) !important;
+      }
+
+      body.ab-feature-schwarz .segment-btn.active,
+      body.ab-feature-schwarz.theme-light .segment-btn.active,
+      body.ab-feature-schwarz.theme-thd .segment-btn.active {
+        color: var(--accent-text) !important;
+      }
+      
+      body.ab-feature-schwarz .nav-item.active,
+      body.ab-feature-schwarz .stat-value,
+      body.ab-feature-schwarz .vpn-status.active {
+        color: var(--accent-blue) !important;
+      }
+      
+      body.ab-feature-schwarz svg {
+        /* Force active SVGs to match if they used accent colors */
+      }
+      
+      /* Specifically fix iLearn highlights / grades */
+      body.ab-feature-schwarz .grade-badge,
+      body.ab-feature-schwarz .status-indicator.active {
+        background-color: var(--accent-blue) !important;
+        color: var(--accent-text) !important;
+      }
+      
+      body.ab-feature-schwarz .todo-checkbox.checked svg,
+      body.ab-feature-schwarz .mail-item.selected .selection-indicator svg {
+        stroke: var(--accent-text) !important;
+      }
+      
+      /* Fix remaining colored elements */
+      body.ab-feature-schwarz .service-card {
+        background-color: var(--accent-blue) !important;
+        border-color: var(--accent-blue) !important;
+        color: var(--accent-text) !important;
+      }
+      
+      body.ab-feature-schwarz .chart-bar.low,
+      body.ab-feature-schwarz .chart-bar.medium,
+      body.ab-feature-schwarz .chart-bar.high {
+        background: var(--accent-blue) !important;
+        box-shadow: none !important;
+      }
+      
+      body.ab-feature-schwarz .parking-bar-fill {
+        background-color: var(--accent-blue) !important;
+      }
+      body.ab-feature-schwarz .parking-bar-fill .circle {
+        background-color: var(--accent-blue) !important;
+        --background: var(--accent-blue) !important;
+      }
+      body.ab-feature-schwarz .parking-status {
+        color: var(--accent-blue) !important;
+        background: var(--item-bg) !important;
+      }
+      
+      body.ab-feature-schwarz .todo-checkbox.checked,
+      body.ab-feature-schwarz .nav-badge,
+      body.ab-feature-schwarz .mail-item.unread::before {
+        background-color: var(--accent-blue) !important;
+        border-color: var(--accent-blue) !important;
+      }
+      
+      body.ab-feature-schwarz .rental-item-due.soon,
+      body.ab-feature-schwarz .rental-item-due.urgent,
+      body.ab-feature-schwarz .vpn-arrow-ul,
+      body.ab-feature-schwarz .vpn-arrow-dl {
+        color: var(--accent-blue) !important;
+      }
+      
+      body.ab-feature-schwarz .event-star.active svg,
+      body.ab-feature-schwarz #news-filter-star.active-filter {
+        fill: var(--accent-blue) !important;
+        stroke: var(--accent-blue) !important;
+      }
+      
+      body.ab-feature-schwarz .weather-card svg,
+      body.ab-feature-schwarz #settings-weather-icon-container svg,
+      body.ab-feature-schwarz #vpn-chart,
+      body.ab-feature-schwarz .vpn-card.vpn-connect-anim,
+      body.ab-feature-schwarz .vpn-card.vpn-disconnect-anim {
+        filter: grayscale(100%) brightness(200%) !important;
+      }
+      
+      body.ab-feature-schwarz.theme-light .weather-card svg,
+      body.ab-feature-schwarz.theme-light #settings-weather-icon-container svg,
+      body.ab-feature-schwarz.theme-light #vpn-chart,
+      body.ab-feature-schwarz.theme-light .vpn-card.vpn-connect-anim,
+      body.ab-feature-schwarz.theme-light .vpn-card.vpn-disconnect-anim,
+      body.ab-feature-schwarz.theme-thd .weather-card svg,
+      body.ab-feature-schwarz.theme-thd #settings-weather-icon-container svg,
+      body.ab-feature-schwarz.theme-thd #vpn-chart,
+      body.ab-feature-schwarz.theme-thd .vpn-card.vpn-connect-anim,
+      body.ab-feature-schwarz.theme-thd .vpn-card.vpn-disconnect-anim {
+        filter: grayscale(100%) brightness(0%) !important;
+      }
+
+      body.ab-feature-schwarz .progress-bar-fill .circle {
+        --background: var(--accent-blue) !important;
+      }
+      
+      /* Expand fixes for all other colored elements */
+      body.ab-feature-schwarz .deggster-bubble {
+        background-color: #3A82F7 !important;
+        color: #ffffff !important;
+      }
+      body.ab-feature-schwarz .deggster-bubble::after {
+        border-top-color: #3A82F7 !important;
+      }
+      body.ab-feature-schwarz.theme-thd .deggster-bubble {
+        background-color: #009fe3 !important;
+      }
+      body.ab-feature-schwarz.theme-thd .deggster-bubble::after {
+        border-top-color: #009fe3 !important;
+      }
+      body.ab-feature-schwarz #liquid-glass-canvas,
+      body.ab-feature-schwarz .widget-preview-card svg[style*="color: #FF9500"] {
+        filter: grayscale(100%) brightness(200%) !important;
+      }
+      body.ab-feature-schwarz.theme-light #liquid-glass-canvas,
+      body.ab-feature-schwarz.theme-light .widget-preview-card svg[style*="color: #FF9500"],
+      body.ab-feature-schwarz.theme-thd #liquid-glass-canvas,
+      body.ab-feature-schwarz.theme-thd .widget-preview-card svg[style*="color: #FF9500"] {
+        filter: grayscale(100%) brightness(0%) !important;
+      }
+      body.ab-feature-schwarz .progress-bar-extra {
+        background: repeating-linear-gradient(-45deg, transparent, transparent 4px, var(--accent-blue) 4px, var(--accent-blue) 8px) !important;
+      }
+      body.ab-feature-schwarz .dropdown-notification.error {
+        background-color: var(--accent-blue) !important;
+        border-color: var(--accent-blue) !important;
+        color: var(--accent-text) !important;
+      }
+      body.ab-feature-schwarz [style*="color: #34C759"],
+      body.ab-feature-schwarz [style*="color: #FF3B30"],
+      body.ab-feature-schwarz [style*="color: var(--accent-orange)"] {
+        color: var(--accent-blue) !important;
+      }
+      body.ab-feature-schwarz [style*="rgba(58, 130, 247, 0.15)"],
+      body.ab-feature-schwarz [style*="rgba(255, 90, 0, 0.15)"] {
+        background-color: var(--item-bg) !important;
+        border-color: var(--accent-blue) !important;
+        color: var(--accent-blue) !important;
+      }
+      body.ab-feature-schwarz svg[stroke="var(--accent-orange)"],
+      body.ab-feature-schwarz svg[stroke="#34C759"],
+      body.ab-feature-schwarz svg[stroke="#FF3B30"] {
+        stroke: var(--accent-blue) !important;
+      }
+      body.ab-feature-schwarz .services-card,
+      body.ab-feature-schwarz #ai-generate-btn {
+        background-color: var(--item-bg) !important;
+        border-color: var(--accent-blue) !important;
+        color: var(--accent-blue) !important;
+      }
+      body.ab-feature-schwarz .btn-primary,
+      body.ab-feature-schwarz .fab-button {
+        --c-color-1: var(--accent-blue) !important;
+        --c-color-2: var(--accent-blue) !important;
+        --c-color-3: var(--accent-blue) !important;
+      }
+      body.ab-feature-schwarz .study-liquid-wrapper .circle,
+      body.ab-feature-schwarz .parking-liquid-wrapper .circle {
+        background: var(--accent-blue) !important;
+        --background: var(--accent-blue) !important;
+      }
+      body.ab-feature-schwarz.theme-thd .mail-item,
+      body.ab-feature-schwarz.theme-thd .news-item {
+        background-color: var(--item-bg) !important;
+      }
+      body.ab-feature-schwarz .chart-tooltip {
+        background-color: var(--text-main) !important;
+        color: var(--card-bg) !important;
+      }
+      body.ab-feature-schwarz .chart-tooltip::after {
+        border-top-color: var(--text-main) !important;
+      }
+
+      /* 2. Radius Feature */
+      body.ab-feature-radius .modal { border-radius: var(--ab-custom-radius, 16px) !important; }
+      body.ab-feature-radius .ects-free,
+      body.ab-feature-radius .ects-item,
+      body.ab-feature-radius .schedule-box,
+      body.ab-feature-radius .schedule-item,
+      body.ab-feature-radius .mensa-card,
+      body.ab-feature-radius .parking-card,
+      body.ab-feature-radius .rental-card,
+      body.ab-feature-radius .vpn-card,
+      body.ab-feature-radius .services-card,
+      body.ab-feature-radius .weather-card,
+      body.ab-feature-radius .todo-card,
+      body.ab-feature-radius .stat-card,
+      body.ab-feature-radius .progress-section,
+      body.ab-feature-radius .mail-item,
+      body.ab-feature-radius .news-item,
+      body.ab-feature-radius .search-result-item,
+      body.ab-feature-radius .suggestion-tile,
+      body.ab-feature-radius .service-tile,
+      body.ab-feature-radius .service-card,
+      body.ab-feature-radius .dropdown-notification,
+      body.ab-feature-radius .widget-preview-card,
+      body.ab-feature-radius .mail-list,
+      body.ab-feature-radius .btn,
+      body.ab-feature-radius .compose-input,
+      body.ab-feature-radius .minimap,
+      body.ab-feature-radius .list-item,
+      body.ab-feature-radius .navbar {
+        border-radius: var(--ab-custom-radius, 12px) !important;
+      }
+      body.ab-feature-radius .segment-btn,
+      body.ab-feature-radius .segment-highlight,
+      body.ab-feature-radius .segmented-control,
+      body.ab-feature-radius .scroll-list,
+      body.ab-feature-radius .grades-list {
+        border-radius: calc(var(--ab-custom-radius, 12px) / 2) !important;
+      }
+      body.ab-feature-radius .deggster-bubble {
+        border-radius: calc(var(--ab-custom-radius, 12px) / 1.5) !important;
+      }
+
+      /* 3. Vollfenster Modal A/B Feature */
+      body.ab-feature-full-modal .modal {
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        transform: none !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        height: 100% !important;
+        max-height: 100% !important;
+        border-radius: 0 !important;
+        border: none !important;
+        padding: 72px 24px 24px 24px !important;
+        box-sizing: border-box !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        background-color: rgba(10, 11, 16, 0.72) !important;
+        backdrop-filter: blur(25px) saturate(160%) !important;
+        -webkit-backdrop-filter: blur(25px) saturate(160%) !important;
+      }
+
+      /* Light theme support for Vollfenster modal background */
+      body.ab-feature-full-modal.theme-light .modal,
+      body.ab-feature-full-modal.theme-thd .modal {
+        background-color: rgba(220, 222, 228, 0.8) !important;
+        color: #000000 !important;
+      }
+
+      /* Prevent buttons from stretching vertically in flexbox */
+      body.ab-feature-full-modal .modal > .btn {
+        flex: none !important;
+      }
+
+      body.ab-feature-full-modal .overlay {
+        background: transparent !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+      }
+
+      /* 4. Deggster Background Kachel */
+      body.ab-feature-deggster-bg #deggster-widget {
+        background-color: var(--card-bg) !important;
+      }
+      body.ab-feature-deggster-bg.theme-thd #deggster-widget {
+        background-color: #1f4675 !important;
+      }
+      body.ab-feature-deggster-bg.theme-glass #deggster-widget {
+        background: var(--lg-surface) !important;
+        border: 1px solid rgba(255, 255, 255, var(--lg-border-opacity)) !important;
+        backdrop-filter: blur(calc(var(--lg-blur) * 1.5)) saturate(var(--lg-saturation)) !important;
+        -webkit-backdrop-filter: blur(calc(var(--lg-blur) * 1.5)) saturate(var(--lg-saturation)) !important;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1), inset 0 -1px 0 rgba(255, 255, 255, 0.03) !important;
+      }
+
+      /* 5. Header Skalierung */
+      body.ab-feature-header .header { font-size: calc(28px * var(--ab-custom-header-scale, 1.2)) !important; }
+      body.ab-feature-header .dashboard-title-text { font-size: calc(28px * var(--ab-custom-header-scale, 1.2)) !important; }
+    `;
+
+    // Send CSS injection to an iframe via postMessage
+    function injectCSSviaMessage(iframe) {
+      iframe.contentWindow.postMessage({
+        source: 'ab-test',
+        type: 'inject-css',
+        css: customStyles
+      }, '*');
+    }
+
+    // Toggle features inside specific iframe via postMessage
+    function toggleIframeFeature(side, featureClass, btn) {
+      const iframe = (side === 'a') ? iframeA : iframeB;
+      btn.classList.toggle('active');
+      const active = btn.classList.contains('active');
+
+      iframe.contentWindow.postMessage({
+        source: 'ab-test',
+        type: 'toggle-class',
+        className: featureClass,
+        active: active
+      }, '*');
+    }
+
+    // Mirroring controls
+    function toggleMirroring(enabled) {
+      syncEnabled = enabled;
+    }
+
+    // ─── PostMessage-based Bidirectional Mirroring ───────────────────────────
+    // Track which iframe sent a message to mirror to the other
+    let mirrorTimeout = null;
+
+    window.addEventListener('message', function (e) {
+      const msg = e.data;
+      if (!msg || msg.source !== 'ab-app') return;
+
+      // Determine which iframe sent this message
+      const fromA = (e.source === iframeA.contentWindow);
+      const fromB = (e.source === iframeB.contentWindow);
+      if (!fromA && !fromB) return;
+
+      const targetIframe = fromA ? iframeB : iframeA;
+
+      switch (msg.type) {
+        case 'ready': {
+          // An iframe has loaded — inject the CSS
+          if (fromA) injectCSSviaMessage(iframeA);
+          if (fromB) injectCSSviaMessage(iframeB);
+          break;
+        }
+
+        case 'user-click': {
+          if (!syncEnabled || isMirroring) return;
+          isMirroring = true;
+          clearTimeout(mirrorTimeout);
+          mirrorTimeout = setTimeout(() => { isMirroring = false; }, 200);
+
+          if (msg.onclick) {
+            // Mirror via onclick attribute evaluation (most reliable)
+            targetIframe.contentWindow.postMessage({
+              source: 'ab-test',
+              type: 'exec-onclick',
+              code: msg.onclick,
+              selector: msg.selector
+            }, '*');
+          } else if (msg.selector) {
+            // Fallback: click element by selector
+            targetIframe.contentWindow.postMessage({
+              source: 'ab-test',
+              type: 'click-selector',
+              selector: msg.selector
+            }, '*');
+          }
+          break;
+        }
+
+        case 'user-scroll': {
+          if (!syncEnabled || isMirroring) return;
+          isMirroring = true;
+          clearTimeout(mirrorTimeout);
+          mirrorTimeout = setTimeout(() => { isMirroring = false; }, 50);
+
+          targetIframe.contentWindow.postMessage({
+            source: 'ab-test',
+            type: 'set-scroll',
+            selector: msg.selector,
+            scrollTop: msg.scrollTop,
+            scrollLeft: msg.scrollLeft
+          }, '*');
+          break;
+        }
+
+        case 'user-input': {
+          if (!syncEnabled || isMirroring) return;
+          isMirroring = true;
+          clearTimeout(mirrorTimeout);
+          mirrorTimeout = setTimeout(() => { isMirroring = false; }, 100);
+
+          targetIframe.contentWindow.postMessage({
+            source: 'ab-test',
+            type: 'set-input',
+            selector: msg.selector,
+            value: msg.value
+          }, '*');
+          break;
+        }
+
+        case 'state-report': {
+          // Store the state for this iframe
+          if (fromA) stateA = msg.state;
+          if (fromB) stateB = msg.state;
+
+          // Update status bar theme from state
+          const side = fromA ? '.side-a' : '.side-b';
+          const statusBar = document.querySelector(side + ' .status-bar');
+          if (statusBar && msg.state.bodyClasses) {
+            const isLight = msg.state.bodyClasses.includes('theme-light') || msg.state.bodyClasses.includes('theme-thd');
+            statusBar.classList.toggle('status-bar-dark', isLight);
+          }
+
+          // Desync detection & correction (only when sync is on)
+          if (syncEnabled && stateA && stateB && !isMirroring) {
+            checkAndCorrectDesync();
+          }
+          break;
+        }
+      }
+    });
+
+    // ─── State tracking & desync correction ───
+    let stateA = null;
+    let stateB = null;
+    let lastInteracted = 'a'; // which side the user last touched
+    let desyncCorrectionTimeout = null;
+
+    // Track which iframe the user last interacted with
+    window.addEventListener('message', function (e) {
+      if (!e.data || e.data.source !== 'ab-app') return;
+      if (e.data.type === 'user-click' || e.data.type === 'user-scroll' || e.data.type === 'user-input') {
+        if (e.source === iframeA.contentWindow) lastInteracted = 'a';
+        else if (e.source === iframeB.contentWindow) lastInteracted = 'b';
+      }
+    });
+
+    function checkAndCorrectDesync() {
+      if (!stateA || !stateB) return;
+
+      // Compare key state aspects
+      const pageDesync = stateA.activePageId !== stateB.activePageId;
+      const modalDesync = JSON.stringify(stateA.openModals) !== JSON.stringify(stateB.openModals);
+      const overlayDesync = stateA.overlayVisible !== stateB.overlayVisible;
+
+      if (pageDesync || modalDesync || overlayDesync) {
+        // Debounce to avoid rapid-fire corrections
+        clearTimeout(desyncCorrectionTimeout);
+        desyncCorrectionTimeout = setTimeout(() => {
+          // Re-check after debounce (state may have resolved itself)
+          if (!stateA || !stateB) return;
+          const stillPageDesync = stateA.activePageId !== stateB.activePageId;
+          const stillModalDesync = JSON.stringify(stateA.openModals) !== JSON.stringify(stateB.openModals);
+          const stillOverlayDesync = stateA.overlayVisible !== stateB.overlayVisible;
+
+          if (!stillPageDesync && !stillModalDesync && !stillOverlayDesync) return;
+
+          // Use the last-interacted side as source of truth
+          const sourceState = (lastInteracted === 'a') ? stateA : stateB;
+          const targetIframe = (lastInteracted === 'a') ? iframeB : iframeA;
+
+          console.log('🔄 Desync detected! Correcting ' + (lastInteracted === 'a' ? 'B' : 'A') + ' to match ' + (lastInteracted === 'a' ? 'A' : 'B'));
+
+          isMirroring = true;
+          clearTimeout(mirrorTimeout);
+          mirrorTimeout = setTimeout(() => { isMirroring = false; }, 500);
+
+          targetIframe.contentWindow.postMessage({
+            source: 'ab-test',
+            type: 'force-state',
+            state: sourceState
+          }, '*');
+        }, 600);
+      }
+    }
+
+    // Also inject CSS when iframes finish loading (backup)
+    iframeA.addEventListener('load', () => {
+      setTimeout(() => injectCSSviaMessage(iframeA), 300);
+    });
+    iframeB.addEventListener('load', () => {
+      setTimeout(() => injectCSSviaMessage(iframeB), 300);
+    });
+
+    // --- Display Sizing Panel Logic ---
+    function toggleSizingPanel() {
+      const panel = document.getElementById('sizing-panel');
+      panel.classList.toggle('active');
+      if (panel.classList.contains('active')) {
+        updateCSSCodeDisplay();
+      }
+    }
+
+    function updateSizingVar(name, value) {
+      document.documentElement.style.setProperty(`--${name}`, value);
+      document.getElementById(`val-${name}`).textContent = value;
+      updateCSSCodeDisplay();
+    }
+
+    function updateAppScale(scaleVal) {
+      const scale = parseFloat(scaleVal);
+      const sizePct = (1 / scale * 100).toFixed(2) + '%';
+
+      document.documentElement.style.setProperty('--app-scale', scale);
+      document.documentElement.style.setProperty('--app-width', sizePct);
+      document.documentElement.style.setProperty('--app-height', sizePct);
+
+      document.getElementById('val-app-scale').textContent = scale.toFixed(2);
+
+      updateCSSCodeDisplay();
+    }
+
+    function updateCSSCodeDisplay() {
+      const rootStyles = getComputedStyle(document.documentElement);
+      const topVal = rootStyles.getPropertyValue('--screen-top').trim() || '1%';
+      const leftVal = rootStyles.getPropertyValue('--screen-left').trim() || '2.85%';
+      const widthVal = rootStyles.getPropertyValue('--screen-width').trim() || '94.65%';
+      const heightVal = rootStyles.getPropertyValue('--screen-height').trim() || '98.45%';
+      const radiusVal = rootStyles.getPropertyValue('--screen-radius').trim() || '46px';
+
+      const appScale = rootStyles.getPropertyValue('--app-scale').trim() || '0.81';
+      const appWidth = rootStyles.getPropertyValue('--app-width').trim() || '123.46%';
+      const appHeight = rootStyles.getPropertyValue('--app-height').trim() || '123.46%';
+
+      const cssString = `.screen-wrapper {
+  top: ${topVal};
+  left: ${leftVal};
+  width: ${widthVal};
+  height: ${heightVal};
+  border-radius: ${radiusVal};
+}
+.app-frame {
+  width: ${appWidth};
+  height: ${appHeight};
+  transform: scale(${appScale});
+}`;
+
+      document.getElementById('css-output').textContent = cssString;
+    }
+
+    function copyGeneratedCSS() {
+      const cssText = document.getElementById('css-output').textContent;
+      navigator.clipboard.writeText(cssText).then(() => {
+        const copyBtn = document.querySelector('.copy-css-btn');
+        copyBtn.textContent = 'Kopiert!';
+        setTimeout(() => {
+          copyBtn.textContent = 'Kopieren';
+        }, 1500);
+      }).catch(err => {
+        console.error('Failed to copy CSS: ', err);
+      });
+    }
+
+    // Initialize CSS code display on load
+    updateCSSCodeDisplay();
+
+    // --- Status Bar Clock ---
+    function updateClock() {
+      const now = new Date();
+      let hours = now.getHours();
+      let minutes = now.getMinutes();
+      minutes = minutes < 10 ? '0' + minutes : minutes;
+      const timeStr = hours + ':' + minutes;
+      document.querySelectorAll('.status-time').forEach(el => {
+        el.textContent = timeStr;
+      });
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // --- Fullscreen Toggle ---
+    function toggleFullscreen() {
+      if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        const el = document.documentElement;
+        if (el.requestFullscreen) el.requestFullscreen();
+        else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+      } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+        else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+      }
+    }
+
+    // Update icon when fullscreen state changes
+    function updateFullscreenIcon() {
+      const icon = document.getElementById('fullscreen-icon');
+      const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement);
+      if (isFS) {
+        icon.innerHTML = '<polyline points="4 14 10 14 10 20"></polyline><polyline points="20 10 14 10 14 4"></polyline><line x1="14" y1="10" x2="21" y2="3"></line><line x1="3" y1="21" x2="10" y2="14"></line>';
+      } else {
+        icon.innerHTML = '<polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line>';
+      }
+    }
+    document.addEventListener('fullscreenchange', updateFullscreenIcon);
+    document.addEventListener('webkitfullscreenchange', updateFullscreenIcon);
+
+    // --- Custom Accent Color Picker ---
+    let colorPickerSide = null; // 'a' or 'b'
+    let monocromPressTimer = null;
+    let isMonocromLongPress = false;
+
+    function handleMonocromPress(side, event) {
+      isMonocromLongPress = false;
+      monocromPressTimer = setTimeout(() => {
+        isMonocromLongPress = true;
+        openColorPicker(side, event);
+      }, 600);
+    }
+
+    function handleMonocromRelease() {
+      if (monocromPressTimer) clearTimeout(monocromPressTimer);
+    }
+
+    function handleMonocromClick(side, featureClass, btn, event) {
+      if (isMonocromLongPress) {
+        event.preventDefault();
+        event.stopPropagation();
+        isMonocromLongPress = false;
+        return;
+      }
+      toggleIframeFeature(side, featureClass, btn);
+    }
+
+    function openColorPicker(side, event) {
+      event.preventDefault();
+      event.stopPropagation();
+      colorPickerSide = side;
+      document.getElementById('color-picker-popup').classList.add('active');
+    }
+
+    function closeColorPicker() {
+      document.getElementById('color-picker-popup').classList.remove('active');
+      colorPickerSide = null;
+    }
+
+    function setPresetColor(color) {
+      document.getElementById('accent-color-input').value = color;
+    }
+
+    function applyCustomColor() {
+      let color = document.getElementById('accent-color-input').value;
+      if (!colorPickerSide) return;
+
+      // Wenn Schwarz ausgewählt wird, auf "Auto" zurücksetzen (Weiß in Dark, Schwarz in Light)
+      if (color.toLowerCase() === '#111827' || color === '#000000') {
+        color = '';
+      }
+
+      const iframe = (colorPickerSide === 'a') ? iframeA : iframeB;
+
+      const code = color ?
+        `document.documentElement.style.setProperty('--ab-custom-accent', '${color}');` :
+        `document.documentElement.style.removeProperty('--ab-custom-accent');`;
+
+      iframe.contentWindow.postMessage({
+        source: 'ab-test',
+        type: 'exec-onclick',
+        code: code
+      }, '*');
+
+      closeColorPicker();
+    }
+
+    // --- Custom Radius Picker ---
+    let radiusPickerSide = null;
+    let radiusPressTimer = null;
+    let isRadiusLongPress = false;
+
+    function handleRadiusPress(side, event) {
+      isRadiusLongPress = false;
+      radiusPressTimer = setTimeout(() => {
+        isRadiusLongPress = true;
+        openRadiusPicker(side, event);
+      }, 600);
+    }
+
+    function handleRadiusRelease() {
+      if (radiusPressTimer) clearTimeout(radiusPressTimer);
+    }
+
+    function handleRadiusClick(side, featureClass, btn, event) {
+      if (isRadiusLongPress) {
+        event.preventDefault();
+        event.stopPropagation();
+        isRadiusLongPress = false;
+        return;
+      }
+      toggleIframeFeature(side, featureClass, btn);
+    }
+
+    let initialRadiusVal = '12';
+
+    function openRadiusPicker(side, event) {
+      event.preventDefault();
+      event.stopPropagation();
+      radiusPickerSide = side;
+      initialRadiusVal = document.getElementById('radius-input').value;
+      document.getElementById('radius-picker-popup').classList.add('active');
+    }
+
+    function closeRadiusPicker(revert = false) {
+      if (revert && radiusPickerSide) {
+        document.getElementById('radius-input').value = initialRadiusVal;
+        updateRadiusVal(initialRadiusVal);
+      }
+      document.getElementById('radius-picker-popup').classList.remove('active');
+      radiusPickerSide = null;
+    }
+
+    function updateRadiusVal(val) {
+      document.getElementById('radius-val').textContent = val + 'px';
+      if (!radiusPickerSide) return;
+      const iframe = (radiusPickerSide === 'a') ? iframeA : iframeB;
+      iframe.contentWindow.postMessage({
+        source: 'ab-test',
+        type: 'exec-onclick',
+        code: `document.documentElement.style.setProperty('--ab-custom-radius', '${val}px');`
+      }, '*');
+    }
+
+    function applyCustomRadius() {
+      closeRadiusPicker(false);
+    }
+
+    // --- Custom Header Picker ---
+    let headerPickerSide = null;
+    let headerPressTimer = null;
+    let isHeaderLongPress = false;
+
+    function handleHeaderPress(side, event) {
+      isHeaderLongPress = false;
+      headerPressTimer = setTimeout(() => {
+        isHeaderLongPress = true;
+        openHeaderPicker(side, event);
+      }, 600);
+    }
+
+    function handleHeaderRelease() {
+      if (headerPressTimer) clearTimeout(headerPressTimer);
+    }
+
+    function handleHeaderClick(side, featureClass, btn, event) {
+      if (isHeaderLongPress) {
+        event.preventDefault();
+        event.stopPropagation();
+        isHeaderLongPress = false;
+        return;
+      }
+      toggleIframeFeature(side, featureClass, btn);
+    }
+
+    let initialHeaderVal = '1.2';
+
+    function openHeaderPicker(side, event) {
+      event.preventDefault();
+      event.stopPropagation();
+      headerPickerSide = side;
+      initialHeaderVal = document.getElementById('header-input').value;
+      document.getElementById('header-picker-popup').classList.add('active');
+    }
+
+    function closeHeaderPicker(revert = false) {
+      if (revert && headerPickerSide) {
+        document.getElementById('header-input').value = initialHeaderVal;
+        updateHeaderVal(initialHeaderVal);
+      }
+      document.getElementById('header-picker-popup').classList.remove('active');
+      headerPickerSide = null;
+    }
+
+    function updateHeaderVal(val) {
+      document.getElementById('header-val').textContent = val + 'x';
+      if (!headerPickerSide) return;
+      const iframe = (headerPickerSide === 'a') ? iframeA : iframeB;
+      iframe.contentWindow.postMessage({
+        source: 'ab-test',
+        type: 'exec-onclick',
+        code: `document.documentElement.style.setProperty('--ab-custom-header-scale', '${val}');`
+      }, '*');
+    }
+
+    function applyCustomHeader() {
+      closeHeaderPicker(false);
+    }
+
+    // Close color picker when clicking outside
+    document.addEventListener('click', function (e) {
+      const popup = document.getElementById('color-picker-popup');
+      if (popup.classList.contains('active') && !popup.contains(e.target)) {
+        closeColorPicker();
+      }
+
+      const popupRadius = document.getElementById('radius-picker-popup');
+      if (popupRadius && popupRadius.classList.contains('active') && !popupRadius.contains(e.target)) {
+        closeRadiusPicker(true);
+      }
+
+      const popupHeader = document.getElementById('header-picker-popup');
+      if (popupHeader && popupHeader.classList.contains('active') && !popupHeader.contains(e.target)) {
+        closeHeaderPicker(true);
+      }
+    });
+  </script>
+</body>
+
+</html>

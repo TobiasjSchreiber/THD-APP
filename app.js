@@ -12,8 +12,8 @@ document.body.addEventListener('click', function () {
 
   const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
 
-  // NEU: Den Vollbild-Befehl nicht ausführen, wenn es ein iOS-Gerät ist
-  if (!isWindows && !isIOS && !isStandalone && !document.fullscreenElement) {
+  // NEU: Den Vollbild-Befehl nicht ausführen, wenn es ein iOS-Gerät oder in einem Iframe ist
+  if (window.self === window.top && !isWindows && !isIOS && !isStandalone && !document.fullscreenElement) {
     if (document.documentElement.requestFullscreen) {
       document.documentElement.requestFullscreen().catch(e => { });
     } else if (document.documentElement.webkitRequestFullscreen) {
@@ -1253,13 +1253,13 @@ function updateStudyTimeDisplay(animate = true) {
 
   if (fillBar) {
     fillBar.style.animation = 'none';
-    
+
     // Kreise für Liquid-Effekt immer injizieren, CSS regelt die Anzeige im Glass-Modus
     if (!fillBar.querySelector('.study-liquid-wrapper')) {
-      fillBar.innerHTML = `<div class="study-liquid-wrapper">` + 
-        Array.from({length: 3}, (_, i) => {
+      fillBar.innerHTML = `<div class="study-liquid-wrapper">` +
+        Array.from({ length: 3 }, (_, i) => {
           const randomDelay = -(Math.random() * 20).toFixed(2);
-          return `<div class="circle circle-${i+1}" style="--delay: ${randomDelay}s"></div>`;
+          return `<div class="circle circle-${i + 1}" style="--delay: ${randomDelay}s"></div>`;
         }).join('') + `</div>`;
     }
 
@@ -4188,23 +4188,23 @@ function applyParkingVisuals(spots, bar, statusText) {
   }
 
   const color = `rgb(${r}, ${g}, ${b})`;
-  
+
   const isGlass = document.body.classList.contains('theme-glass');
-  
+
   if (isGlass) {
     bar.style.backgroundColor = 'transparent';
     // Shift colors slightly for the blobs to create a mixed liquid effect
     const shiftColor = (amt) => `rgb(${Math.min(255, Math.max(0, r + amt))}, ${Math.min(255, Math.max(0, g + amt))}, ${Math.min(255, Math.max(0, b - amt))})`;
-    
+
     bar.style.setProperty('--c-color-1', shiftColor(-60));
     bar.style.setProperty('--c-color-2', color);
     bar.style.setProperty('--c-color-3', shiftColor(60));
-    
+
     if (!bar.querySelector('.parking-liquid-wrapper')) {
-      bar.innerHTML = `<div class="parking-liquid-wrapper">` + 
-        Array.from({length: 3}, (_, i) => {
+      bar.innerHTML = `<div class="parking-liquid-wrapper">` +
+        Array.from({ length: 3 }, (_, i) => {
           const randomDelay = -(Math.random() * 20).toFixed(2);
-          return `<div class="circle circle-${i+1}" style="--delay: ${randomDelay}s"></div>`;
+          return `<div class="circle circle-${i + 1}" style="--delay: ${randomDelay}s"></div>`;
         }).join('') + `</div>`;
     }
   } else {
@@ -5684,7 +5684,7 @@ function openAiAssistantModal() {
   document.getElementById('modal-overlay').classList.add('show');
   setTimeout(() => {
     document.getElementById('ai-assistant-modal').classList.add('show');
-    
+
     // Buttons für Glass-Theme verbessern
     enhanceGlassButtons();
 
@@ -7183,7 +7183,7 @@ function enhanceGlassButtons() {
       // Generate harmonious dark, muted colors using OKLCH
       // Pick a random base hue for this button
       const baseHue = Math.floor(Math.random() * 360);
-      
+
       // Create an analogous color palette by shifting the hue slightly
       // This ensures the 3 blobs have different colors that blend perfectly together
       const color1 = `oklch(0.35 0.08 ${baseHue})`;
@@ -7197,10 +7197,10 @@ function enhanceGlassButtons() {
       btn.innerHTML = `
         <div class="button-wrapper">
           <span>${text}</span>
-          ${Array.from({length: 3}, (_, i) => {
-            const randomDelay = -(Math.random() * 20).toFixed(2); // Random negative delay up to -20s
-            return `<div class="circle circle-${i+1}" style="--delay: ${randomDelay}s"></div>`;
-          }).join('')}
+          ${Array.from({ length: 3 }, (_, i) => {
+        const randomDelay = -(Math.random() * 20).toFixed(2); // Random negative delay up to -20s
+        return `<div class="circle circle-${i + 1}" style="--delay: ${randomDelay}s"></div>`;
+      }).join('')}
         </div>
       `;
     }
@@ -7219,7 +7219,7 @@ function enhanceGlassButtons() {
 // Observer to automatically enhance buttons when they are added or modified
 const buttonEnhanceObserver = new MutationObserver((mutations) => {
   if (!document.body.classList.contains('theme-glass')) return;
-  
+
   let needsUpdate = false;
   for (const m of mutations) {
     if (m.type === 'childList' || m.type === 'characterData') {
@@ -7240,7 +7240,7 @@ const buttonEnhanceObserver = new MutationObserver((mutations) => {
     }
     if (needsUpdate) break;
   }
-  
+
   if (needsUpdate) {
     buttonEnhanceObserver.disconnect(); // Prevent infinite loop
     enhanceGlassButtons();
@@ -7653,7 +7653,7 @@ function startLiquidGlassCanvas() {
 
   canvas.style.display = 'block';
   const ctx = canvas.getContext('2d');
-  
+
   // Offscreen canvas for drawing blobs before masking
   const offCanvas = document.createElement('canvas');
   const offCtx = offCanvas.getContext('2d');
@@ -7664,7 +7664,7 @@ function startLiquidGlassCanvas() {
     canvas.height = window.innerHeight * dpr;
     offCanvas.width = canvas.width;
     offCanvas.height = canvas.height;
-    
+
     ctx.scale(dpr, dpr);
     offCtx.scale(dpr, dpr);
   }
@@ -7672,11 +7672,11 @@ function startLiquidGlassCanvas() {
   window.addEventListener('resize', resize);
 
   const getGlassRadius = (el) => {
-    if (el.classList.contains('mail-item') || 
-        el.classList.contains('search-result-item') || 
-        el.classList.contains('suggestion-tile') || 
-        el.classList.contains('service-tile') ||
-        el.classList.contains('widget-preview-card')) return 16;
+    if (el.classList.contains('mail-item') ||
+      el.classList.contains('search-result-item') ||
+      el.classList.contains('suggestion-tile') ||
+      el.classList.contains('service-tile') ||
+      el.classList.contains('widget-preview-card')) return 16;
     if (el.classList.contains('news-item') || el.classList.contains('list-item')) return 12;
     if (el.classList.contains('schedule-item')) return 20;
     if (el.classList.contains('service-card')) return 10;
@@ -7755,7 +7755,7 @@ function startLiquidGlassCanvas() {
       '.search-result-item', '.suggestion-tile', '.service-tile', '.service-card',
       '.dropdown-notification', '.widget-preview-card'
     ];
-    
+
     // Nur Elemente der aktiven Seite + Modals + evtl. gerade gezogenes Widget
     const nestedItems = activePage.querySelectorAll('.ects-item, .mail-item, .news-item, .schedule-item');
     let standalones = Array.from(activePage.querySelectorAll(standaloneSelectors.join(',')));
@@ -7767,7 +7767,7 @@ function startLiquidGlassCanvas() {
     }
 
     ctx.fillStyle = 'white';
-    
+
     // Hilfsfunktion zur Prüfung der tatsächlichen Sichtbarkeit (inkl. Animationen)
     const isActuallyVisible = (el) => {
       const rect = el.getBoundingClientRect();
@@ -7782,7 +7782,7 @@ function startLiquidGlassCanvas() {
     standalones.forEach(el => {
       if (!isActuallyVisible(el)) return;
       const rect = el.getBoundingClientRect();
-      
+
       let drawRect = rect;
       if (dragState.isDragging && el === dragState.element && dragState.currentX !== undefined) {
         drawRect = {
@@ -7794,7 +7794,7 @@ function startLiquidGlassCanvas() {
       }
 
       const radius = getGlassRadius(el);
-      
+
       ctx.beginPath();
       if (ctx.roundRect) ctx.roundRect(drawRect.left, drawRect.top, drawRect.width, drawRect.height, radius);
       else ctx.rect(drawRect.left, drawRect.top, drawRect.width, drawRect.height);
@@ -7812,14 +7812,14 @@ function startLiquidGlassCanvas() {
       }
 
       const container = el.closest('.ects-free, .mail-list, .scroll-list, .schedule-box');
-      
+
       if (container) {
         const crect = container.getBoundingClientRect();
         ctx.save();
         ctx.beginPath();
         ctx.rect(crect.left, crect.top, crect.width, crect.height);
         ctx.clip();
-        
+
         const radius = getGlassRadius(el);
         ctx.beginPath();
         if (ctx.roundRect) ctx.roundRect(rect.left, rect.top, rect.width, rect.height, radius);
@@ -7978,3 +7978,323 @@ document.addEventListener('DOMContentLoaded', () => {
   if (opacitySlider) opacitySlider.addEventListener('input', saveLiquidGlassSettings);
   if (causticsToggle) causticsToggle.addEventListener('change', saveLiquidGlassSettings);
 });
+
+// ─── A/B Testing PostMessage Bridge ─────────────────────────────────────────
+// This bridge enables ab_test.html to communicate with this app inside iframes
+// without needing contentDocument access (works without a server / file:// URLs).
+(function () {
+  // Only activate when running inside an iframe
+  if (window.self === window.top) return;
+
+  // Verstecke den A/B Test Button innerhalb des iFrames, um rekursives Laden (Inception) zu verhindern
+  var abTestLinkBtn = document.getElementById('ab-test-link-btn');
+  if (abTestLinkBtn) abTestLinkBtn.style.display = 'none';
+
+  // Helper: find the closest interactive ancestor (with onclick, button, link, etc.)
+  function findInteractiveAncestor(el) {
+    let current = el;
+    while (current && current !== document.body) {
+      if (current.hasAttribute && current.hasAttribute('onclick')) return current;
+      if (current.tagName === 'BUTTON' || current.tagName === 'A' || current.tagName === 'INPUT') return current;
+      if (current.classList && (current.classList.contains('nav-item') || current.classList.contains('toggle-btn') ||
+        current.classList.contains('segment-btn') || current.classList.contains('btn') ||
+        current.classList.contains('card') || current.classList.contains('schedule-item') ||
+        current.classList.contains('mensa-item') || current.classList.contains('mail-item') ||
+        current.classList.contains('news-card') || current.classList.contains('settings-item') ||
+        current.classList.contains('overlay'))) return current;
+      current = current.parentElement;
+    }
+    return el;
+  }
+
+  // Helper: get a CSS selector path for an element
+  function getSelectorPath(el) {
+    if (!el || !(el instanceof Element)) return null;
+    const path = [];
+    let cur = el;
+    while (cur && cur.nodeType === Node.ELEMENT_NODE) {
+      let sel = cur.nodeName.toLowerCase();
+      if (cur.id && /^[a-zA-Z][\w-]*$/.test(cur.id)) {
+        sel += '#' + CSS.escape(cur.id);
+        path.unshift(sel);
+        break;
+      } else {
+        let sib = cur, idx = 1;
+        while (sib = sib.previousElementSibling) {
+          if (sib.nodeName.toLowerCase() === cur.nodeName.toLowerCase()) idx++;
+        }
+        sel += ':nth-of-type(' + idx + ')';
+      }
+      path.unshift(sel);
+      cur = cur.parentNode;
+    }
+    return path.join(' > ');
+  }
+
+  // ── Incoming: handle commands from ab_test.html ──
+  window.addEventListener('message', function (e) {
+    const msg = e.data;
+    if (!msg || msg.source !== 'ab-test') return;
+
+    switch (msg.type) {
+      case 'inject-css': {
+        if (!document.getElementById('ab-testing-styles')) {
+          const style = document.createElement('style');
+          style.id = 'ab-testing-styles';
+          style.textContent = msg.css;
+          document.head.appendChild(style);
+        }
+        break;
+      }
+      case 'toggle-class': {
+        document.body.classList.toggle(msg.className, msg.active);
+        break;
+      }
+      case 'exec-onclick': {
+        // Execute an onclick expression, optionally with 'this' bound to an element
+        try {
+          let thisEl = null;
+          if (msg.selector) {
+            thisEl = document.querySelector(msg.selector);
+          }
+          const fn = new Function('event', msg.code);
+          fn.call(thisEl || document.body, new MouseEvent('click', { bubbles: true, cancelable: true }));
+        } catch (err) {
+          console.warn('AB exec-onclick error:', err);
+        }
+        break;
+      }
+      case 'click-selector': {
+        try {
+          const el = document.querySelector(msg.selector);
+          if (el) {
+            const evt = new MouseEvent('click', { bubbles: true, cancelable: true, view: window });
+            el.dispatchEvent(evt);
+            if (typeof el.click === 'function' && (el.tagName === 'INPUT' || el.tagName === 'A' || el.tagName === 'BUTTON')) {
+              el.click();
+            }
+          }
+        } catch (err) {
+          console.warn('AB click-selector error:', err);
+        }
+        break;
+      }
+      case 'set-scroll': {
+        try {
+          const el = msg.selector ? document.querySelector(msg.selector) : document.documentElement;
+          if (el) {
+            el.scrollTop = msg.scrollTop;
+            el.scrollLeft = msg.scrollLeft;
+          }
+        } catch (err) { }
+        break;
+      }
+      case 'set-input': {
+        try {
+          const el = document.querySelector(msg.selector);
+          if (el && el.value !== undefined) {
+            el.value = msg.value;
+            el.dispatchEvent(new Event('input', { bubbles: true }));
+            el.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+        } catch (err) { }
+        break;
+      }
+      case 'get-theme': {
+        // Report current theme classes
+        const classes = Array.from(document.body.classList);
+        window.parent.postMessage({
+          source: 'ab-app',
+          type: 'theme-report',
+          iframeId: msg.iframeId,
+          classes: classes
+        }, '*');
+        break;
+      }
+    }
+  });
+
+  // ── Outgoing: report user interactions to ab_test.html ──
+  let abMirrorBlocked = false;
+
+  // Report clicks
+  document.addEventListener('click', function (e) {
+    if (abMirrorBlocked) return;
+    const interactive = findInteractiveAncestor(e.target);
+    const onclickAttr = interactive.getAttribute ? interactive.getAttribute('onclick') : null;
+    const selector = getSelectorPath(interactive);
+
+    window.parent.postMessage({
+      source: 'ab-app',
+      type: 'user-click',
+      onclick: onclickAttr,
+      selector: selector
+    }, '*');
+  }, true);
+
+  // Report scrolls (debounced)
+  let scrollTimer = null;
+  document.addEventListener('scroll', function (e) {
+    if (abMirrorBlocked) return;
+    clearTimeout(scrollTimer);
+    scrollTimer = setTimeout(function () {
+      const target = e.target;
+      const selector = (target === document || target === document.documentElement)
+        ? null
+        : getSelectorPath(target);
+
+      window.parent.postMessage({
+        source: 'ab-app',
+        type: 'user-scroll',
+        selector: selector,
+        scrollTop: (target === document || target === document.documentElement)
+          ? document.documentElement.scrollTop
+          : target.scrollTop,
+        scrollLeft: (target === document || target === document.documentElement)
+          ? document.documentElement.scrollLeft
+          : target.scrollLeft
+      }, '*');
+    }, 16);
+  }, true);
+
+  // Report text inputs
+  document.addEventListener('input', function (e) {
+    if (abMirrorBlocked) return;
+    const selector = getSelectorPath(e.target);
+    if (selector && e.target.value !== undefined) {
+      window.parent.postMessage({
+        source: 'ab-app',
+        type: 'user-input',
+        selector: selector,
+        value: e.target.value
+      }, '*');
+    }
+  }, true);
+
+  // Block mirrored actions from re-reporting (prevents infinite loops)
+  window.addEventListener('message', function (e) {
+    if (e.data && e.data.source === 'ab-test' && (e.data.type === 'exec-onclick' || e.data.type === 'click-selector' || e.data.type === 'set-scroll' || e.data.type === 'set-input' || e.data.type === 'force-state')) {
+      abMirrorBlocked = true;
+      setTimeout(function () { abMirrorBlocked = false; }, 300);
+    }
+  });
+
+  // Report ready state
+  window.parent.postMessage({ source: 'ab-app', type: 'ready' }, '*');
+
+  // ── Full state reporting for desync detection ──
+  function getAppState() {
+    // Active page
+    var activePage = document.querySelector('.page.active');
+    var activePageId = activePage ? activePage.id : '';
+
+    // Active nav item index
+    var navItems = document.querySelectorAll('.nav-item');
+    var activeNavIndex = -1;
+    navItems.forEach(function (item, i) {
+      if (item.classList.contains('active')) activeNavIndex = i;
+    });
+
+    // Open modals
+    var openModals = [];
+    document.querySelectorAll('.modal.show').forEach(function (m) {
+      if (m.id) openModals.push(m.id);
+    });
+
+    // Overlay visible
+    var overlay = document.getElementById('modal-overlay');
+    var overlayVisible = overlay ? (overlay.style.display === 'block' || overlay.style.display === 'flex') : false;
+
+    // Body classes (theme etc.)
+    var bodyClasses = Array.from(document.body.classList);
+
+    // Main scroll positions
+    var scrollablePages = {};
+    document.querySelectorAll('.page.active .page-content, .page.active').forEach(function (el) {
+      if (el.scrollTop > 0) {
+        var id = el.id || el.className;
+        scrollablePages[id] = el.scrollTop;
+      }
+    });
+
+    return {
+      activePageId: activePageId,
+      activeNavIndex: activeNavIndex,
+      openModals: openModals,
+      overlayVisible: overlayVisible,
+      bodyClasses: bodyClasses,
+      scrollPositions: scrollablePages
+    };
+  }
+
+  // Report state periodically
+  var lastStateJSON = '';
+  setInterval(function () {
+    var state = getAppState();
+    var json = JSON.stringify(state);
+    if (json !== lastStateJSON) {
+      lastStateJSON = json;
+      window.parent.postMessage({
+        source: 'ab-app',
+        type: 'state-report',
+        state: state
+      }, '*');
+    }
+  }, 400);
+
+  // Handle force-state command (correct desync)
+  window.addEventListener('message', function (e) {
+    var msg = e.data;
+    if (!msg || msg.source !== 'ab-test' || msg.type !== 'force-state') return;
+
+    var target = msg.state;
+    if (!target) return;
+
+    abMirrorBlocked = true;
+    setTimeout(function () { abMirrorBlocked = false; }, 500);
+
+    // 1. Switch to correct page
+    if (target.activePageId) {
+      var currentPage = document.querySelector('.page.active');
+      if (!currentPage || currentPage.id !== target.activePageId) {
+        var navItems = document.querySelectorAll('.nav-item');
+        var navIdx = target.activeNavIndex >= 0 ? target.activeNavIndex : 0;
+        if (navItems[navIdx] && typeof switchTab === 'function') {
+          switchTab(target.activePageId, navItems[navIdx]);
+        }
+      }
+    }
+
+    // 2. Sync modals - close extras, open missing
+    var currentModals = [];
+    document.querySelectorAll('.modal.show').forEach(function (m) {
+      if (m.id) currentModals.push(m.id);
+    });
+
+    // Close modals that shouldn't be open
+    currentModals.forEach(function (id) {
+      if (target.openModals.indexOf(id) === -1) {
+        var m = document.getElementById(id);
+        if (m) m.classList.remove('show');
+      }
+    });
+
+    // If target has no modals, also hide overlay
+    if (target.openModals.length === 0 && target.overlayVisible === false) {
+      var overlay = document.getElementById('modal-overlay');
+      if (overlay) overlay.style.display = 'none';
+    }
+
+    // If target has modals open that we don't, show overlay
+    if (target.openModals.length > 0 && target.overlayVisible) {
+      var overlay = document.getElementById('modal-overlay');
+      if (overlay) overlay.style.display = 'block';
+      target.openModals.forEach(function (id) {
+        if (currentModals.indexOf(id) === -1) {
+          var m = document.getElementById(id);
+          if (m) m.classList.add('show');
+        }
+      });
+    }
+  });
+})();

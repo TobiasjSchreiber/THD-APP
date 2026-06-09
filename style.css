@@ -245,7 +245,7 @@ body {
   height: 100%;
 
   overflow: hidden;
-  
+
   -webkit-user-select: none;
   -ms-user-select: none;
   user-select: none;
@@ -384,7 +384,7 @@ body.theme-thd .header.logo-revealed .dashboard-logo-img {
 /* Home Styles */
 #page-home {
   overflow-y: auto;
-  
+
   /* Erhöhe hier die 56px auf z.B. 76px oder 80px */
   padding-bottom: calc(80px + env(safe-area-inset-bottom));
   box-sizing: border-box;
@@ -425,15 +425,18 @@ body.theme-thd .header.logo-revealed .dashboard-logo-img {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 15px; /* Einheitlicher 15px Gap */
+  gap: 15px;
+  /* Einheitlicher 15px Gap */
   border-radius: 24px;
   transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-  height: 152px; /* Minimiert, um genau mit dem Item (150px) abzuschließen */
+  height: 152px;
+  /* Minimiert, um genau mit dem Item (150px) abzuschließen */
   overflow-y: auto !important;
   scroll-snap-type: y proximity;
-  
+
   /* Allow borders to be visible without clipping */
-  padding: 1px 2px; /* Minimales Padding für die Umrandung */
+  padding: 1px 2px;
+  /* Minimales Padding für die Umrandung */
   box-sizing: border-box;
   background-color: transparent;
 }
@@ -493,7 +496,8 @@ body.theme-thd .header.logo-revealed .dashboard-logo-img {
   flex: 1.2;
   display: flex;
   flex-direction: column;
-  gap: 15px; /* Einheitlicher 15px Gap */
+  gap: 15px;
+  /* Einheitlicher 15px Gap */
   border-radius: 24px;
   height: 152px;
   padding: 1px 2px;
@@ -503,9 +507,9 @@ body.theme-thd .header.logo-revealed .dashboard-logo-img {
   /* Überschreibt das globale 'overflow: hidden' der Widgets */
   scroll-snap-type: y proximity;
   /* Proximity statt Mandatory verhindert das Steckenbleiben bei Randelementen */
-  
+
   /* Verhindert das Wischen der gesamten Seite am Rand */
-  
+
   /* Garantiert reibungsloses Scrollen auf Touch-Geräten */
 }
 
@@ -518,7 +522,8 @@ body.theme-thd .header.logo-revealed .dashboard-logo-img {
   background-color: var(--card-bg);
   border-radius: 20px;
   padding: 15px;
-  height: 67.5px; /* 67.5 + 15 + 67.5 = 150px (exakt bündig mit ECTS) */
+  height: 67.5px;
+  /* 67.5 + 15 + 67.5 = 150px (exakt bündig mit ECTS) */
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -594,7 +599,7 @@ body.theme-thd .header.logo-revealed .dashboard-logo-img {
   flex: 1.2;
   height: 90px;
   overflow-y: auto;
-  
+
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -732,13 +737,65 @@ body.theme-glass .parking-bar-fill .circle {
   z-index: 0;
 }
 
-body.theme-glass .parking-bar-fill .circle.circle-1 { --background: var(--c-color-1); --start-x: 10%; --start-y: 0px; --animation: p-circle-1; animation-duration: 7s; }
-body.theme-glass .parking-bar-fill .circle.circle-2 { --background: var(--c-color-2); --start-x: 50%; --start-y: 2px; --animation: p-circle-2; animation-duration: 11s; }
-body.theme-glass .parking-bar-fill .circle.circle-3 { --background: var(--c-color-3); --start-x: 90%; --start-y: -2px; --animation: p-circle-3; animation-duration: 9s; }
+body.theme-glass .parking-bar-fill .circle.circle-1 {
+  --background: var(--c-color-1);
+  --start-x: 10%;
+  --start-y: 0px;
+  --animation: p-circle-1;
+  animation-duration: 7s;
+}
 
-@keyframes p-circle-1 { 0%, 100% { transform: translate(0, 0) translateZ(0); } 50% { transform: translate(30px, 10px) translateZ(0); } }
-@keyframes p-circle-2 { 0%, 100% { transform: translate(0, 0) translateZ(0); } 50% { transform: translate(-30px, -10px) translateZ(0); } }
-@keyframes p-circle-3 { 0%, 100% { transform: translate(0, 0) translateZ(0); } 50% { transform: translate(-20px, 15px) translateZ(0); } }
+body.theme-glass .parking-bar-fill .circle.circle-2 {
+  --background: var(--c-color-2);
+  --start-x: 50%;
+  --start-y: 2px;
+  --animation: p-circle-2;
+  animation-duration: 11s;
+}
+
+body.theme-glass .parking-bar-fill .circle.circle-3 {
+  --background: var(--c-color-3);
+  --start-x: 90%;
+  --start-y: -2px;
+  --animation: p-circle-3;
+  animation-duration: 9s;
+}
+
+@keyframes p-circle-1 {
+
+  0%,
+  100% {
+    transform: translate(0, 0) translateZ(0);
+  }
+
+  50% {
+    transform: translate(30px, 10px) translateZ(0);
+  }
+}
+
+@keyframes p-circle-2 {
+
+  0%,
+  100% {
+    transform: translate(0, 0) translateZ(0);
+  }
+
+  50% {
+    transform: translate(-30px, -10px) translateZ(0);
+  }
+}
+
+@keyframes p-circle-3 {
+
+  0%,
+  100% {
+    transform: translate(0, 0) translateZ(0);
+  }
+
+  50% {
+    transform: translate(-20px, 15px) translateZ(0);
+  }
+}
 
 .parking-text {
   font-size: 12px;
@@ -1399,9 +1456,26 @@ body.theme-glass .progress-bar-fill .study-liquid-wrapper .circle {
   pointer-events: none;
 }
 
-body.theme-glass .progress-bar-fill .circle.circle-1 { --background: #4a90e2; --start-x: -10%; --animation: p-circle-1; animation-duration: 8s; }
-body.theme-glass .progress-bar-fill .circle.circle-2 { --background: #5dade2; --start-x: 40%; --animation: p-circle-2; animation-duration: 12s; }
-body.theme-glass .progress-bar-fill .circle.circle-3 { --background: #3498db; --start-x: 80%; --animation: p-circle-3; animation-duration: 10s; }
+body.theme-glass .progress-bar-fill .circle.circle-1 {
+  --background: #4a90e2;
+  --start-x: -10%;
+  --animation: p-circle-1;
+  animation-duration: 8s;
+}
+
+body.theme-glass .progress-bar-fill .circle.circle-2 {
+  --background: #5dade2;
+  --start-x: 40%;
+  --animation: p-circle-2;
+  animation-duration: 12s;
+}
+
+body.theme-glass .progress-bar-fill .circle.circle-3 {
+  --background: #3498db;
+  --start-x: 80%;
+  --animation: p-circle-3;
+  animation-duration: 10s;
+}
 
 .progress-bar-extra {
   position: absolute;
@@ -1961,7 +2035,7 @@ body.theme-light .modal .btn-secondary {
 
 #page-search {
   overflow-y: auto;
-  
+
   /* Auch hier den Wert erhöhen */
   padding-bottom: calc(80px + env(safe-area-inset-bottom));
   box-sizing: border-box;
@@ -2229,15 +2303,31 @@ body.theme-glass .vpn-disconnect-anim .toggle-slider {
 }
 
 @keyframes vpn-text-glow-blue {
-  0% { color: var(--text-sub); }
-  50% { color: #7EA1FF; }
-  100% { color: var(--text-sub); }
+  0% {
+    color: var(--text-sub);
+  }
+
+  50% {
+    color: #7EA1FF;
+  }
+
+  100% {
+    color: var(--text-sub);
+  }
 }
 
 @keyframes vpn-slider-glow-blue {
-  0% { background-color: var(--track-bg); }
-  50% { background-color: #7EA1FF; }
-  100% { background-color: var(--track-bg); }
+  0% {
+    background-color: var(--track-bg);
+  }
+
+  50% {
+    background-color: #7EA1FF;
+  }
+
+  100% {
+    background-color: var(--track-bg);
+  }
 }
 
 /* VPN Chart Entry Animation (wie Parkplatz) */
@@ -3231,15 +3321,18 @@ body.theme-glass {
 }
 
 body.theme-glass .vpn-status.active {
-  color: #5AC8FA; /* Glass accent blue */
+  color: #5AC8FA;
+  /* Glass accent blue */
 }
 
 body.theme-glass .vpn-arrow-dl {
-  color: #5AC8FA; /* Cyan Blue */
+  color: #5AC8FA;
+  /* Cyan Blue */
 }
 
 body.theme-glass .vpn-arrow-ul {
-  color: #7EA1FF; /* Indigo Blue */
+  color: #7EA1FF;
+  /* Indigo Blue */
 }
 
 /* Liquid Glass canvas */
@@ -3370,8 +3463,10 @@ body.theme-glass .segment-highlight {
 }
 
 body.theme-glass .nav-item {
-  color: #FFFFFF; /* Festes Weiß statt rgba */
-  opacity: 0.5; /* Transparenz auf das gesamte Element anwenden */
+  color: #FFFFFF;
+  /* Festes Weiß statt rgba */
+  opacity: 0.5;
+  /* Transparenz auf das gesamte Element anwenden */
 }
 
 body.theme-glass .nav-item.active {
@@ -3394,12 +3489,12 @@ body.theme-glass .toggle-slider {
   background: rgba(255, 255, 255, 0.12) !important;
 }
 
-body.theme-glass .toggle-input:checked + .toggle-slider {
+body.theme-glass .toggle-input:checked+.toggle-slider {
   background: rgba(90, 200, 250, 0.45) !important;
 }
 
 /* Overlay for glass theme */
-body.theme-glass ~ #modal-overlay,
+body.theme-glass~#modal-overlay,
 body.theme-glass #modal-overlay {
   background: rgba(0, 0, 0, 0.4);
 }
@@ -3489,7 +3584,8 @@ body.theme-glass .schedule-progress-fill {
 /* VPN card glow animations override */
 body.theme-glass .vpn-card.vpn-connect-anim {
   animation: vpn-glow-glass-blue 0.8s ease-out !important;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2) !important; /* Keep base shadow stable */
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2) !important;
+  /* Keep base shadow stable */
 }
 
 body.theme-glass .vpn-card.vpn-disconnect-anim {
@@ -3498,30 +3594,34 @@ body.theme-glass .vpn-card.vpn-disconnect-anim {
 }
 
 @keyframes vpn-glow-glass-blue {
-  0% { 
+  0% {
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
     border-color: rgba(255, 255, 255, var(--lg-border-opacity));
   }
-  50% { 
+
+  50% {
     box-shadow: 0 0 40px rgba(90, 200, 250, 0.5), inset 0 0 15px rgba(90, 200, 250, 0.3);
     border-color: rgba(90, 200, 250, 0.5);
   }
-  100% { 
+
+  100% {
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
     border-color: rgba(255, 255, 255, var(--lg-border-opacity));
   }
 }
 
 @keyframes vpn-glow-glass-indigo {
-  0% { 
+  0% {
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
     border-color: rgba(255, 255, 255, var(--lg-border-opacity));
   }
-  50% { 
+
+  50% {
     box-shadow: 0 0 40px rgba(126, 161, 255, 0.5), inset 0 0 15px rgba(126, 161, 255, 0.3);
     border-color: rgba(126, 161, 255, 0.5);
   }
-  100% { 
+
+  100% {
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
     border-color: rgba(255, 255, 255, var(--lg-border-opacity));
   }
