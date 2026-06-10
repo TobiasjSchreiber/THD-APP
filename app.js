@@ -1077,6 +1077,53 @@ window.addEventListener('DOMContentLoaded', () => {
   }
   setInterval(() => { if (Math.random() > 0.7) showDeggsterBubble(); }, 30000);
 
+  function triggerDeggsterWiggle() {
+    const deggsterWidget = document.getElementById('deggster-widget');
+    if (!deggsterWidget) return;
+
+    const ectsWidget = document.getElementById('widget-ects');
+    if (ectsWidget && ectsWidget.classList.contains('widget-hidden')) return;
+
+    const homePage = document.getElementById('page-home');
+    if (!homePage || !homePage.classList.contains('active')) return;
+
+    // Nur scrollen, wenn der Nutzer sich ganz oben befindet (verhindert Störungen beim aktiven Scrollen)
+    if (ectsWidget.scrollTop < 10) {
+      ectsWidget.style.scrollSnapType = 'none'; // Snapping kurz deaktivieren für flüssiges Scrollen
+
+      const start = performance.now();
+      const duration = 800; // 800ms für den gesamten Hin- und Rückweg
+      const maxScroll = 35; // Wie weit er nach unten wippt (in Pixel)
+
+      function animateWiggle(time) {
+        const elapsed = time - start;
+        const progress = Math.min(elapsed / duration, 1);
+
+        // Sinus-Kurve formt einen perfekten, nahtlosen Bogen: 0 -> 1 -> 0
+        const ease = Math.sin(progress * Math.PI);
+        ectsWidget.scrollTop = ease * maxScroll;
+
+        if (progress < 1) {
+          requestAnimationFrame(animateWiggle);
+        } else {
+          ectsWidget.scrollTop = 0; // Exakt auf 0 setzen
+          ectsWidget.style.scrollSnapType = ''; // Snapping wiederherstellen
+        }
+      }
+
+      requestAnimationFrame(animateWiggle);
+    }
+  }
+
+  function scheduleDeggsterWiggle() {
+    const delay = 12000 + Math.random() * 18000;
+    setTimeout(() => {
+      triggerDeggsterWiggle();
+      scheduleDeggsterWiggle();
+    }, delay);
+  }
+  scheduleDeggsterWiggle();
+
   setInterval(refreshWebcam, 5000); // Aktualisiert das Webcam-Bild alle 5 Sekunden
 
   // Aktualisiert die Webcam sofort, wenn die App aus dem Hintergrund zurückgeholt wird
@@ -1274,6 +1321,13 @@ function updateStudyTimeDisplay(animate = true) {
     } else {
       fillBar.style.transition = 'none';
       fillBar.style.width = fillPercent + '%';
+    }
+
+    // Balkenspitze (Glow) erst ab 10% Füllung anzeigen
+    if (fillPercent < 10) {
+      fillBar.classList.add('no-glow');
+    } else {
+      fillBar.classList.remove('no-glow');
     }
   }
   if (extraBar) {
@@ -4186,6 +4240,13 @@ function updateParkingDisplay(animate = true) {
 function applyParkingVisuals(spots, bar, statusText) {
   const percentage = (spots / totalParkingSpots) * 100;
   bar.style.width = percentage + '%';
+
+  // Balkenspitze (Glow) erst ab 10% Füllung anzeigen
+  if (percentage < 10) {
+    bar.classList.add('no-glow');
+  } else {
+    bar.classList.remove('no-glow');
+  }
 
   const el = document.querySelector('[data-translate="parking_text"]');
   if (el) {
@@ -7643,11 +7704,6 @@ function startLiquidGlassCanvas() {
     nestedItems.forEach(el => {
       if (!isActuallyVisible(el)) return;
       const rect = el.getBoundingClientRect();
-
-      if (el.id === 'deggster-widget') {
-        const container = el.closest('.ects-free');
-        if (container && !container.classList.contains('is-scrolled')) return;
-      }
 
       const container = el.closest('.ects-free, .mail-list, .scroll-list, .schedule-box');
 
