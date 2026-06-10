@@ -1913,6 +1913,11 @@ function showInfoModal(type) {
     descEl.innerText = translations[currentLanguage].info_ai_generate_desc;
     titleEl.setAttribute('data-translate', 'info_ai_generate_title');
     descEl.setAttribute('data-translate', 'info_ai_generate_desc');
+  } else if (type === 'fullscreen') {
+    titleEl.innerText = translations[currentLanguage].info_fullscreen_title;
+    descEl.innerText = translations[currentLanguage].info_fullscreen_desc;
+    titleEl.setAttribute('data-translate', 'info_fullscreen_title');
+    descEl.setAttribute('data-translate', 'info_fullscreen_desc');
   }
 
   document.getElementById('modal-overlay').classList.add('show');
@@ -2849,11 +2854,15 @@ const translations = {
     glass_caustics: "Caustics Animation",
     language_label: "Sprache",
     settings_storage: "Daten lokal speichern",
-    settings_real_mode: "Echte Daten\n(Mensa, Stundenplan, Parkhaus, KI-Mails, Events)",
+    settings_real_mode: "Echte Daten",
+    settings_real_mode_desc: "(Mensa, Stundenplan, Parkhaus, KI-Mails, Events)",
     ok_button: "OK",
     settings_privacy: "Privatmodus",
+    settings_fullscreen: "Vollfenster-Modus",
     info_privacy_title: "Privatmodus",
     info_privacy_desc: "Verbirgt sensible Daten wie Noten, ECTS, Guthaben und deinen Namen durch einen Unschärfe-Effekt.",
+    info_fullscreen_title: "Vollfenster-Modus",
+    info_fullscreen_desc: "Lässt Popups und Detailansichten das gesamte App-Fenster ausfüllen, anstatt als schwebende Boxen angezeigt zu werden.",
     setup_title: "Willkommen",
     setup_subtitle: "Bitte wähle deine bevorzugten Einstellungen.",
     info_storage_title: "Daten lokal speichern",
@@ -3071,11 +3080,15 @@ const translations = {
     glass_caustics: "Caustics Animation",
     language_label: "Language",
     settings_storage: "Save data locally",
-    settings_real_mode: "Real Data\n(Mensa, Schedule, Parking, AI Mails, Events)",
+    settings_real_mode: "Real Data",
+    settings_real_mode_desc: "(Mensa, Schedule, Parking, AI Mails, Events)",
     ok_button: "OK",
     settings_privacy: "Privacy Mode",
+    settings_fullscreen: "Full Window Mode",
     info_privacy_title: "Privacy Mode",
     info_privacy_desc: "Blurs sensitive data such as grades, ECTS, balance, and your name to protect your privacy.",
+    info_fullscreen_title: "Full Window Mode",
+    info_fullscreen_desc: "Forces popups and detail views to fill the entire app window instead of showing as floating cards.",
     setup_title: "Welcome",
     setup_subtitle: "Please choose your preferred settings.",
     info_storage_title: "Save data locally",
@@ -3293,11 +3306,15 @@ const translations = {
     glass_caustics: "Caustics-animaatio",
     language_label: "Kieli",
     settings_storage: "Tallenna tiedot paikallisesti",
-    settings_real_mode: "Oikeat tiedot\n(Ruokala, Lukujärjestys, Parkkihalli, AI-postit, Tapahtumat)",
+    settings_real_mode: "Oikeat tiedot",
+    settings_real_mode_desc: "(Ruokala, Lukujärjestys, Parkkihalli, AI-postit, Tapahtumat)",
     ok_button: "OK",
     settings_privacy: "Yksityisyystila",
+    settings_fullscreen: "Koko ikkunan tila",
     info_privacy_title: "Yksityisyystila",
     info_privacy_desc: "Sumentaa arkaluontoiset tiedot, kuten arvosanat, opintopisteet, saldon ja nimesi, yksityisyytesi suojaamiseksi.",
+    info_fullscreen_title: "Koko ikkunan tila",
+    info_fullscreen_desc: "Pakottaa ponnahdusikkunat ja yksityiskohtaiset näkymät täyttämään koko sovellusikkunan kelluvien korttien sijaan.",
     setup_title: "Tervetuloa",
     setup_subtitle: "Valitse haluamasi asetukset.",
     info_storage_title: "Tallenna tiedot paikallisesti",
@@ -3363,6 +3380,7 @@ let mensaBalance = 12.00;
 let displayedMensaBalance = 12.00;
 let currentGPA = 2.1;
 let isPrivacyModeEnabled = false;
+let isFullModalEnabled = false;
 let isRealModeEnabled = true;
 let currentStudyGroup = 'MT-MP4';
 
@@ -4823,6 +4841,13 @@ function openSettingsModal() {
     gear.classList.add('rotate-gear-anim');
     setTimeout(() => gear.classList.remove('rotate-gear-anim'), 400);
   }
+
+  // Vollfenster-Checkbox initialisieren
+  const fmToggle = document.getElementById('full-modal-toggle');
+  if (fmToggle) {
+    fmToggle.checked = isFullModalEnabled;
+  }
+
   document.getElementById('modal-overlay').classList.add('show');
   setTimeout(() => {
     document.getElementById('settings-modal').classList.add('show');
@@ -5442,217 +5467,6 @@ Antworte NUR mit dem E-Mail-Text (inklusive Code, falls du Geld vergibst). Kein 
       showDropdownNotification((currentLanguage === 'de' ? "KI Limit erreicht." : "AI Rate limit.") + timeHint + hint, true, () => showErrorDetailsModal(errorMsg));
     } else {
       showDropdownNotification((currentLanguage === 'de' ? "Netzwerk/KI Fehler" : "Network/AI Error") + hint, true, () => showErrorDetailsModal(errorMsg));
-    }
-  }
-}
-
-let lastAiGenerationTime = 0;
-
-async function generateAiData() {
-  const now = Date.now();
-  // Spamschutz: 60 Sekunden (60.000 ms) Cooldown
-  if (now - lastAiGenerationTime < 60000) {
-    const remainingSeconds = Math.ceil((60000 - (now - lastAiGenerationTime)) / 1000);
-    const waitMsgDe = `Bitte warte noch ${remainingSeconds} Sekunden.`;
-    const waitMsgEn = `Please wait ${remainingSeconds} seconds.`;
-    const waitMsgFi = `Odota vielä ${remainingSeconds} sekuntia.`;
-    const waitMsg = currentLanguage === 'de' ? waitMsgDe : (currentLanguage === 'en' ? waitMsgEn : waitMsgFi);
-
-    showDropdownNotification(waitMsg, true);
-    return;
-  }
-
-  lastAiGenerationTime = now;
-
-  showDropdownNotification(translations[currentLanguage].ai_generating || "KI generiert Daten...", false);
-
-  const url = 'https://thd-app-backend.onrender.com/api/gemini';
-
-  const prompt = `Erstelle zufällige, aber realistische Studiendaten für einen Medientechnik-Studenten in Deutschland.
-Gib AUSSCHLIESSLICH ein valides JSON-Objekt zurück (kein Markdown, keine Backticks).
-Nutze für Noten zwingend NUR die offiziellen Stufen (1,0; 1,3; 1,7; 2,0; 2,3; 2,7; 3,0; 3,3; 3,7; 4,0; 5,0) als String mit Komma.
-Struktur:
-{
-  "mensaBalance": 24.50,
-  "ects": 115,
-  "studyCurrent": 4,
-  "studyExtra": 0,
-  "parkingSpots": 142,
-  "parkingHistory": [15, 30, 50, 85, 95, 80, 60, 45, 30, 20, 10],
-  "grades": {
-    "Mediengestaltung": "1,3",
-    "Programmieren 1": "2,0",
-    "Audio- & Videotechnik": "1,7",
-    "Mathematik": "2,3",
-    "Medienrecht": "1,0",
-    "Webentwicklung": "1,3",
-    "Computergrafik": "2,7",
-    "Datenbanksysteme": "2,0",
-    "Projektmanagement": "1,3",
-    "Englisch B2": "1,7",
-    "Physik": "3,0",
-    "Algorithmen & Datenstrukturen": "2,3"
-  },
-  "rentals": {
-    "books": [
-      {"title": "Mathematik für Ingenieure", "due": "In 3 Tagen", "loc": "Bibliothek", "person": "Ausleihe", "notes": "Rückgabe nur vormittags"}
-    ],
-    "tech": [
-      {"title": "Sony Alpha 7 IV", "due": "Heute", "loc": "J Gebäude", "person": "Herr Bauer", "notes": "Inkl. 2 Akkus"}
-    ]
-  }
-}
-Variiere die Werte realistisch und zufällig!
-Regeln für rentals: Max 3 Items pro Array (können auch leer sein). Für 'loc' nutze NUR diese Orte: A, B, C, D, E, F, G, H, I, J, K, L, ITC, Bibliothek. WICHTIG: Alles was mit Medien, Kameras, Audio, Video oder Grafiklabor zu tun hat, MUSS zwingend als loc "J Gebäude" haben!
-parkingSpots: 0-435. parkingHistory: 11 Prozentwerte von 0-100.`;
-
-  try {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-    });
-
-    const data = await response.json();
-    if (!response.ok) {
-      console.error("Google/Backend Fehler-Details:", data);
-      throw new Error(data.error?.message || "API Limit oder Fehler");
-    }
-
-    let jsonStr = data.candidates[0].content.parts[0].text.trim();
-    if (jsonStr.startsWith('```json')) jsonStr = jsonStr.replace(/^```json/, '').replace(/```$/, '').trim();
-    else if (jsonStr.startsWith('```')) jsonStr = jsonStr.replace(/^```/, '').replace(/```$/, '').trim();
-
-    const aiData = JSON.parse(jsonStr);
-
-    mensaBalance = parseFloat(aiData.mensaBalance) || 0;
-    updateMensaBalance(true);
-
-    studyCurrent = parseInt(aiData.studyCurrent) || 1;
-    studyExtra = parseInt(aiData.studyExtra) || 0;
-    updateStudyTimeDisplay(true);
-
-    if (aiData.parkingSpots !== undefined) {
-      occupiedParkingSpots = Math.max(0, Math.min(totalParkingSpots, parseInt(aiData.parkingSpots) || 0));
-      updateParkingDisplay(true);
-    }
-
-    if (aiData.parkingHistory && Array.isArray(aiData.parkingHistory)) {
-      const chartWrappers = document.querySelectorAll('#parking-chart-container .chart-bar-wrapper');
-      aiData.parkingHistory.slice(0, 11).forEach((val, idx) => {
-        if (chartWrappers[idx]) {
-          const bar = chartWrappers[idx].querySelector('.chart-bar');
-          if (bar) {
-            const h = Math.max(0, Math.min(100, parseInt(val) || 0));
-            bar.style.height = h + '%';
-            // Die schraffierten Zukunfts-Balken behalten ihre Farbe, die anderen bekommen grün/orange/rot
-            if (!bar.classList.contains('future')) {
-              bar.className = 'chart-bar ' + (h >= 80 ? 'high' : h >= 50 ? 'medium' : 'low');
-            }
-          }
-        }
-      });
-    }
-
-    const newEcts = parseInt(aiData.ects) || 0;
-    const profileEctsValue = document.querySelector('#profile-ects-card .stat-value');
-    if (profileEctsValue) profileEctsValue.innerText = newEcts;
-    const homeEctsValue = document.querySelector('.ects-number');
-    if (homeEctsValue) homeEctsValue.innerText = newEcts;
-
-    if (aiData.grades) {
-      const gradesList = document.querySelector('.grades-list');
-      if (gradesList) {
-        gradesList.innerHTML = '';
-        for (const [course, grade] of Object.entries(aiData.grades)) {
-          const item = document.createElement('div');
-          item.className = 'list-item';
-          item.style.cursor = 'pointer';
-          item.setAttribute('onclick', `openGradeModal('${course}', '${grade}')`);
-          item.innerHTML = `<span>${course}</span><span class="grade-value sensitive-data">${grade}</span>`;
-          item.style.position = 'relative';
-          item.style.isolation = 'isolate';
-          gradesList.appendChild(item);
-        }
-      }
-      const semEl = document.querySelector('[data-translate="profile_semester"]');
-      if (semEl) {
-        const semText = studyCurrent + ". Semester";
-        semEl.innerText = semText;
-        ['de', 'en', 'fi'].forEach(lang => {
-          let localizedSem = semText;
-          if (lang === 'en') localizedSem = studyCurrent + "th Semester";
-          if (lang === 'fi') localizedSem = studyCurrent + ". lukukausi";
-          translations[lang].profile_semester = localizedSem;
-        });
-      }
-    }
-
-    calculateGPAFromList(); // Nach dem Auffüllen der Noten automatisch ausrechnen
-
-    if (aiData.rentals) {
-      const updateRentalView = (viewId, items, emptyText, emptyKey) => {
-        const view = document.getElementById(viewId);
-        if (!view) return;
-        view.innerHTML = '';
-        if (!items || items.length === 0) {
-          view.innerHTML = `<div class="rental-empty"${emptyKey ? ` data-translate="${emptyKey}"` : ''}>${emptyText}</div>`;
-        } else {
-          items.forEach(item => {
-            const div = document.createElement('div');
-            div.className = 'rental-item';
-            div.style.cursor = 'pointer';
-            const dueStr = (item.due || '').toLowerCase();
-            let dueClass = 'rental-item-due';
-            if (dueStr.includes('heute') || dueStr.includes('today') || dueStr.includes('fällig') || dueStr.includes('overdue')) {
-              dueClass += ' urgent';
-            } else if (dueStr.includes('morgen') || dueStr.includes('tomorrow') || dueStr.includes('1') || dueStr.includes('2')) {
-              dueClass += ' soon';
-            }
-
-            const escapeStr = str => (str || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
-
-            div.setAttribute('onclick', `openRentalModal('${escapeStr(item.title)}', this.querySelector('.rental-item-due').innerText, '${escapeStr(item.loc)}', '${escapeStr(item.person)}', '${escapeStr(item.notes)}', this)`);
-            div.innerHTML = `<span class="rental-item-title">${escapeStr(item.title)}</span><span class="${dueClass}">${escapeStr(item.due)}</span>`;
-
-            div.style.position = 'relative';
-            div.style.isolation = 'isolate';
-            view.appendChild(div);
-          });
-        }
-      };
-
-      const emptyBooks = translations[currentLanguage].rental_books_empty || "Keine Bücher ausgeliehen.";
-      const emptyTech = currentLanguage === 'de' ? 'Keine Technik ausgeliehen.' : (currentLanguage === 'en' ? 'No tech borrowed.' : 'Ei tekniikkaa lainassa.');
-
-      updateRentalView('rental-books-view', aiData.rentals.books, emptyBooks, 'rental_books_empty');
-      updateRentalView('rental-tech-view', aiData.rentals.tech, emptyTech, null);
-
-      const activeRental = document.querySelector('#rental-views-container .rental-view.active');
-      const viewport = document.getElementById('rental-views-viewport');
-      if (activeRental && viewport) {
-        viewport.style.height = activeRental.offsetHeight + 'px';
-      }
-    }
-
-    if (isStorageEnabled()) saveAllData();
-    showDropdownNotification(translations[currentLanguage].ai_generated || "Daten erfolgreich generiert!", false);
-    closeModal();
-
-  } catch (error) {
-    console.error("KI Generierungs-Fehler:", error);
-    const errorMsg = error.message || error.toString();
-    let timeHint = "";
-    const retryMatch = errorMsg.match(/retry in ([\d\.]+)s/i);
-    if (retryMatch) {
-      const secs = Math.ceil(parseFloat(retryMatch[1]));
-      timeHint = currentLanguage === 'de' ? ` Warte ${secs}s.` : ` Wait ${secs}s.`;
-    }
-    const hint = currentLanguage === 'de' ? " (Tippen für Details)" : " (Tap for details)";
-    if (retryMatch) {
-      showDropdownNotification((currentLanguage === 'de' ? "KI Limit erreicht." : "AI Rate limit.") + timeHint + hint, true, () => showErrorDetailsModal(errorMsg));
-    } else {
-      showDropdownNotification((translations[currentLanguage].ai_error || "Fehler bei der KI-Generierung.") + hint, true, () => showErrorDetailsModal(errorMsg));
     }
   }
 }
@@ -6578,6 +6392,18 @@ function togglePrivacyMode(enabled) {
   }
 }
 
+function toggleFullModalMode(enabled) {
+  isFullModalEnabled = enabled;
+  if (enabled) {
+    document.body.classList.add('ab-feature-full-modal');
+  } else {
+    document.body.classList.remove('ab-feature-full-modal');
+  }
+  if (isStorageEnabled()) {
+    localStorage.setItem('thd_full_modal_mode', enabled ? 'true' : 'false');
+  }
+}
+
 function toggleStorage(enabled) {
   if (enabled) {
     localStorage.setItem('thd_storage_enabled', 'true');
@@ -6585,7 +6411,7 @@ function toggleStorage(enabled) {
   } else {
     localStorage.setItem('thd_storage_enabled', 'false');
     // Alle Daten löschen, außer der Einstellung selbst
-    const keysToRemove = ['thd_widget_order', 'thd_mensa_balance', 'thd_gpa', 'thd_parking_spots', 'thd_ects', 'thd_ects_scroll_index', 'thd_study_current', 'thd_study_total', 'thd_study_extra', 'thd_mails_html', 'thd_ilearn_html', 'thd_search_history', 'thd_profile_pic', 'thd_profile_name', 'thd_schedule_cache', 'thd_mensa_cache', 'thd_news_cache', 'thd_favorite_events', 'thd_real_mode', 'thd_privacy_mode', 'thd_theme', 'thd_language', 'thd_widget_visibility', 'thd_vpn_state', 'thd_setup_completed', 'thd_study_group', 'thd_grades_html', 'thd_profile_semester', 'thd_rental_books_html', 'thd_rental_tech_html', 'thd_parking_history_html', 'thd_rental_view', 'thd_parking_daily_cache'];
+    const keysToRemove = ['thd_widget_order', 'thd_mensa_balance', 'thd_gpa', 'thd_parking_spots', 'thd_ects', 'thd_ects_scroll_index', 'thd_study_current', 'thd_study_total', 'thd_study_extra', 'thd_mails_html', 'thd_ilearn_html', 'thd_search_history', 'thd_profile_pic', 'thd_profile_name', 'thd_schedule_cache', 'thd_mensa_cache', 'thd_news_cache', 'thd_favorite_events', 'thd_real_mode', 'thd_privacy_mode', 'thd_full_modal_mode', 'thd_theme', 'thd_language', 'thd_widget_visibility', 'thd_vpn_state', 'thd_setup_completed', 'thd_study_group', 'thd_grades_html', 'thd_profile_semester', 'thd_rental_books_html', 'thd_rental_tech_html', 'thd_parking_history_html', 'thd_rental_view', 'thd_parking_daily_cache'];
     keysToRemove.forEach(k => localStorage.removeItem(k));
     parkingDailyCache = {};
   }
@@ -6717,6 +6543,18 @@ function loadAllData() {
   const privacyToggle = document.getElementById('privacy-mode-toggle');
   if (privacyToggle) privacyToggle.checked = isPrivacyModeEnabled;
   if (isPrivacyModeEnabled) document.body.classList.add('privacy-mode');
+
+  const savedFullModal = localStorage.getItem('thd_full_modal_mode');
+  if (savedFullModal !== null) {
+    isFullModalEnabled = savedFullModal === 'true';
+  }
+  const fmToggle = document.getElementById('full-modal-toggle');
+  if (fmToggle) {
+    fmToggle.checked = isFullModalEnabled;
+  }
+  if (isFullModalEnabled) {
+    document.body.classList.add('ab-feature-full-modal');
+  }
 
   const savedStudyGroup = localStorage.getItem('thd_study_group');
   if (savedStudyGroup !== null) {

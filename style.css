@@ -1805,7 +1805,9 @@ body.theme-light .compose-input {
 /* Glass Theme override for iLearn FAB */
 body.theme-glass #page-mails.ilearn-active .fab-button {
   background: rgba(255, 107, 44, 0.2) !important;
-  border: 1px solid rgba(255, 107, 44, 0.3);
+  border: 1px solid rgba(255, 107, 44, 0.15) !important;
+  border-top: 0.5px solid rgba(255, 107, 44, 0.3) !important;
+  border-bottom: 1px solid rgba(255, 107, 44, 0.04) !important;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), 0 0 24px rgba(255, 107, 44, 0.15);
 }
 
@@ -3376,11 +3378,13 @@ body.theme-glass .dropdown-notification,
 body.theme-glass .news-item,
 body.theme-glass .widget-preview-card {
   background: var(--lg-surface) !important;
-  border: 1px solid rgba(255, 255, 255, var(--lg-border-opacity));
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-top: 0.5px solid rgba(255, 255, 255, 0.3) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
   box-shadow:
-    0 4px 24px rgba(0, 0, 0, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.03);
+    0 8px 32px rgba(0, 0, 0, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.02) !important;
   transition: transform 0.2s ease;
 }
 
@@ -3399,19 +3403,22 @@ body.theme-glass .news-item {
 
 body.theme-glass .ects-item {
   background: var(--lg-surface) !important;
-  border: 1px solid rgba(255, 255, 255, var(--lg-border-opacity));
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-top: 0.5px solid rgba(255, 255, 255, 0.3) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
   box-shadow:
-    0 4px 24px rgba(0, 0, 0, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.03);
+    0 8px 32px rgba(0, 0, 0, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.02) !important;
   transition: transform 0.2s ease;
 }
 
 /* Glass styling for list items (no backdrop filter to prevent double brightness and fix border-radius clipping) */
 body.theme-glass .list-item {
-  background: rgba(255, 255, 255, 0.08) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.03) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
 }
 
 /* Remove glass background for Deggster on Dashboard */
@@ -3428,11 +3435,13 @@ body.theme-glass .modal {
   background: rgba(15, 15, 30, 0.3) !important;
   backdrop-filter: blur(calc(var(--lg-blur) * 1.5)) saturate(var(--lg-saturation));
   -webkit-backdrop-filter: blur(calc(var(--lg-blur) * 1.5)) saturate(var(--lg-saturation));
-  border: 1px solid rgba(255, 255, 255, var(--lg-border-opacity));
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-top: 0.5px solid rgba(255, 255, 255, 0.3) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
   box-shadow:
-    0 8px 48px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.12),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.03);
+    0 12px 64px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.02) !important;
 }
 
 /* Glass Header */
@@ -3454,12 +3463,19 @@ body.theme-glass .navbar {
 /* Glass Segmented Control */
 body.theme-glass .segmented-control {
   background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-top: 0.5px solid rgba(255, 255, 255, 0.3) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
+  box-sizing: border-box !important;
 }
 
 body.theme-glass .segment-highlight {
   background: rgba(255, 255, 255, 0.12) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-top: 0.5px solid rgba(255, 255, 255, 0.3) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  box-sizing: border-box !important;
 }
 
 body.theme-glass .nav-item {
@@ -3497,6 +3513,16 @@ body.theme-glass .toggle-input:checked+.toggle-slider {
 body.theme-glass~#modal-overlay,
 body.theme-glass #modal-overlay {
   background: rgba(0, 0, 0, 0.4);
+}
+
+/* Settings Row Tappable Feedback */
+.settings-row {
+  transition: background-color 0.2s ease, transform 0.15s ease;
+  border-radius: 12px;
+}
+.settings-row:active {
+  background-color: var(--item-bg) !important;
+  transform: scale(0.97);
 }
 
 /* Subtle glow effects for glass cards */
@@ -3553,7 +3579,9 @@ body.theme-glass .fab-button {
 
 body.theme-glass .btn-primary {
   background: rgba(90, 200, 250, 0.1) !important;
-  border: 1px solid rgba(90, 200, 250, 0.25);
+  border: 1px solid rgba(90, 200, 250, 0.15) !important;
+  border-top: 0.5px solid rgba(90, 200, 250, 0.3) !important;
+  border-bottom: 1px solid rgba(90, 200, 250, 0.04) !important;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   color: #fff;
@@ -3561,7 +3589,9 @@ body.theme-glass .btn-primary {
 
 body.theme-glass .btn-secondary {
   background: rgba(255, 255, 255, 0.05) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-top: 0.5px solid rgba(255, 255, 255, 0.3) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   color: var(--text-main);
@@ -3572,7 +3602,9 @@ body.theme-glass .fab-button {
   background: rgba(90, 200, 250, 0.08) !important;
   backdrop-filter: blur(16px) saturate(180%);
   -webkit-backdrop-filter: blur(16px) saturate(180%);
-  border: 1px solid rgba(90, 200, 250, 0.2);
+  border: 1px solid rgba(90, 200, 250, 0.15) !important;
+  border-top: 0.5px solid rgba(90, 200, 250, 0.3) !important;
+  border-bottom: 1px solid rgba(90, 200, 250, 0.04) !important;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), 0 0 24px rgba(90, 200, 250, 0.08);
 }
 
@@ -3625,4 +3657,67 @@ body.theme-glass .vpn-card.vpn-disconnect-anim {
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
     border-color: rgba(255, 255, 255, var(--lg-border-opacity));
   }
+}
+
+/* --- Vollfenster Modal A/B Feature Integration --- */
+body.ab-feature-full-modal .modal {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  transform: none !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  height: 100% !important;
+  max-height: 100% !important;
+  border-radius: 0 !important;
+  border: none !important;
+  padding: 72px 24px 24px 24px !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  background-color: rgba(10, 11, 16, 0.72) !important;
+  backdrop-filter: blur(25px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(25px) saturate(160%) !important;
+}
+
+/* Light theme support for Vollfenster modal background */
+body.ab-feature-full-modal.theme-light .modal,
+body.ab-feature-full-modal.theme-thd .modal {
+  background-color: rgba(220, 222, 228, 0.8) !important;
+  color: #000000 !important;
+}
+
+/* Prevent buttons from stretching vertically in flexbox */
+body.ab-feature-full-modal .modal>.btn {
+  flex: none !important;
+}
+
+body.ab-feature-full-modal .overlay {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Settings Group Card Container */
+.settings-group-card {
+  background: var(--item-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 8px;
+  margin-top: 15px;
+  box-sizing: border-box;
+}
+
+body.theme-glass .settings-group-card {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.18) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
+}
+
+body.theme-light .settings-group-card {
+  background: var(--card-bg) !important;
+  border-color: rgba(0, 0, 0, 0.08);
 }
