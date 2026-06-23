@@ -37,6 +37,14 @@
   --glass-bg: rgba(0, 0, 0, 0.65);
 }
 
+/* Schalter-Hintergrund im Einstellungsfenster im Dark-Theme besser sichtbar machen */
+body:not(.theme-light):not(.theme-glass) #settings-modal .toggle-slider {
+  background-color: #48484A;
+}
+body:not(.theme-light):not(.theme-glass) #settings-modal .toggle-input:checked + .toggle-slider {
+  background-color: #34C759;
+}
+
 body.theme-light {
   --bg-color: #EBEBF0;
   --card-bg: #FFFFFF;
