@@ -21,6 +21,174 @@
 
   <link rel="stylesheet" href="style.css?v=8">
   <link rel="stylesheet" href="animations.css">
+  <style>
+    /* ─── Interactive App Tour Tutorial Styles ─── */
+    #tutorial-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: transparent;
+      z-index: 99999;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+      display: none;
+    }
+    #tutorial-overlay.show {
+      opacity: 1;
+      pointer-events: none;
+      display: block;
+    }
+    #tutorial-spotlight {
+      position: fixed;
+      box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.6);
+      border-radius: 16px;
+      transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+      z-index: 100000;
+      pointer-events: none;
+      display: none;
+    }
+    #tutorial-spotlight.show {
+      display: block;
+    }
+    #tutorial-spotlight::after {
+      content: '';
+      position: absolute;
+      top: -3px;
+      left: -3px;
+      right: -3px;
+      bottom: -3px;
+      border-radius: inherit;
+      border: 3px solid #3a82f7;
+      opacity: 0;
+      pointer-events: none;
+    }
+    #tutorial-spotlight.spotlight-active-pulse::after {
+      animation: spotlight-ripple 1.5s cubic-bezier(0.25, 0.8, 0.25, 1) infinite;
+    }
+    @keyframes spotlight-ripple {
+      0% {
+        transform: scale(0.95);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(1.15);
+        opacity: 0;
+      }
+    }
+    #tutorial-spotlight.spotlight-bright-overlay {
+      box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.15);
+    }
+    #tutorial-tooltip {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--card-bg, #ffffff);
+      color: var(--text-main, #111827);
+      padding: 18px;
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+      width: 290px;
+      z-index: 100001;
+      transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+      border: 1px solid var(--border-color, #e5e7eb);
+      font-family: 'Outfit', sans-serif;
+      pointer-events: auto;
+    }
+    #tutorial-tooltip.show {
+      display: flex;
+    }
+    #tutorial-close-btn {
+      position: absolute;
+      top: 10px;
+      right: 14px;
+      font-size: 24px;
+      font-weight: 400;
+      color: var(--text-sub, #4b5563);
+      cursor: pointer;
+      line-height: 1;
+      transition: color 0.15s ease;
+    }
+    #tutorial-close-btn:hover {
+      color: var(--text-main, #111827);
+    }
+    #tutorial-tooltip-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin: 0;
+      color: var(--text-main);
+    }
+    #tutorial-tooltip-desc {
+      font-size: 13px;
+      line-height: 1.4;
+      color: var(--text-sub, #4b5563);
+      margin: 0;
+    }
+    .tutorial-btn-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+    }
+    .tutorial-dot-indicator {
+      display: flex;
+      gap: 5px;
+    }
+    .tutorial-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--border-color, #e5e7eb);
+      transition: background-color 0.2s;
+    }
+    .tutorial-dot.active {
+      background: var(--accent-blue, #3A82F7);
+    }
+    .tutorial-btn {
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: inherit;
+      border: none;
+      transition: all 0.15s ease;
+    }
+    .tutorial-btn-secondary {
+      background: transparent;
+      color: var(--text-sub, #4b5563);
+    }
+    .tutorial-btn-secondary:hover {
+      color: var(--text-main, #111827);
+    }
+    .tutorial-btn-primary {
+      background: var(--accent-blue, #3A82F7);
+      color: #ffffff;
+    }
+    .tutorial-btn-primary:hover {
+      opacity: 0.9;
+    }
+    .tutorial-btn:disabled {
+      background: var(--border-color, #e5e7eb) !important;
+      color: var(--text-sub, #9ca3af) !important;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+    @keyframes screen-shake {
+      0%, 100% { transform: translateX(0); }
+      10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+      20%, 40%, 60%, 80% { transform: translateX(5px); }
+    }
+    .shake-animation {
+      animation: screen-shake 0.4s ease-in-out;
+    }
+  </style>
 </head>
 
 <body>
@@ -162,7 +330,9 @@
             App unter Android zu installieren oder unter iOS zum Startbildschirm hinzuzufügen.</span>
         </div>
       </div>
-      <div class="modal-buttons" style="margin-top: 20px;">
+      <div class="modal-buttons" style="margin-top: 20px; display: flex; flex-direction: column; gap: 8px;">
+        <button id="setup-tutorial-btn" class="btn btn-secondary" onclick="startTutorial()" data-translate="setup_tutorial_btn"
+          style="width: 100%;">Tutorial starten</button>
         <button id="setup-continue-btn" class="btn btn-primary" onclick="completeSetup()"
           style="width: 100%; transition: opacity 0.3s ease;">Weiter</button>
       </div>
@@ -897,6 +1067,16 @@
               <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
           </div>
+
+          <!-- Option: Präsentationsmodus -->
+          <div class="settings-row" id="presentation-link-btn" onclick="window.location.href='presentation.html'"
+            style="display: flex; justify-content: space-between; align-items: center; padding: 12px 10px; cursor: pointer;">
+            <span data-translate="settings_presentation" style="font-size: 15px; font-weight: 500;">Präsentationsmodus</span>
+            <svg viewBox="0 0 24 24" width="18" height="18" stroke="var(--text-sub)" stroke-width="2" fill="none"
+              stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.7;">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </div>
         </div>
       </div>
       <button class="btn btn-primary" onclick="closeSettingsModal()" data-translate="settings_close"
@@ -1585,7 +1765,8 @@
         <!-- margin-top: auto drückt die Widgets bei viel Platz nach unten -->
         <div id="dashboard-top-spacer" style="height: 15px; flex-shrink: 0; margin-top: auto;"></div>
 
-        <div class="top-widgets-row" id="widget-top-row">
+        <div class="widget-column" id="widgets-container" style="width: 100%;">
+          <div class="top-widgets-row" id="widget-top-row">
           <div class="ects-free" id="widget-ects">
             <div id="deggster-widget" class="ects-item" onclick="openAiAssistantModal()"
               style="cursor: pointer; position: relative; overflow: hidden;">
@@ -1809,6 +1990,7 @@
             </svg>
             <span data-translate="widget_services" style="font-weight: 600; font-size: 15px;">Dienste</span>
           </div>
+        </div>
         </div>
 
         <!-- margin-bottom: auto drückt die Widgets bei viel Platz nach oben, wodurch sie exakt zentriert werden -->

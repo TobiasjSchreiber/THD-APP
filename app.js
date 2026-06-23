@@ -1570,6 +1570,13 @@ function openMensaMenuModal(jumpToNext = false) {
     } else {
       updateMensaModalView();
     }
+
+    // Auto-advance tutorial if we're on the step where the user opens the Mensa widget
+    if (typeof currentTutorialStep !== 'undefined' && tutorialSteps[currentTutorialStep] && tutorialSteps[currentTutorialStep].target === '#widget-mensa') {
+      setTimeout(() => {
+        nextTutorialStep();
+      }, 50);
+    }
   }, 10);
 }
 
@@ -2710,6 +2717,13 @@ function performSearch() {
 }
 
 function jumpToElement(pageId, elementId) {
+  // Verhindere Seitenjumps während des Tutorials und lasse den Bildschirm wackeln
+  const overlay = document.getElementById('tutorial-overlay');
+  if (overlay && overlay.classList.contains('show')) {
+    triggerScreenShake();
+    return;
+  }
+
   const searchInput = document.getElementById('search-input');
   if (searchInput) {
     searchInput.value = '';
@@ -2913,12 +2927,14 @@ const translations = {
     ok_button: "OK",
     settings_privacy: "Privatmodus",
     settings_fullscreen: "Vollfenster-Modus",
+    settings_presentation: "Präsentationsmodus",
     info_privacy_title: "Privatmodus",
     info_privacy_desc: "Verbirgt sensible Daten wie Noten, ECTS, Guthaben und deinen Namen durch einen Unschärfe-Effekt.",
     info_fullscreen_title: "Vollfenster-Modus",
     info_fullscreen_desc: "Lässt Popups und Detailansichten das gesamte App-Fenster ausfüllen, anstatt als schwebende Boxen angezeigt zu werden.",
     setup_title: "Willkommen",
     setup_subtitle: "Bitte wähle deine bevorzugten Einstellungen.",
+    setup_tutorial_btn: "Tutorial starten",
     info_storage_title: "Daten lokal speichern",
     info_storage_desc: "Speichert deine Einstellungen, Änderungen am Dashboard und andere Daten lokal auf deinem Gerät. Wenn deaktiviert, wird alles beim Schließen der App zurückgesetzt.",
     info_real_mode_title: "Echte Daten",
@@ -3139,12 +3155,14 @@ const translations = {
     ok_button: "OK",
     settings_privacy: "Privacy Mode",
     settings_fullscreen: "Full Window Mode",
+    settings_presentation: "Presentation Mode",
     info_privacy_title: "Privacy Mode",
     info_privacy_desc: "Blurs sensitive data such as grades, ECTS, balance, and your name to protect your privacy.",
     info_fullscreen_title: "Full Window Mode",
     info_fullscreen_desc: "Forces popups and detail views to fill the entire app window instead of showing as floating cards.",
     setup_title: "Welcome",
     setup_subtitle: "Please choose your preferred settings.",
+    setup_tutorial_btn: "Start Tutorial",
     info_storage_title: "Save data locally",
     info_storage_desc: "Saves your settings, dashboard modifications, and other data locally on your device. If disabled, everything resets when you close the app.",
     info_real_mode_title: "Real Data",
@@ -3365,12 +3383,14 @@ const translations = {
     ok_button: "OK",
     settings_privacy: "Yksityisyystila",
     settings_fullscreen: "Koko ikkunan tila",
+    settings_presentation: "Esitystila",
     info_privacy_title: "Yksityisyystila",
     info_privacy_desc: "Sumentaa arkaluontoiset tiedot, kuten arvosanat, opintopisteet, saldon ja nimesi, yksityisyytesi suojaamiseksi.",
     info_fullscreen_title: "Koko ikkunan tila",
     info_fullscreen_desc: "Pakottaa ponnahdusikkunat ja yksityiskohtaiset näkymät täyttämään koko sovellusikkunan kelluvien korttien sijaan.",
     setup_title: "Tervetuloa",
     setup_subtitle: "Valitse haluamasi asetukset.",
+    setup_tutorial_btn: "Aloita opastus",
     info_storage_title: "Tallenna tiedot paikallisesti",
     info_storage_desc: "Tallentaa asetuksesi, kojelaudan muokkaukset ja muut tiedot paikallisesti laitteellesi. Jos tämä on pois päältä, kaikki nollautuu, kun suljet sovelluksen.",
     info_real_mode_title: "Oikeat tiedot",
@@ -3627,6 +3647,13 @@ function openScheduleModal() {
       switchScheduleDay(currentScheduleDay, dayBtns[currentScheduleDay]);
     } else {
       updateScheduleModalView();
+    }
+
+    // Auto-advance tutorial if we're on the step where the user opens the schedule widget
+    if (typeof currentTutorialStep !== 'undefined' && tutorialSteps[currentTutorialStep] && tutorialSteps[currentTutorialStep].target === '#widget-schedule') {
+      setTimeout(() => {
+        nextTutorialStep();
+      }, 50);
     }
   }, 10);
 }
@@ -6284,9 +6311,9 @@ function wrapAdjacentHalfWidgets() {
   }
 }
 
-function saveWidgetOrder() {
-  if (!isStorageEnabled()) return;
+function getCurrentWidgetOrder() {
   const container = document.querySelector('.widget-column') || document.getElementById('page-home');
+  if (!container) return [];
   const order = [];
   Array.from(container.children).forEach(child => {
     if (child.classList.contains('top-widgets-row') || child.classList.contains('bottom-widgets-row')) {
@@ -6302,7 +6329,67 @@ function saveWidgetOrder() {
       order.push(child.id);
     }
   });
-  localStorage.setItem('thd_widget_order', JSON.stringify(order));
+  return order;
+}
+
+function saveWidgetOrder() {
+  // Enable the next button if we are on the widget customization step
+  if (typeof currentTutorialStep !== 'undefined' && tutorialSteps[currentTutorialStep] && tutorialSteps[currentTutorialStep].isCustomizationStep) {
+    const nextBtn = document.getElementById('tutorial-next-btn');
+    if (nextBtn) {
+      nextBtn.disabled = false;
+    }
+  }
+
+  if (!isStorageEnabled()) return;
+  const order = getCurrentWidgetOrder();
+  try {
+    localStorage.setItem('thd_widget_order', JSON.stringify(order));
+  } catch (e) {
+    console.error("Failed to save widget order to localStorage:", e);
+  }
+}
+
+function applyWidgetOrder(savedOrder) {
+  const homePage = document.querySelector('.widget-column') || document.getElementById('page-home');
+  if (!homePage) return;
+  const topSpacer = document.getElementById('dashboard-top-spacer');
+  const useSpacer = topSpacer && topSpacer.parentNode === homePage;
+  let insertAfter = useSpacer ? topSpacer : null;
+
+  savedOrder.forEach(item => {
+    if (typeof item === 'string') {
+      const el = document.getElementById(item);
+      if (el) {
+        if (insertAfter) {
+          homePage.insertBefore(el, insertAfter.nextSibling);
+          insertAfter = el;
+        } else {
+          homePage.appendChild(el);
+        }
+      }
+    } else if (item.row && item.children) {
+      let rowEl = document.getElementById(item.row);
+      if (!rowEl) {
+        rowEl = document.createElement('div');
+        rowEl.id = item.row;
+        rowEl.className = item.row === 'widget-top-row' ? 'top-widgets-row' : 'bottom-widgets-row';
+      }
+      if (insertAfter) {
+        homePage.insertBefore(rowEl, insertAfter.nextSibling);
+      } else {
+        homePage.appendChild(rowEl);
+      }
+      insertAfter = rowEl;
+
+      item.children.forEach(childId => {
+        const childEl = document.getElementById(childId);
+        if (childEl) {
+          rowEl.appendChild(childEl);
+        }
+      });
+    }
+  });
 }
 
 function loadWidgetOrder() {
@@ -6348,35 +6435,7 @@ function loadWidgetOrder() {
     savedOrder = newOrder;
   }
 
-  const homePage = document.querySelector('.widget-column') || document.getElementById('page-home');
-  const topSpacer = document.getElementById('dashboard-top-spacer');
-  let insertAfter = topSpacer;
-
-  savedOrder.forEach(item => {
-    if (typeof item === 'string') {
-      const el = document.getElementById(item);
-      if (el) {
-        homePage.insertBefore(el, insertAfter.nextSibling);
-        insertAfter = el;
-      }
-    } else if (item.row && item.children) {
-      let rowEl = document.getElementById(item.row);
-      if (!rowEl) {
-        rowEl = document.createElement('div');
-        rowEl.id = item.row;
-        rowEl.className = item.row === 'widget-top-row' ? 'top-widgets-row' : 'bottom-widgets-row';
-      }
-      homePage.insertBefore(rowEl, insertAfter.nextSibling);
-      insertAfter = rowEl;
-
-      item.children.forEach(childId => {
-        const childEl = document.getElementById(childId);
-        if (childEl) {
-          rowEl.appendChild(childEl);
-        }
-      });
-    }
-  });
+  applyWidgetOrder(savedOrder);
 }
 
 // --- Profilbild Logik ---
@@ -7883,6 +7942,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Verstecke den A/B Test Button innerhalb des iFrames, um rekursives Laden (Inception) zu verhindern
   var abTestLinkBtn = document.getElementById('ab-test-link-btn');
   if (abTestLinkBtn) abTestLinkBtn.style.display = 'none';
+  var presentationLinkBtn = document.getElementById('presentation-link-btn');
+  if (presentationLinkBtn) presentationLinkBtn.style.display = 'none';
 
   // Helper: find the closest interactive ancestor (with onclick, button, link, etc.)
   function findInteractiveAncestor(el) {
@@ -8192,3 +8253,641 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 })();
+
+// ─── Interactive App Tour Tutorial ──────────────────────────────────────────
+const tutorialSteps = [
+  {
+    target: null,
+    title: { de: "Willkommen", en: "Welcome", fi: "Tervetuloa" },
+    desc: {
+      de: "Willkommen in deiner THD-App! Dies ist dein persönliches Dashboard mit allen wichtigen Informationen für dein Studium.",
+      en: "Welcome to your THD App! This is your personal dashboard containing all the vital information for your studies.",
+      fi: "Tervetuloa THD-sovellukseen! Tämä on henkilökohtainen kojelautasi, josta löydät kaikki opintojesi kannalta tärkeät tiedot."
+    },
+    action: () => {
+      const tab = document.querySelector('.nav-item');
+      if (tab) switchTab('page-home', tab);
+    }
+  },
+  {
+    target: '#deggster-widget',
+    allowedModal: '#ai-assistant-modal',
+    title: { de: "Deggster (KI-Assistent)", en: "Deggster (AI Assistant)", fi: "Deggster (Tekoälyavustaja)" },
+    desc: {
+      de: "Das ist Deggster! Klicke auf ihn, um den intelligenten KI-Assistenten zu öffnen. Er hilft dir bei Fragen zum Studium.",
+      en: "This is Deggster! Click on him to open the smart AI assistant, ready to answer any questions about your studies.",
+      fi: "Tämä on Deggster! Klikkaa häntä avataksesi älykkään tekoälyavustajan, joka vastaa opintoihisi liittyviin kysymyksiin."
+    },
+    action: () => {
+      const tab = document.querySelector('.nav-item');
+      if (tab) switchTab('page-home', tab);
+    }
+  },
+  {
+    target: '.ects-free',
+    title: { de: "ECTS & Leistungen", en: "ECTS & Grades", fi: "Opintopisteet ja arvosanat" },
+    desc: {
+      de: "Hier siehst du deine gesammelten ECTS, deinen aktuellen Notenschnitt und weitere Statistiken. Scrolle die Kacheln nach unten, um noch mehr zu entdecken (z.B. die Campus Webcam)!",
+      en: "Here you can see your ECTS, current grade average, and other stats. Scroll the cards down to discover even more (like the Campus Webcam)!",
+      fi: "Täältä näet opintopisteesi, nykyisen keskiarvosi ja muut tilastot. Vieritä kortteja alaspäin nähdäksesi lisää (kuten kampuksen verkkokameran)!"
+    },
+    action: () => {
+      const tab = document.querySelector('.nav-item');
+      if (tab) switchTab('page-home', tab);
+
+      // Programmatically bounce/scroll the ECTS row vertically to preview scrollability
+      setTimeout(() => {
+        const container = document.querySelector('.ects-free');
+        if (container) {
+          container.scrollTo({ top: 120, behavior: 'smooth' });
+          setTimeout(() => {
+            container.scrollTo({ top: 0, behavior: 'smooth' });
+          }, 800);
+        }
+      }, 600);
+    }
+  },
+  {
+    target: '#widget-schedule',
+    allowedModal: '#schedule-modal',
+    title: { de: "Stundenplan", en: "Schedule", fi: "Lukujärjestys" },
+    desc: {
+      de: "Dein Stundenplan zeigt dir deine Vorlesungen an. Klicke jetzt direkt auf das Stundenplan-Widget, um die Großansicht zu öffnen!",
+      en: "Your schedule shows your upcoming lectures. Click directly on the schedule widget now to open the detailed view!",
+      fi: "Lukujärjestyksestä näet tulevat luennot. Klikkaa widgettiä nyt avataksesi laajennetun näkymän!"
+    },
+    hideNextBtn: true,
+    action: () => {
+      const tab = document.querySelector('.nav-item');
+      if (tab) switchTab('page-home', tab);
+      closeModal(true);
+    }
+  },
+  {
+    target: '#schedule-modal',
+    allowedModal: ['#schedule-modal', '#schedule-settings-modal'],
+    placement: 'bottom',
+    title: { de: "Stundenplan-Details", en: "Schedule Details", fi: "Lukujärjestyksen tiedot" },
+    desc: {
+      de: "Hier siehst du die Wochen- und Tagesansicht. Über das Zahnrad oben rechts kannst du deinen Studiengang (z.B. MT-MP4) einstellen, um deinen persönlichen Stundenplan zu sehen!",
+      en: "Here you can see the weekly and daily view. Use the gear icon in the top right to set your course (e.g. MT-MP4) to see your personal schedule!",
+      fi: "Tästä näet viikko- ja päivänäkymän. Aseta oma opintoryhmäsi (esim. MT-MP4) oikean yläkulman rataskuvakkeesta nähdäksesi oman lukujärjestyksesi!"
+    },
+    action: () => {
+      const modal = document.getElementById('schedule-modal');
+      if (modal && !modal.classList.contains('show')) {
+        openScheduleModal();
+      }
+    }
+  },
+  {
+    target: '#widget-mensa',
+    allowedModal: '#mensa-menu-modal',
+    title: { de: "Mensa & Guthaben", en: "Mensa & Balance", fi: "Ruokala ja saldo" },
+    desc: {
+      de: "Hier siehst du dein Kartenguthaben. Klicke jetzt direkt auf eines der Gerichte, um den Speiseplan zu öffnen!",
+      en: "Here you can see your card balance. Click directly on one of the dishes now to open the menu!",
+      fi: "Tästä näet korttisi saldon. Klikkaa jotakin ruokalajia nyt avataksesi ruokalistan!"
+    },
+    hideNextBtn: true,
+    action: () => {
+      const tab = document.querySelector('.nav-item');
+      if (tab) switchTab('page-home', tab);
+      closeModal(true);
+    }
+  },
+  {
+    target: '#mensa-menu-modal',
+    allowedModal: ['#mensa-menu-modal', '#food-modal'],
+    placement: 'bottom',
+    title: { de: "Mensa-Speiseplan", en: "Mensa Menu", fi: "Ruokalan menu" },
+    desc: {
+      de: "Hier siehst du die Speisen für die gesamte Woche. Über die Buttons oben kannst du die Tage wechseln!",
+      en: "Here you can see the meals for the entire week. Use the buttons at the top to change days!",
+      fi: "Tästä näet koko viikon ruoat. Voit vaihtaa päiviä yläreunan painikkeista!"
+    },
+    action: () => {
+      const modal = document.getElementById('mensa-menu-modal');
+      if (modal && !modal.classList.contains('show')) {
+        openMensaMenuModal();
+      }
+    }
+  },
+  {
+    target: '#widgets-container',
+    placement: 'bottom',
+    isCustomizationStep: true,
+    disableNextUntilDrag: true,
+    brightOverlay: true,
+    title: { de: "Widgets anpassen", en: "Customize Widgets", fi: "Muokkaa widgettejä" },
+    desc: {
+      de: "Du kannst Widgets neu anordnen! Halte das ECTS-Widget gedrückt und ziehe es nach unten oder oben. Probiere es aus und klicke dann auf 'Weiter'!",
+      en: "You can rearrange widgets! Press and hold the ECTS widget and drag it up or down. Try it out, then click 'Next'!",
+      fi: "Voit järjestää widgettejä uudelleen! Pidä ECTS-widgettiä painettuna ja vedä sitä ylös tai alas. Kokeile ja napsauta 'Seuraava'!"
+    },
+    action: () => {
+      const tab = document.querySelector('.nav-item');
+      if (tab) switchTab('page-home', tab);
+      closeModal(true);
+
+      // Save current layout before user customization
+      saveWidgetOrder();
+      let saved = null;
+      if (isStorageEnabled()) {
+        try {
+          saved = localStorage.getItem('thd_widget_order');
+        } catch (e) {
+          console.error(e);
+        }
+      }
+      window.tutorialInitialWidgetOrder = saved || JSON.stringify(getCurrentWidgetOrder());
+    }
+  },
+  {
+    target: '.nav-item:nth-child(2)',
+    title: { de: "Nachrichten", en: "Mails & Messages", fi: "Sähköpostit ja viestit" },
+    desc: {
+      de: "Im Postfach findest du wichtige Nachrichten von Dozenten, Ankündigungen und Systembenachrichtigungen.",
+      en: "In the mailbox, you'll find important messages from lecturers, announcements, and system notifications.",
+      fi: "Postilaatikosta löydät tärkeät viestit luennoitsijoilta, ilmoitukset ja järjestelmätiedotteet."
+    },
+    action: () => {
+      closeModal(true);
+      const tab = document.querySelectorAll('.nav-item')[1];
+      if (tab) switchTab('page-mails', tab);
+    }
+  },
+  {
+    target: '.nav-item:nth-child(3)',
+    title: { de: "News & Campus Feed", en: "News & Campus Feed", fi: "Uutiset ja kampus" },
+    desc: {
+      de: "Bleibe auf dem Laufenden mit dem News-Feed! Hier erfährst du alles über Events und Neuigkeiten auf dem Campus.",
+      en: "Stay up-to-date with the campus news feed! Read about upcoming events and campus news.",
+      fi: "Pysy ajan tasalla kampuksen uutisvirran avulla! Lue tulevista tapahtumista ja kampuksen uutisesta."
+    },
+    action: () => {
+      closeModal(true);
+      const tab = document.querySelectorAll('.nav-item')[2];
+      if (tab) switchTab('page-news', tab);
+    }
+  },
+  {
+    target: '.nav-item:nth-child(5)',
+    allowedModal: '#settings-modal',
+    allowedInteraction: ['#settings-gear-icon', '#settings-modal'],
+    title: { de: "Profil & Einstellungen", en: "Profile & Settings", fi: "Profiili ja asetukset" },
+    desc: {
+      de: "In deinem Profil kannst du deinen Namen bearbeiten, Widgets anpassen oder das Design ändern. Klicke auf das Zahnrad für die Einstellungen!",
+      en: "In your profile, you can edit your name, customize widgets, or change the theme. Click the gear icon for settings!",
+      fi: "Profiilissasi voit muokata nimeäsi, mukauttaa widgettejä tai vaihtaa teemaa. Napsauta rataskuvaketta asetuksiin!"
+    },
+    action: () => {
+      closeModal(true);
+      const tab = document.querySelectorAll('.nav-item')[4];
+      if (tab) switchTab('page-profil', tab);
+    }
+  }
+];
+
+function tutorialPreventInteraction(e) {
+  // Allow all events to pass if the user is dragging a widget
+  if (typeof dragState !== 'undefined' && dragState.isDragging) {
+    return;
+  }
+
+  const tooltip = document.getElementById('tutorial-tooltip');
+  const step = tutorialSteps[currentTutorialStep];
+  const targetEl = step && step.target ? document.querySelector(step.target) : null;
+
+  // Let events pass through if they are inside the tooltip or inside the active highlighted element
+  let isAllowedInteraction = (tooltip && tooltip.contains(e.target)) || (targetEl && targetEl.contains(e.target));
+
+  if (!isAllowedInteraction && step) {
+    const allowed = step.allowedInteraction || step.allowedModal;
+    if (allowed) {
+      const allowedList = Array.isArray(allowed) ? allowed : [allowed];
+      isAllowedInteraction = allowedList.some(sel => {
+        try {
+          const el = document.querySelector(sel);
+          return el && (el === e.target || el.contains(e.target));
+        } catch (err) {
+          return false;
+        }
+      });
+    }
+  }
+
+  if (isAllowedInteraction) {
+    // Special restriction for #widget-mensa step: only allow clicking food items to open the menu modal
+    if (step && step.target === '#widget-mensa') {
+      if (!e.target.closest('#widget-mensa .scroll-list .list-item')) {
+        if (e.cancelable) {
+          e.preventDefault();
+        }
+        e.stopPropagation();
+        return;
+      }
+    }
+    return; // Allow interaction
+  }
+
+  // Otherwise, block the interaction!
+  if (e.cancelable) {
+    e.preventDefault();
+  }
+  e.stopPropagation();
+}
+
+let currentTutorialStep = 0;
+const tutorialBlockedEvents = [
+  'click', 'mousedown', 'mouseup', 'touchstart', 'touchend', 'pointerdown', 'pointerup',
+  'touchmove', 'wheel'
+];
+
+let tutorialModalObserver = null;
+
+function startTutorialModalObserver() {
+  const modals = document.querySelectorAll('.modal');
+  if (tutorialModalObserver) {
+    tutorialModalObserver.disconnect();
+  }
+  tutorialModalObserver = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+        const target = mutation.target;
+        if (target.classList.contains('show')) {
+          const step = tutorialSteps[currentTutorialStep];
+          let isAllowed = false;
+          if (step) {
+            const allowed = step.allowedModal || step.target;
+            if (allowed) {
+              const allowedList = Array.isArray(allowed) ? allowed : [allowed];
+              isAllowed = allowedList.some(sel => {
+                try {
+                  return document.querySelector(sel) === target;
+                } catch (e) {
+                  return false;
+                }
+              });
+            }
+          }
+          if (target.id === 'food-modal' && step && (step.target === '#mensa-menu-modal' || step.allowedModal === '#mensa-menu-modal' || (Array.isArray(step.allowedModal) && step.allowedModal.includes('#mensa-menu-modal')))) {
+            isAllowed = true;
+          }
+          
+          if (!isAllowed) {
+            target.classList.remove('show');
+            
+            const openModals = document.querySelectorAll('.modal.show');
+            if (openModals.length === 0) {
+              const overlay = document.getElementById('modal-overlay');
+              if (overlay) overlay.classList.remove('show');
+            }
+            
+            triggerScreenShake();
+          }
+        }
+      }
+    });
+  });
+
+  modals.forEach(m => {
+    tutorialModalObserver.observe(m, { attributes: true, attributeFilter: ['class'] });
+  });
+}
+
+function stopTutorialModalObserver() {
+  if (tutorialModalObserver) {
+    tutorialModalObserver.disconnect();
+    tutorialModalObserver = null;
+  }
+}
+
+function triggerScreenShake() {
+  const body = document.body;
+  body.classList.remove('shake-animation');
+  void body.offsetWidth; // trigger reflow
+  body.classList.add('shake-animation');
+  
+  if (navigator.vibrate) {
+    navigator.vibrate([100, 50, 100]);
+  }
+  
+  setTimeout(() => {
+    body.classList.remove('shake-animation');
+  }, 500);
+}
+
+function startTutorial() {
+  closeModal(true);
+  startTutorialModalObserver();
+
+  // Add event listeners on window with capture: true and passive: false to allow preventDefault on touch/wheel
+  tutorialBlockedEvents.forEach(evt => {
+    window.addEventListener(evt, tutorialPreventInteraction, { capture: true, passive: false });
+  });
+
+  let overlay = document.getElementById('tutorial-overlay');
+  let spotlight = document.getElementById('tutorial-spotlight');
+  let tooltip = document.getElementById('tutorial-tooltip');
+
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'tutorial-overlay';
+    document.body.appendChild(overlay);
+  }
+  if (!spotlight) {
+    spotlight = document.createElement('div');
+    spotlight.id = 'tutorial-spotlight';
+    document.body.appendChild(spotlight);
+  }
+  if (!tooltip) {
+    tooltip = document.createElement('div');
+    tooltip.id = 'tutorial-tooltip';
+    tooltip.innerHTML = `
+      <span id="tutorial-close-btn" onclick="endTutorial()">&times;</span>
+      <h4 id="tutorial-tooltip-title"></h4>
+      <p id="tutorial-tooltip-desc"></p>
+      <div class="tutorial-btn-row">
+        <button class="tutorial-btn tutorial-btn-secondary" id="tutorial-prev-btn">Zurück</button>
+        <div class="tutorial-dot-indicator" id="tutorial-dots"></div>
+        <button class="tutorial-btn tutorial-btn-primary" id="tutorial-next-btn">Weiter</button>
+      </div>
+    `;
+    document.body.appendChild(tooltip);
+  }
+
+  overlay.style.display = '';
+  spotlight.style.display = '';
+  tooltip.style.display = '';
+
+  overlay.classList.add('show');
+  spotlight.classList.add('show');
+  tooltip.classList.add('show');
+
+  showTutorialStep(0);
+}
+
+function restoreInitialWidgetOrder() {
+  if (window.hasOwnProperty('tutorialInitialWidgetOrder')) {
+    const initial = window.tutorialInitialWidgetOrder;
+
+    const homePage = document.querySelector('.widget-column') || document.getElementById('page-home');
+    ['widget-top-row', 'widget-bottom-row'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        while (el.firstChild) {
+          homePage.appendChild(el.firstChild);
+        }
+        el.remove();
+      }
+    });
+
+    if (initial === null) {
+      if (isStorageEnabled()) {
+        try {
+          localStorage.removeItem('thd_widget_order');
+        } catch (e) {
+          console.error(e);
+        }
+      }
+      // Re-apply default layout order
+      const defaultOrder = [
+        { row: 'widget-top-row', children: ['widget-ects', 'widget-schedule'] },
+        'widget-mensa',
+        'widget-parking',
+        'widget-rental',
+        'widget-weather',
+        'widget-todo',
+        { row: 'widget-bottom-row', children: ['widget-vpn', 'widget-services'] }
+      ];
+      applyWidgetOrder(defaultOrder);
+    } else {
+      if (isStorageEnabled()) {
+        try {
+          localStorage.setItem('thd_widget_order', initial);
+        } catch (e) {
+          console.error(e);
+        }
+      }
+      try {
+        applyWidgetOrder(JSON.parse(initial));
+      } catch (e) {
+        console.error("Error parsing tutorialInitialWidgetOrder:", e);
+      }
+    }
+
+    delete window.tutorialInitialWidgetOrder;
+  }
+}
+
+function showTutorialStep(stepIndex) {
+  currentTutorialStep = stepIndex;
+  const step = tutorialSteps[stepIndex];
+  if (!step) {
+    endTutorial();
+    return;
+  }
+
+  // Restore widget order if we are moving away from the customization step
+  if (!step.isCustomizationStep) {
+    restoreInitialWidgetOrder();
+  }
+
+  if (typeof step.action === 'function') {
+    step.action();
+  }
+
+  setTimeout(() => {
+    const el = step.target ? document.querySelector(step.target) : null;
+    const spotlight = document.getElementById('tutorial-spotlight');
+    const tooltip = document.getElementById('tutorial-tooltip');
+
+    const lang = typeof currentLanguage !== 'undefined' ? currentLanguage : 'de';
+    document.getElementById('tutorial-tooltip-title').textContent = step.title[lang] || step.title['de'];
+    document.getElementById('tutorial-tooltip-desc').textContent = step.desc[lang] || step.desc['de'];
+
+    const prevBtn = document.getElementById('tutorial-prev-btn');
+    const nextBtn = document.getElementById('tutorial-next-btn');
+
+    if (stepIndex === 0) {
+      prevBtn.textContent = lang === 'en' ? 'Skip' : (lang === 'fi' ? 'Ohita' : 'Überspringen');
+      prevBtn.onclick = () => endTutorial();
+    } else {
+      prevBtn.textContent = lang === 'en' ? 'Back' : (lang === 'fi' ? 'Takaisin' : 'Zurück');
+      prevBtn.onclick = () => prevTutorialStep();
+    }
+
+    if (stepIndex === tutorialSteps.length - 1) {
+      nextBtn.textContent = lang === 'en' ? 'Finish' : (lang === 'fi' ? 'Valmis' : 'Fertig');
+    } else {
+      nextBtn.textContent = lang === 'en' ? 'Next' : (lang === 'fi' ? 'Seuraava' : 'Weiter');
+    }
+    nextBtn.onclick = () => nextTutorialStep();
+
+    if (step.hideNextBtn) {
+      nextBtn.style.display = 'none';
+    } else {
+      nextBtn.style.display = '';
+    }
+
+    if (step.disableNextUntilDrag) {
+      nextBtn.disabled = true;
+    } else {
+      nextBtn.disabled = false;
+    }
+
+    const dotsContainer = document.getElementById('tutorial-dots');
+    dotsContainer.innerHTML = '';
+    for (let i = 0; i < tutorialSteps.length; i++) {
+      const dot = document.createElement('div');
+      dot.className = 'tutorial-dot' + (i === stepIndex ? ' active' : '');
+      dotsContainer.appendChild(dot);
+    }
+
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+
+      setTimeout(() => {
+        const updatedRect = el.getBoundingClientRect();
+        spotlight.style.top = (updatedRect.top - 6) + 'px';
+        spotlight.style.left = (updatedRect.left - 6) + 'px';
+        spotlight.style.width = (updatedRect.width + 12) + 'px';
+        spotlight.style.height = (updatedRect.height + 12) + 'px';
+        let borderRadius = getComputedStyle(el).borderRadius;
+        if (!borderRadius || borderRadius === '0px' || borderRadius === '0') {
+          borderRadius = '16px';
+        }
+        spotlight.style.borderRadius = borderRadius;
+        spotlight.style.display = 'block';
+
+        if (step.hideNextBtn) {
+          spotlight.classList.add('spotlight-active-pulse');
+        } else {
+          spotlight.classList.remove('spotlight-active-pulse');
+        }
+
+        if (step.brightOverlay) {
+          spotlight.classList.add('spotlight-bright-overlay');
+        } else {
+          spotlight.classList.remove('spotlight-bright-overlay');
+        }
+
+        positionTooltip(updatedRect, step);
+      }, 150);
+    } else {
+      // Placing spotlight off-screen to keep screen darkened without cutout
+      spotlight.style.top = '-200px';
+      spotlight.style.left = '-200px';
+      spotlight.style.width = '0px';
+      spotlight.style.height = '0px';
+      spotlight.style.borderRadius = '50%';
+      spotlight.style.display = 'block';
+      spotlight.classList.remove('spotlight-active-pulse');
+
+      tooltip.style.bottom = 'auto';
+      tooltip.style.top = '50%';
+      tooltip.style.left = '50%';
+      tooltip.style.transform = 'translate(-50%, -50%)';
+    }
+  }, 200);
+}
+
+function positionTooltip(rect, step) {
+  const tooltip = document.getElementById('tutorial-tooltip');
+  const tooltipWidth = tooltip.offsetWidth || 290;
+  const tooltipHeight = tooltip.offsetHeight || 150;
+  const windowWidth = window.innerWidth;
+  const windowHeight = window.innerHeight;
+
+  if (step && step.placement === 'bottom') {
+    tooltip.style.top = 'auto';
+    tooltip.style.bottom = '20px';
+    tooltip.style.left = '50%';
+    tooltip.style.transform = 'translateX(-50%)';
+    return;
+  }
+  if (step && step.placement === 'top') {
+    tooltip.style.top = '20px';
+    tooltip.style.bottom = 'auto';
+    tooltip.style.left = '50%';
+    tooltip.style.transform = 'translateX(-50%)';
+    return;
+  }
+
+  // Default case: reset bottom
+  tooltip.style.bottom = 'auto';
+
+  let top = rect.bottom + 12;
+  let left = rect.left + (rect.width - tooltipWidth) / 2;
+
+  if (top + tooltipHeight > windowHeight - 20) {
+    top = rect.top - tooltipHeight - 12;
+  }
+  if (left < 10) left = 10;
+  if (left + tooltipWidth > windowWidth - 10) {
+    left = windowWidth - tooltipWidth - 10;
+  }
+  if (top < 10) {
+    top = (windowHeight - tooltipHeight) / 2;
+    left = (windowWidth - tooltipWidth) / 2;
+  }
+
+  tooltip.style.transform = 'none';
+  tooltip.style.top = top + 'px';
+  tooltip.style.left = left + 'px';
+}
+
+function nextTutorialStep() {
+  if (currentTutorialStep < tutorialSteps.length - 1) {
+    showTutorialStep(currentTutorialStep + 1);
+  } else {
+    endTutorial();
+  }
+}
+
+function prevTutorialStep() {
+  if (currentTutorialStep > 0) {
+    showTutorialStep(currentTutorialStep - 1);
+  }
+}
+
+function endTutorial() {
+  // Remove event listeners from window
+  tutorialBlockedEvents.forEach(evt => {
+    window.removeEventListener(evt, tutorialPreventInteraction, { capture: true });
+  });
+
+  // Stop the modal observer
+  stopTutorialModalObserver();
+
+  const overlay = document.getElementById('tutorial-overlay');
+  const spotlight = document.getElementById('tutorial-spotlight');
+  const tooltip = document.getElementById('tutorial-tooltip');
+
+  if (overlay) {
+    overlay.classList.remove('show');
+    overlay.style.display = 'none';
+  }
+  if (spotlight) {
+    spotlight.classList.remove('show');
+    spotlight.style.display = 'none';
+  }
+  if (tooltip) {
+    tooltip.classList.remove('show');
+    tooltip.style.display = 'none';
+    tooltip.style.transform = 'none';
+  }
+
+  // Restore initial widget order if user customized during tutorial
+  restoreInitialWidgetOrder();
+
+  // Close any open modals
+  closeModal(true);
+
+  // Complete onboarding/setup now that tutorial finished/skipped
+  completeSetup();
+
+  const tab = document.querySelector('.nav-item');
+  if (tab) switchTab('page-home', tab);
+}

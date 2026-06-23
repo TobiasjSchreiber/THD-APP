@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>THD App - Präsentationsmodus</title>
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Saira:wght@400;600;700&display=swap"
+    rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-lab: #ffffff;
+      --card-lab: #ffffff;
+      --border-lab: #e5e7eb;
+      --text-main: #111827;
+      --text-sub: #4b5563;
+      --led-green: #10b981;
+      --led-off: #d1d5db;
+
+      /* Display sizing variables */
+      --screen-top: 1%;
+      --screen-left: 2.85%;
+      --screen-width: 94.65%;
+      --screen-height: 98.45%;
+      --screen-radius: 46px;
+      --app-scale: 0.81;
+      --app-width: 123.46%;
+      --app-height: 123.46%;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background-color: var(--bg-lab);
+      color: var(--text-main);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      -webkit-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
+    }
+
+    /* Main Workspace */
+    .workspace {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      z-index: 1;
+      overflow: hidden;
+    }
+
+    /* Phone Mockup Wrapper using iPhone.png */
+    .device-container {
+      width: 360px;
+      height: 740px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      background: transparent !important;
+    }
+
+    .screen-wrapper {
+      position: absolute;
+      top: var(--screen-top);
+      left: var(--screen-left);
+      width: var(--screen-width);
+      height: var(--screen-height);
+      overflow: hidden;
+      border-radius: var(--screen-radius);
+      background: #000;
+      box-shadow: 0 0 0 4px #000;
+      z-index: 1;
+    }
+
+    .app-frame {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: var(--app-width);
+      height: var(--app-height);
+      transform: scale(var(--app-scale));
+      transform-origin: top left;
+      border: none;
+      background: transparent;
+    }
+
+    .device-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 10;
+      filter: drop-shadow(0 25px 50px rgba(0, 0, 0, 0.12));
+    }
+
+    /* Sizing tools buttons */
+    .sizing-trigger {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #000000;
+      color: #ffffff;
+      border: none;
+      width: 42px;
+      height: 42px;
+      padding: 0;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      transition: all 0.2s ease;
+      z-index: 90;
+      opacity: 0.3; /* Discreet presentation view */
+    }
+
+    .sizing-trigger:hover,
+    .fullscreen-trigger:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
+      background: #1a1a1a;
+      opacity: 1;
+    }
+
+    .fullscreen-trigger {
+      position: fixed;
+      bottom: 24px;
+      right: 76px;
+      background: #000000;
+      color: #ffffff;
+      border: none;
+      width: 42px;
+      height: 42px;
+      padding: 0;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      transition: all 0.2s ease;
+      z-index: 90;
+      opacity: 0.3;
+    }
+
+    /* Collapsible Sizing Panel */
+    .sizing-panel {
+      position: fixed;
+      bottom: 84px;
+      right: 24px;
+      width: 320px;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(229, 231, 235, 0.7);
+      border-radius: 16px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      display: none;
+      flex-direction: column;
+      z-index: 95;
+      overflow: hidden;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      max-height: calc(100vh - 120px);
+    }
+
+    .sizing-panel.active {
+      display: flex;
+    }
+
+    .sizing-panel-header {
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(229, 231, 235, 0.5);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .sizing-panel-header h3 {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .close-panel-btn {
+      background: none;
+      border: none;
+      font-size: 20px;
+      color: var(--text-sub);
+      cursor: pointer;
+      padding: 0 4px;
+    }
+
+    .close-panel-btn:hover {
+      color: var(--text-main);
+    }
+
+    .sizing-panel-body {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      overflow-y: auto;
+    }
+
+    .slider-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .slider-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-sub);
+    }
+
+    .slider-group input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background: #e5e7eb;
+      outline: none;
+    }
+
+    .slider-group input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #111827;
+      cursor: pointer;
+      transition: transform 0.1s ease;
+    }
+
+    .slider-group input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+    }
+
+    /* CSS Output Block */
+    .css-output-container {
+      margin-top: 6px;
+      border: 1px solid rgba(229, 231, 235, 0.7);
+      border-radius: 8px;
+      background: #fafafa;
+      overflow: hidden;
+    }
+
+    .css-output-header {
+      background: #f3f4f6;
+      padding: 6px 12px;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-sub);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(229, 231, 235, 0.7);
+    }
+
+    .copy-css-btn {
+      background: #ffffff;
+      border: 1px solid #d1d5db;
+      color: var(--text-main);
+      padding: 2px 6px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 9px;
+      font-weight: 600;
+    }
+
+    .copy-css-btn:hover {
+      background: #f9fafb;
+    }
+
+    #css-output {
+      padding: 10px;
+      font-family: monospace;
+      font-size: 10px;
+      color: #1f2937;
+      margin: 0;
+      white-space: pre-wrap;
+      user-select: all;
+    }
+
+    /* iOS-style Status Bar Overlay */
+    .status-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 38px;
+      padding: 0 26px 0 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 5;
+      pointer-events: none;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Outfit", sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      color: #ffffff;
+      transition: color 0.2s ease;
+    }
+
+    .status-bar-dark {
+      color: #000000;
+    }
+
+    .status-left {
+      display: flex;
+      align-items: center;
+    }
+
+    .status-time {
+      letter-spacing: -0.2px;
+    }
+
+    .status-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-icon {
+      opacity: 0.95;
+      flex-shrink: 0;
+    }
+
+    .status-battery {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .battery-level {
+      font-size: 9px;
+      font-weight: 500;
+      opacity: 0.8;
+    }
+
+    .battery-icon {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .battery-body {
+      width: 19px;
+      height: 9.5px;
+      border: 1px solid currentColor;
+      border-radius: 2.5px;
+      padding: 0.75px;
+      display: flex;
+    }
+
+    .battery-fill {
+      height: 100%;
+      width: 87%;
+      background-color: currentColor;
+      border-radius: 0.75px;
+    }
+
+    .battery-cap {
+      width: 1.5px;
+      height: 3.5px;
+      background-color: currentColor;
+      border-radius: 0 1px 1px 0;
+      margin-left: 0.75px;
+      opacity: 0.8;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Workspace Centered Phone -->
+  <div class="workspace">
+    <div class="device-container">
+      <div class="screen-wrapper">
+        <!-- iOS Status Bar Overlay -->
+        <div class="status-bar">
+          <div class="status-left">
+            <span class="status-time">12:00</span>
+          </div>
+          <div class="status-right">
+            <!-- Cellular Signal -->
+            <svg class="status-icon" width="15" height="11" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M2 22h20V2z" />
+            </svg>
+            <!-- WiFi Icon -->
+            <svg class="status-icon" width="13" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
+              <path d="M1.42 9a16 16 0 0 1 21.16 0"></path>
+              <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+              <line x1="12" y1="20" x2="12.01" y2="20" stroke-width="3"></line>
+            </svg>
+            <!-- Battery -->
+            <div class="status-battery">
+              <span class="battery-level">87</span>
+              <div class="battery-icon">
+                <div class="battery-body">
+                  <div class="battery-fill"></div>
+                </div>
+                <div class="battery-cap"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Iframe loading the main app -->
+        <iframe id="iframe-a" src="index.html" class="app-frame"></iframe>
+      </div>
+      <img src="iPhone.png" class="device-overlay" alt="iPhone Frame">
+    </div>
+  </div>
+
+  <!-- Floating Fullscreen Button -->
+  <button class="fullscreen-trigger" onclick="toggleFullscreen()" title="Vollbild">
+    <svg id="fullscreen-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="15 3 21 3 21 9"></polyline>
+      <polyline points="9 21 3 21 3 15"></polyline>
+      <line x1="21" y1="3" x2="14" y2="10"></line>
+      <line x1="3" y1="21" x2="10" y2="14"></line>
+    </svg>
+  </button>
+
+  <!-- Floating Sizing Tools Trigger -->
+  <button id="sizing-toggle-btn" class="sizing-trigger" onclick="toggleSizingPanel()">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <line x1="4" y1="21" x2="4" y2="14"></line>
+      <line x1="4" y1="10" x2="4" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="12"></line>
+      <line x1="12" y1="8" x2="12" y2="3"></line>
+      <line x1="20" y1="21" x2="20" y2="16"></line>
+      <line x1="20" y1="12" x2="20" y2="3"></line>
+      <line x1="1" y1="14" x2="7" y2="14"></line>
+      <line x1="9" y1="8" x2="15" y2="8"></line>
+      <line x1="17" y1="16" x2="23" y2="16"></line>
+    </svg>
+  </button>
+
+  <!-- Collapsible Sizing Panel -->
+  <div id="sizing-panel" class="sizing-panel">
+    <div class="sizing-panel-header">
+      <h3>Display-Ausrichtung</h3>
+      <button class="close-panel-btn" onclick="toggleSizingPanel()">&times;</button>
+    </div>
+    <div class="sizing-panel-body">
+      <div class="slider-group">
+        <div class="slider-header">
+          <label for="input-screen-top">Top Abstand (top):</label>
+          <span id="val-screen-top">1%</span>
+        </div>
+        <input type="range" id="input-screen-top" min="0" max="5" step="0.05" value="1"
+          oninput="updateSizingVar('screen-top', this.value + '%')">
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-header">
+          <label for="input-screen-left">Links Abstand (left):</label>
+          <span id="val-screen-left">2.85%</span>
+        </div>
+        <input type="range" id="input-screen-left" min="0" max="5" step="0.05" value="2.85"
+          oninput="updateSizingVar('screen-left', this.value + '%')">
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-header">
+          <label for="input-screen-width">Display Breite (width):</label>
+          <span id="val-screen-width">94.65%</span>
+        </div>
+        <input type="range" id="input-screen-width" min="90" max="100" step="0.05" value="94.65"
+          oninput="updateSizingVar('screen-width', this.value + '%')">
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-header">
+          <label for="input-screen-height">Display Höhe (height):</label>
+          <span id="val-screen-height">98.45%</span>
+        </div>
+        <input type="range" id="input-screen-height" min="90" max="100" step="0.05" value="98.45"
+          oninput="updateSizingVar('screen-height', this.value + '%')">
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-header">
+          <label for="input-screen-radius">Eckenradius (radius):</label>
+          <span id="val-screen-radius">46px</span>
+        </div>
+        <input type="range" id="input-screen-radius" min="0" max="80" step="1" value="46"
+          oninput="updateSizingVar('screen-radius', this.value + 'px')">
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-header">
+          <label for="input-app-scale">App Skalierung / PPI (zoom):</label>
+          <span id="val-app-scale">0.81</span>
+        </div>
+        <input type="range" id="input-app-scale" min="0.5" max="1.5" step="0.01" value="0.81"
+          oninput="updateAppScale(this.value)">
+      </div>
+
+      <div class="css-output-container">
+        <div class="css-output-header">
+          <span>Generiertes CSS:</span>
+          <button class="copy-css-btn" onclick="copyGeneratedCSS()">Kopieren</button>
+        </div>
+        <pre id="css-output"></pre>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const iframeA = document.getElementById('iframe-a');
+
+    // Block standard context menu
+    window.addEventListener('contextmenu', function (e) {
+      e.preventDefault();
+    });
+
+    // Dynamic Style Injection for iframe (via postMessage)
+    // Ensures notch, bezel spacing inside the phone frame and hides links to avoid nested layout
+    const customStyles = `
+      .header {
+        padding-top: 64px !important;
+      }
+      #profile-top-spacer {
+        min-height: 124px !important;
+      }
+      .mail-list {
+        padding-top: 124px !important;
+      }
+      body.theme-glass .mail-list {
+        padding-top: 134px !important;
+      }
+      .dropdown-notification.show {
+        transform: translate(-50%, 39px) !important;
+      }
+      .navbar {
+        padding-bottom: 16px !important;
+        height: 72px !important;
+      }
+      
+      #ab-test-link-btn, #presentation-link-btn {
+        display: none !important;
+      }
+    `;
+
+    // Send CSS injection to iframe
+    function injectCSSviaMessage(iframe) {
+      iframe.contentWindow.postMessage({
+        source: 'ab-test',
+        type: 'inject-css',
+        css: customStyles
+      }, '*');
+    }
+
+    // Handle messages from the iframe app
+    window.addEventListener('message', function (e) {
+      const msg = e.data;
+      if (!msg || msg.source !== 'ab-app') return;
+
+      switch (msg.type) {
+        case 'ready': {
+          injectCSSviaMessage(iframeA);
+          break;
+        }
+
+        case 'state-report': {
+          // Update status bar theme from state
+          const statusBar = document.querySelector('.status-bar');
+          if (statusBar && msg.state.bodyClasses) {
+            const isLight = msg.state.bodyClasses.includes('theme-light') || msg.state.bodyClasses.includes('theme-thd');
+            statusBar.classList.toggle('status-bar-dark', isLight);
+          }
+          break;
+        }
+      }
+    });
+
+    // Inject CSS on iframe load (backup/ready handler)
+    iframeA.addEventListener('load', () => {
+      setTimeout(() => injectCSSviaMessage(iframeA), 300);
+    });
+
+    // --- Display Sizing Panel Logic ---
+    function toggleSizingPanel() {
+      const panel = document.getElementById('sizing-panel');
+      panel.classList.toggle('active');
+      if (panel.classList.contains('active')) {
+        updateCSSCodeDisplay();
+      }
+    }
+
+    function updateSizingVar(name, value) {
+      document.documentElement.style.setProperty(`--${name}`, value);
+      document.getElementById(`val-${name}`).textContent = value;
+      updateCSSCodeDisplay();
+    }
+
+    function updateAppScale(scaleVal) {
+      const scale = parseFloat(scaleVal);
+      const sizePct = (1 / scale * 100).toFixed(2) + '%';
+
+      document.documentElement.style.setProperty('--app-scale', scale);
+      document.documentElement.style.setProperty('--app-width', sizePct);
+      document.documentElement.style.setProperty('--app-height', sizePct);
+
+      document.getElementById('val-app-scale').textContent = scale.toFixed(2);
+
+      updateCSSCodeDisplay();
+    }
+
+    function updateCSSCodeDisplay() {
+      const rootStyles = getComputedStyle(document.documentElement);
+      const topVal = rootStyles.getPropertyValue('--screen-top').trim() || '1%';
+      const leftVal = rootStyles.getPropertyValue('--screen-left').trim() || '2.85%';
+      const widthVal = rootStyles.getPropertyValue('--screen-width').trim() || '94.65%';
+      const heightVal = rootStyles.getPropertyValue('--screen-height').trim() || '98.45%';
+      const radiusVal = rootStyles.getPropertyValue('--screen-radius').trim() || '46px';
+
+      const appScale = rootStyles.getPropertyValue('--app-scale').trim() || '0.81';
+      const appWidth = rootStyles.getPropertyValue('--app-width').trim() || '123.46%';
+      const appHeight = rootStyles.getPropertyValue('--app-height').trim() || '123.46%';
+
+      const cssString = `.screen-wrapper {
+  top: ${topVal};
+  left: ${leftVal};
+  width: ${widthVal};
+  height: ${heightVal};
+  border-radius: ${radiusVal};
+}
+.app-frame {
+  width: ${appWidth};
+  height: ${appHeight};
+  transform: scale(${appScale});
+}`;
+
+      document.getElementById('css-output').textContent = cssString;
+    }
+
+    function copyGeneratedCSS() {
+      const cssText = document.getElementById('css-output').textContent;
+      navigator.clipboard.writeText(cssText).then(() => {
+        const copyBtn = document.querySelector('.copy-css-btn');
+        copyBtn.textContent = 'Kopiert!';
+        setTimeout(() => {
+          copyBtn.textContent = 'Kopieren';
+        }, 1500);
+      }).catch(err => {
+        console.error('Failed to copy CSS: ', err);
+      });
+    }
+
+    // Initialize CSS code display on load
+    updateCSSCodeDisplay();
+
+    // --- Status Bar Clock ---
+    function updateClock() {
+      const now = new Date();
+      let hours = now.getHours();
+      let minutes = now.getMinutes();
+      minutes = minutes < 10 ? '0' + minutes : minutes;
+      const timeStr = hours + ':' + minutes;
+      document.querySelectorAll('.status-time').forEach(el => {
+        el.textContent = timeStr;
+      });
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // --- Fullscreen Toggle ---
+    function toggleFullscreen() {
+      if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        const el = document.documentElement;
+        if (el.requestFullscreen) el.requestFullscreen();
+        else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+      } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+        else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+      }
+    }
+
+    // Update icon when fullscreen state changes
+    function updateFullscreenIcon() {
+      const icon = document.getElementById('fullscreen-icon');
+      const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement);
+      if (isFS) {
+        icon.innerHTML = '<polyline points="4 14 10 14 10 20"></polyline><polyline points="20 10 14 10 14 4"></polyline><line x1="14" y1="10" x2="21" y2="3"></line><line x1="3" y1="21" x2="10" y2="14"></line>';
+      } else {
+        icon.innerHTML = '<polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line>';
+      }
+    }
+    document.addEventListener('fullscreenchange', updateFullscreenIcon);
+    document.addEventListener('webkitfullscreenchange', updateFullscreenIcon);
+  </script>
+</body>
+
+</html>
