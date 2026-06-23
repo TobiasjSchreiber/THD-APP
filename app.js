@@ -81,6 +81,10 @@ swipeArea.addEventListener('touchstart', e => {
 swipeArea.addEventListener('touchend', e => {
   if (typeof dragState !== 'undefined' && (dragState.isDragging || dragState.wasDragging)) return; // Blockiert Seitenwechsel beim Sortieren
 
+  // Block tab switching via swipe when tutorial is active
+  const overlay = document.getElementById('tutorial-overlay');
+  if (overlay && overlay.classList.contains('show')) return;
+
   let endX = e.changedTouches[0].clientX;
   let endY = e.changedTouches[0].clientY;
   let diffX = startX - endX;
