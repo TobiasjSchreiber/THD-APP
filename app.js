@@ -5587,6 +5587,13 @@ function pokeDeggster() {
 }
 
 function openAiAssistantModal() {
+  // Block opening the AI assistant during the tutorial and shake the screen
+  const overlay = document.getElementById('tutorial-overlay');
+  if (overlay && overlay.classList.contains('show')) {
+    triggerScreenShake();
+    return;
+  }
+
   document.getElementById('modal-overlay').classList.add('show');
   setTimeout(() => {
     document.getElementById('ai-assistant-modal').classList.add('show');
@@ -8275,7 +8282,6 @@ const tutorialSteps = [
   },
   {
     target: '#deggster-widget',
-    allowedModal: '#ai-assistant-modal',
     title: { de: "Deggster (KI-Assistent)", en: "Deggster (AI Assistant)", fi: "Deggster (Tekoälyavustaja)" },
     desc: {
       de: "Das ist Deggster! Klicke auf ihn, um den intelligenten KI-Assistenten zu öffnen. Er hilft dir bei Fragen zum Studium.",
