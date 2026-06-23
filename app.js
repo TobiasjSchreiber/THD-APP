@@ -3728,6 +3728,9 @@ function updateScheduleModalView() {
                     `;
 
         item.onclick = () => {
+          // Block detail view during tutorial
+          const tutOverlay = document.getElementById('tutorial-overlay');
+          if (tutOverlay && tutOverlay.classList.contains('show')) return;
           closeModal();
           setTimeout(() => {
             openModal(course.title, course.time, course.room || '?', course.tasks || 'Keine', course.title);
@@ -3782,6 +3785,9 @@ function updateScheduleModalView() {
                 `;
 
       item.onclick = () => {
+        // Block detail view during tutorial
+        const tutOverlay = document.getElementById('tutorial-overlay');
+        if (tutOverlay && tutOverlay.classList.contains('show')) return;
         closeModal();
         setTimeout(() => {
           openModal(course.title, `${course.start} - ${course.end}`, course.room || '?', 'Keine', course.title);
