@@ -2296,28 +2296,71 @@
         <h3 class="modal-title" data-translate="glass_settings_title">Liquid Glass Settings</h3>
       </div>
       <div class="modal-info" style="display: flex; flex-direction: column; gap: 15px;">
+        
+        <!-- Kategorie: Allgemein -->
+        <h4 style="font-size: 14px; margin: 0; color: var(--text-main); margin-bottom: -5px;">Allgemeines Design</h4>
         <div style="display: flex; flex-direction: column; gap: 5px;">
           <div style="display: flex; justify-content: space-between; align-items: center;">
-            <label style="font-size: 13px; color: var(--text-sub);" data-translate="glass_blur">Unschärfe (Blur)</label>
+            <label style="font-size: 13px; color: var(--text-sub);" data-translate="glass_saturation">Sättigung
+              (Saturation)</label>
+            <span id="glass-sat-value" style="font-size: 13px; color: var(--text-sub);">150%</span>
+          </div>
+          <input type="range" id="glass-sat-slider" min="100" max="300" value="150" style="width: 100%;">
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 5px;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <label style="font-size: 13px; color: var(--text-sub);">Basis Licht
+              (Canvas Brightness)</label>
+            <span id="glass-canvas-brightness-value" style="font-size: 13px; color: var(--text-sub);">0.18</span>
+          </div>
+          <input type="range" id="glass-canvas-brightness-slider" min="0" max="100" value="18" style="width: 100%;">
+        </div>
+
+        <!-- Kategorie: Kacheln -->
+        <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 5px 0;">
+        <h4 style="font-size: 14px; margin: 0; color: var(--text-main); margin-bottom: -5px;">Kacheln & Widgets</h4>
+        
+        <div style="display: flex; flex-direction: column; gap: 5px;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <label style="font-size: 13px; color: var(--text-sub);" data-translate="glass_opacity">Deckkraft
+              (Opacity)</label>
+            <span id="glass-opacity-value" style="font-size: 13px; color: var(--text-sub);">11%</span>
+          </div>
+          <input type="range" id="glass-opacity-slider" min="0" max="100" value="11" style="width: 100%;">
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 5px;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <label style="font-size: 13px; color: var(--text-sub);">Glas Helligkeit
+              (Brightness)</label>
+            <span id="glass-brightness-value" style="font-size: 13px; color: var(--text-sub);">3.9</span>
+          </div>
+          <input type="range" id="glass-brightness-slider" min="10" max="50" value="39" style="width: 100%;">
+        </div>
+
+        <!-- Kategorie: Popup-Fenster -->
+        <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 5px 0;">
+        <h4 style="font-size: 14px; margin: 0; color: var(--text-main); margin-bottom: -5px;">Popup-Fenster</h4>
+        
+        <div style="display: flex; flex-direction: column; gap: 5px;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <label style="font-size: 13px; color: var(--text-sub);">Popup Unschärfe (Blur)</label>
             <span id="glass-blur-value" style="font-size: 13px; color: var(--text-sub);">12px</span>
           </div>
           <input type="range" id="glass-blur-slider" min="0" max="50" value="12" style="width: 100%;">
         </div>
         <div style="display: flex; flex-direction: column; gap: 5px;">
           <div style="display: flex; justify-content: space-between; align-items: center;">
-            <label style="font-size: 13px; color: var(--text-sub);" data-translate="glass_saturation">Sättigung
-              (Saturation)</label>
-            <span id="glass-sat-value" style="font-size: 13px; color: var(--text-sub);">250%</span>
+            <label style="font-size: 13px; color: var(--text-sub);">Fenster Deckkraft</label>
+            <span id="glass-modal-opacity-value" style="font-size: 13px; color: var(--text-sub);">40%</span>
           </div>
-          <input type="range" id="glass-sat-slider" min="100" max="300" value="250" style="width: 100%;">
+          <input type="range" id="glass-modal-opacity-slider" min="0" max="100" value="40" style="width: 100%;">
         </div>
         <div style="display: flex; flex-direction: column; gap: 5px;">
           <div style="display: flex; justify-content: space-between; align-items: center;">
-            <label style="font-size: 13px; color: var(--text-sub);" data-translate="glass_opacity">Deckkraft
-              (Opacity)</label>
-            <span id="glass-opacity-value" style="font-size: 13px; color: var(--text-sub);">12%</span>
+            <label style="font-size: 13px; color: var(--text-sub);">Fenster Helligkeit</label>
+            <span id="glass-modal-brightness-value" style="font-size: 13px; color: var(--text-sub);">1.0</span>
           </div>
-          <input type="range" id="glass-opacity-slider" min="0" max="100" value="12" style="width: 100%;">
+          <input type="range" id="glass-modal-brightness-slider" min="10" max="50" value="10" style="width: 100%;">
         </div>
         <div style="display: flex; justify-content: space-between; align-items: center;">
           <label style="font-size: 13px; color: var(--text-sub);" data-translate="glass_caustics">Caustics

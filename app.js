@@ -7629,36 +7629,14 @@ function startLiquidGlassCanvas() {
   canvas.style.display = 'block';
   const ctx = canvas.getContext('2d');
 
-  // Offscreen canvas for drawing blobs before masking
-  const offCanvas = document.createElement('canvas');
-  const offCtx = offCanvas.getContext('2d');
-
   function resize() {
     const dpr = window.devicePixelRatio || 1;
     canvas.width = window.innerWidth * dpr;
     canvas.height = window.innerHeight * dpr;
-    offCanvas.width = canvas.width;
-    offCanvas.height = canvas.height;
-
     ctx.scale(dpr, dpr);
-    offCtx.scale(dpr, dpr);
   }
   resize();
   window.addEventListener('resize', resize);
-
-  const getGlassRadius = (el) => {
-    if (el.classList.contains('mail-item') ||
-      el.classList.contains('search-result-item') ||
-      el.classList.contains('suggestion-tile') ||
-      el.classList.contains('service-tile') ||
-      el.classList.contains('widget-preview-card')) return 16;
-    if (el.classList.contains('news-item') || el.classList.contains('list-item')) return 12;
-    if (el.classList.contains('schedule-item')) return 20;
-    if (el.classList.contains('service-card')) return 10;
-    if (el.classList.contains('dropdown-notification')) return 30;
-    if (el.classList.contains('modal')) return 28;
-    return 24; // Standard für große Widgets wie Mensa, Parken, ECTS
-  };
 
   let time = 0;
 
@@ -7667,7 +7645,6 @@ function startLiquidGlassCanvas() {
     const h = window.innerHeight;
     const dpr = window.devicePixelRatio || 1;
 
-    // 1. Prepare Main Canvas
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, w, h);
 
@@ -7676,13 +7653,9 @@ function startLiquidGlassCanvas() {
       return;
     }
 
-    // 2. Prepare Offscreen Canvas (Blobs)
-    offCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    offCtx.clearRect(0, 0, w, h);
-
     time += 0.004;
 
-    // Draw blobs to offscreen canvas
+    // Draw blobs directly to canvas (unmasked but dark due to CSS filter)
     liquidGlassBlobs.forEach((blob, i) => {
       const bx = blob.x + Math.sin(time * (1 + i * 0.3) + i) * 0.08;
       const by = blob.y + Math.cos(time * (0.8 + i * 0.2) + i * 2) * 0.06;
@@ -7692,7 +7665,7 @@ function startLiquidGlassCanvas() {
       const pulseSpeed = 1.2 + i * 0.3;
       const pulseR = r * (1 + Math.sin(time * pulseSpeed + i * 1.2) * 0.08);
 
-      const gradient = offCtx.createRadialGradient(cx, cy, 0, cx, cy, pulseR);
+      const gradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, pulseR);
       const hueShift = Math.sin(time * 0.5 + i) * 20;
       const hue = blob.hue + hueShift;
       const alphaSpeed = 0.7 + i * 0.2;
@@ -7702,129 +7675,20 @@ function startLiquidGlassCanvas() {
       gradient.addColorStop(0.5, `hsla(${hue}, ${blob.sat}%, ${blob.light}%, ${blob.alpha * alphaMultiplier * 0.4})`);
       gradient.addColorStop(1, `hsla(${hue}, ${blob.sat}%, ${blob.light}%, 0)`);
 
-      offCtx.fillStyle = gradient;
-      offCtx.fillRect(cx - pulseR, cy - pulseR, pulseR * 2, pulseR * 2);
+      ctx.fillStyle = gradient;
+      ctx.fillRect(cx - pulseR, cy - pulseR, pulseR * 2, pulseR * 2);
     });
 
     // Caustic light concentration overlay
     const causticX = w * (0.5 + Math.sin(time * 0.7) * 0.3);
     const causticY = h * (0.4 + Math.cos(time * 0.5) * 0.25);
     const causticR = Math.min(w, h) * 0.3;
-    const causticGradient = offCtx.createRadialGradient(causticX, causticY, 0, causticX, causticY, causticR);
+    const causticGradient = ctx.createRadialGradient(causticX, causticY, 0, causticX, causticY, causticR);
     causticGradient.addColorStop(0, 'rgba(255, 255, 255, 0.03)');
     causticGradient.addColorStop(0.6, 'rgba(255, 255, 255, 0.01)');
     causticGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
-    offCtx.fillStyle = causticGradient;
-    offCtx.fillRect(causticX - causticR, causticY - causticR, causticR * 2, causticR * 2);
-
-    // 3. Draw Mask (Stencil) to Main Canvas
-    const activePage = document.querySelector('.page.active');
-    if (!activePage) {
-      liquidGlassAnimId = requestAnimationFrame(drawCaustics);
-      return;
-    }
-
-    const standaloneSelectors = [
-      '.mensa-card', '.parking-card', '.rental-card', '.vpn-card',
-      '.services-card', '.weather-card', '.todo-card', '.stat-card', '.progress-section',
-      '.search-result-item', '.suggestion-tile', '.service-tile', '.service-card',
-      '.dropdown-notification', '.widget-preview-card'
-    ];
-
-    // Nur Elemente der aktiven Seite + Modals + evtl. gerade gezogenes Widget
-    const nestedItems = activePage.querySelectorAll('.ects-item, .mail-item, .news-item, .schedule-item');
-    let standalones = Array.from(activePage.querySelectorAll(standaloneSelectors.join(',')));
-    const modals = document.querySelectorAll('.modal.show');
-
-    // Wenn ein Widget gezogen wird, ist es im Body, also manuell hinzufügen
-    if (dragState.isDragging && dragState.element && !standalones.includes(dragState.element)) {
-      standalones.push(dragState.element);
-    }
-
-    ctx.fillStyle = 'white';
-
-    // Hilfsfunktion zur Prüfung der tatsächlichen Sichtbarkeit (inkl. Animationen)
-    const isActuallyVisible = (el) => {
-      const rect = el.getBoundingClientRect();
-      if (rect.width <= 0 || rect.height <= 0) return false;
-      // Prüfe ob das Element gerade einanimiert wird (Opacity > 0.1)
-      const opacity = window.getComputedStyle(el).opacity;
-      if (parseFloat(opacity) < 0.1) return false;
-      return true;
-    };
-
-    // Draw Standalone Widgets
-    standalones.forEach(el => {
-      if (!isActuallyVisible(el)) return;
-      const rect = el.getBoundingClientRect();
-
-      let drawRect = rect;
-      if (dragState.isDragging && el === dragState.element && dragState.currentX !== undefined) {
-        drawRect = {
-          left: dragState.currentX,
-          top: dragState.currentY,
-          width: el.offsetWidth,
-          height: el.offsetHeight
-        };
-      }
-
-      const radius = getGlassRadius(el);
-
-      ctx.beginPath();
-      if (ctx.roundRect) ctx.roundRect(drawRect.left, drawRect.top, drawRect.width, drawRect.height, radius);
-      else ctx.rect(drawRect.left, drawRect.top, drawRect.width, drawRect.height);
-      ctx.fill();
-    });
-
-    // Draw Nested Items with Parent Clipping
-    nestedItems.forEach(el => {
-      if (!isActuallyVisible(el)) return;
-      const rect = el.getBoundingClientRect();
-
-      const container = el.closest('.ects-free, .mail-list, .scroll-list, .schedule-box');
-
-      if (container) {
-        const crect = container.getBoundingClientRect();
-        ctx.save();
-        ctx.beginPath();
-        ctx.rect(crect.left, crect.top, crect.width, crect.height);
-        ctx.clip();
-
-        const radius = getGlassRadius(el);
-        ctx.beginPath();
-        if (ctx.roundRect) ctx.roundRect(rect.left, rect.top, rect.width, rect.height, radius);
-        else ctx.rect(rect.left, rect.top, rect.width, rect.height);
-        ctx.fill();
-        ctx.restore();
-      } else {
-        const radius = getGlassRadius(el);
-        ctx.beginPath();
-        if (ctx.roundRect) ctx.roundRect(rect.left, rect.top, rect.width, rect.height, radius);
-        else ctx.rect(rect.left, rect.top, rect.width, rect.height);
-        ctx.fill();
-      }
-    });
-
-    // Draw Modals
-    modals.forEach(el => {
-      const rect = el.getBoundingClientRect();
-      if (rect.width <= 0 || rect.height <= 0) return;
-      const radius = getGlassRadius(el);
-      ctx.beginPath();
-      if (ctx.roundRect) ctx.roundRect(rect.left, rect.top, rect.width, rect.height, radius);
-      else ctx.rect(rect.left, rect.top, rect.width, rect.height);
-      ctx.fill();
-    });
-
-    // 4. Project Blobs onto Stencil
-    ctx.save();
-    ctx.globalCompositeOperation = 'source-in';
-    ctx.setTransform(1, 0, 0, 1, 0, 0); // 1:1 Identity für drawImage auf physikalischen Pixeln
-    ctx.drawImage(offCanvas, 0, 0);
-    ctx.restore();
-
-    // Reset für den nächsten Frame
-    ctx.globalCompositeOperation = 'source-over';
+    ctx.fillStyle = causticGradient;
+    ctx.fillRect(causticX - causticR, causticY - causticR, causticR * 2, causticR * 2);
 
     liquidGlassAnimId = requestAnimationFrame(drawCaustics);
   }
@@ -7864,14 +7728,8 @@ function openLiquidGlassSettingsModal() {
 }
 
 function loadLiquidGlassSettings() {
-  const savedSettings = localStorage.getItem('thd_glass_settings');
-  let settings = {
-    blur: 12,
-    saturation: 250,
-    opacity: 12,
-    caustics: true
-  };
-
+  const savedSettings = isStorageEnabled() ? localStorage.getItem('thd_glass_settings') : null;
+  let settings = {};
   if (savedSettings) {
     try {
       settings = JSON.parse(savedSettings);
@@ -7886,11 +7744,19 @@ function loadLiquidGlassSettings() {
   const blurSlider = document.getElementById('glass-blur-slider');
   const satSlider = document.getElementById('glass-sat-slider');
   const opacitySlider = document.getElementById('glass-opacity-slider');
+  const brightnessSlider = document.getElementById('glass-brightness-slider');
+  const canvasBrightnessSlider = document.getElementById('glass-canvas-brightness-slider');
+  const modalOpacitySlider = document.getElementById('glass-modal-opacity-slider');
+  const modalBrightnessSlider = document.getElementById('glass-modal-brightness-slider');
   const causticsToggle = document.getElementById('glass-caustics-toggle');
 
   if (blurSlider) blurSlider.value = settings.blur ?? 12;
-  if (satSlider) satSlider.value = settings.saturation ?? 250;
-  if (opacitySlider) opacitySlider.value = settings.opacity ?? 12;
+  if (satSlider) satSlider.value = settings.saturation ?? 150;
+  if (opacitySlider) opacitySlider.value = settings.opacity ?? 11;
+  if (brightnessSlider) brightnessSlider.value = settings.brightness ?? 39;
+  if (canvasBrightnessSlider) canvasBrightnessSlider.value = settings.canvas_brightness ?? 18;
+  if (modalOpacitySlider) modalOpacitySlider.value = settings.modal_opacity ?? 40;
+  if (modalBrightnessSlider) modalBrightnessSlider.value = settings.modal_brightness ?? 10;
   if (causticsToggle) causticsToggle.checked = settings.caustics !== false;
 
   liquidGlassCausticsEnabled = settings.caustics !== false;
@@ -7898,33 +7764,57 @@ function loadLiquidGlassSettings() {
 
 function applyLiquidGlassSettings(settings) {
   const blur = settings.blur ?? 12;
-  const saturation = settings.saturation ?? 250;
-  const opacity = settings.opacity ?? 12;
+  const saturation = settings.saturation ?? 150;
+  const opacity = settings.opacity ?? 11;
+  const brightness = settings.brightness ?? 39;
+  const canvas_brightness = settings.canvas_brightness ?? 18;
+  const modal_opacity = settings.modal_opacity ?? 40;
+  const modal_brightness = settings.modal_brightness ?? 10;
 
   document.body.style.setProperty('--lg-blur', blur + 'px');
   document.body.style.setProperty('--lg-saturation', saturation + '%');
   document.body.style.setProperty('--lg-opacity', opacity / 100);
+  document.body.style.setProperty('--lg-brightness', brightness / 10);
+  document.body.style.setProperty('--lg-canvas-brightness', canvas_brightness / 100);
+  document.body.style.setProperty('--lg-modal-opacity', modal_opacity / 100);
+  document.body.style.setProperty('--lg-modal-brightness', modal_brightness / 10);
 
   // Update numerical displays
   const blurValue = document.getElementById('glass-blur-value');
   const satValue = document.getElementById('glass-sat-value');
   const opacityValue = document.getElementById('glass-opacity-value');
+  const brightnessValue = document.getElementById('glass-brightness-value');
+  const canvasBrightnessValue = document.getElementById('glass-canvas-brightness-value');
+  const modalOpacityValue = document.getElementById('glass-modal-opacity-value');
+  const modalBrightnessValue = document.getElementById('glass-modal-brightness-value');
 
   if (blurValue) blurValue.textContent = blur + 'px';
   if (satValue) satValue.textContent = saturation + '%';
   if (opacityValue) opacityValue.textContent = opacity + '%';
+  if (brightnessValue) brightnessValue.textContent = (brightness / 10).toFixed(1);
+  if (canvasBrightnessValue) canvasBrightnessValue.textContent = (canvas_brightness / 100).toFixed(2);
+  if (modalOpacityValue) modalOpacityValue.textContent = modal_opacity + '%';
+  if (modalBrightnessValue) modalBrightnessValue.textContent = (modal_brightness / 10).toFixed(1);
 }
 
 function saveLiquidGlassSettings() {
   const blurSlider = document.getElementById('glass-blur-slider');
   const satSlider = document.getElementById('glass-sat-slider');
   const opacitySlider = document.getElementById('glass-opacity-slider');
+  const brightnessSlider = document.getElementById('glass-brightness-slider');
+  const canvasBrightnessSlider = document.getElementById('glass-canvas-brightness-slider');
+  const modalOpacitySlider = document.getElementById('glass-modal-opacity-slider');
+  const modalBrightnessSlider = document.getElementById('glass-modal-brightness-slider');
   const causticsToggle = document.getElementById('glass-caustics-toggle');
 
   const settings = {
     blur: parseInt(blurSlider?.value ?? 12),
-    saturation: parseInt(satSlider?.value ?? 250),
-    opacity: parseInt(opacitySlider?.value ?? 12),
+    saturation: parseInt(satSlider?.value ?? 150),
+    opacity: parseInt(opacitySlider?.value ?? 11),
+    brightness: parseInt(brightnessSlider?.value ?? 39),
+    canvas_brightness: parseInt(canvasBrightnessSlider?.value ?? 18),
+    modal_opacity: parseInt(modalOpacitySlider?.value ?? 40),
+    modal_brightness: parseInt(modalBrightnessSlider?.value ?? 10),
     caustics: causticsToggle?.checked ?? true,
   };
 
@@ -7941,11 +7831,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const blurSlider = document.getElementById('glass-blur-slider');
   const satSlider = document.getElementById('glass-sat-slider');
   const opacitySlider = document.getElementById('glass-opacity-slider');
+  const brightnessSlider = document.getElementById('glass-brightness-slider');
+  const canvasBrightnessSlider = document.getElementById('glass-canvas-brightness-slider');
+  const modalOpacitySlider = document.getElementById('glass-modal-opacity-slider');
+  const modalBrightnessSlider = document.getElementById('glass-modal-brightness-slider');
   const causticsToggle = document.getElementById('glass-caustics-toggle');
 
   if (blurSlider) blurSlider.addEventListener('input', saveLiquidGlassSettings);
   if (satSlider) satSlider.addEventListener('input', saveLiquidGlassSettings);
   if (opacitySlider) opacitySlider.addEventListener('input', saveLiquidGlassSettings);
+  if (brightnessSlider) brightnessSlider.addEventListener('input', saveLiquidGlassSettings);
+  if (canvasBrightnessSlider) canvasBrightnessSlider.addEventListener('input', saveLiquidGlassSettings);
+  if (modalOpacitySlider) modalOpacitySlider.addEventListener('input', saveLiquidGlassSettings);
+  if (modalBrightnessSlider) modalBrightnessSlider.addEventListener('input', saveLiquidGlassSettings);
   if (causticsToggle) causticsToggle.addEventListener('change', saveLiquidGlassSettings);
 });
 
