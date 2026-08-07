@@ -30,12 +30,48 @@ function playWeatherAnimation(condition) {
 
     if (condition === 'rain') {
         overlay.classList.add('weather-rain');
+
+        // Find the weather widget to make rain bounce off it
+        const weatherWidget = document.getElementById('widget-weather');
+        let widgetRect = null;
+        if (weatherWidget && !weatherWidget.classList.contains('widget-hidden')) {
+            widgetRect = weatherWidget.getBoundingClientRect();
+        }
+
         for (let i = 0; i < 50; i++) {
             const drop = document.createElement('div');
             drop.className = 'rain-drop';
-            drop.style.left = Math.random() * 100 + 'vw';
-            drop.style.animationDuration = (0.5 + Math.random() * 0.5) + 's';
+
+            const leftPos = Math.random() * 100;
+            drop.style.left = leftPos + 'vw';
+
+            const duration = 0.5 + Math.random() * 0.5;
+            drop.style.animationDuration = duration + 's';
             drop.style.animationDelay = (Math.random() * 1) + 's';
+
+            // Check if this drop would hit the widget
+            if (widgetRect) {
+                // Convert left vw to pixels (approximate)
+                const leftPx = (leftPos / 100) * window.innerWidth;
+
+                // If drop falls within the horizontal bounds of the widget
+                if (leftPx >= widgetRect.left && leftPx <= widgetRect.right) {
+                    // Set custom property for fall distance to widget top
+                    // Offset by the starting top position (-20px)
+                    const fallDistance = widgetRect.top + 20;
+                    drop.style.setProperty('--fall-distance', fallDistance + 'px');
+                    drop.classList.add('rain-bounce'); // specific class for bounced drops
+
+                    // The standard animation takes `duration` seconds to fall 110vh (viewportHeight * 1.1)
+                    // The drop should hit the widget at `fallDistance`.
+                    // Since the impact keyframe is at 80%, the time to reach impact is 80% of the total duration.
+                    const viewportHeight = window.innerHeight;
+                    const timeToImpact = duration * (fallDistance / (viewportHeight * 1.1));
+                    const totalDuration = timeToImpact / 0.8;
+                    drop.style.animationDuration = totalDuration + 's';
+                }
+            }
+
             overlay.appendChild(drop);
         }
     } else if (condition === 'sunny') {

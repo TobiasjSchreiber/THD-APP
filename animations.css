@@ -178,9 +178,20 @@
     animation: rain-fall linear infinite;
 }
 
+.rain-drop.rain-bounce {
+    animation: rain-bounce-fall linear infinite;
+}
+
 @keyframes rain-fall {
     0% { transform: translateY(0); }
     100% { transform: translateY(110vh); }
+}
+
+@keyframes rain-bounce-fall {
+    0% { transform: translateY(0); opacity: 1; height: 30px; width: 2px; }
+    80% { transform: translateY(var(--fall-distance)); opacity: 1; height: 30px; width: 2px; } /* impact */
+    85% { transform: translateY(var(--fall-distance)); opacity: 0.8; height: 10px; width: 6px; } /* squash */
+    100% { transform: translateY(calc(var(--fall-distance) - 40px)) translateX(15px); opacity: 0; height: 5px; width: 5px; } /* bounce up */
 }
 
 /* Sun / Lens Flare Overlay */
@@ -210,11 +221,17 @@
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.2);
     box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+    animation: flare-float 6s ease-in-out infinite alternate;
 }
 
-.flare-0 { width: 100px; height: 100px; top: 20vh; right: 20vw; background: rgba(100, 200, 255, 0.1); }
-.flare-1 { width: 50px; height: 50px; top: 40vh; right: 40vw; background: rgba(150, 255, 150, 0.1); }
-.flare-2 { width: 150px; height: 150px; top: 60vh; right: 60vw; background: rgba(255, 150, 255, 0.05); }
+@keyframes flare-float {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(var(--flare-tx, 20px), var(--flare-ty, -20px)); }
+}
+
+.flare-0 { width: 100px; height: 100px; top: 20vh; right: 20vw; background: rgba(100, 200, 255, 0.1); --flare-tx: -30px; --flare-ty: -10px; animation-delay: 0s; }
+.flare-1 { width: 50px; height: 50px; top: 40vh; right: 40vw; background: rgba(150, 255, 150, 0.1); --flare-tx: 40px; --flare-ty: 20px; animation-delay: 1s; animation-duration: 7s; }
+.flare-2 { width: 150px; height: 150px; top: 60vh; right: 60vw; background: rgba(255, 150, 255, 0.05); --flare-tx: -50px; --flare-ty: 30px; animation-delay: 2s; animation-duration: 8s; }
 
 /* Clouds Overlay */
 .weather-cloudy {
