@@ -1879,8 +1879,6 @@ function startSetupCountdown() {
 }
 
 function checkInitialSetup() {
-  localStorage.setItem('thd_setup_completed', 'true');
-  return; // Disabled for portfolio showcase
   const storageToggle = document.getElementById('setup-storage-toggle');
   const realModeToggle = document.getElementById('setup-real-mode-toggle');
   const showAgainToggle = document.getElementById('setup-show-again-toggle');
